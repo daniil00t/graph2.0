@@ -5,11 +5,44 @@
 @import "overrides";
 
 #app{
-      height: 100%;
-    }
-    #wrap{
-      height: 100%;
-    }
-    svg{
-      height: 100%;
-    }
+  height: 100%;
+}
+#wrap{
+  height: 100%;
+}
+svg{
+  height: 100%;
+  width: 80%;
+  float: left;
+}
+.wrap_configs{
+	float: right;
+	width: 19.9999%;
+	.configs{
+		padding: 10px;
+		display: block;
+		background-color: #333;
+		border-radius: 5px;
+		width: 90%;
+		height: 500px;
+		margin: 10px auto;
+		color: #fff;
+		.colors_switch{
+			#span_switch_color{
+				padding-bottom: 10px;
+			}
+			padding: 4px;
+			.color_item{
+				display: inline-block;
+				width: 25px;
+				height: 25px;
+				border-radius: 50%;
+				margin-right: 9px;
+				margin-top: 5px;
+			}
+			.color_item.active{
+				border: 1px solid #fff;
+			}
+		}
+	}
+}

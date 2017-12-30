@@ -1,7 +1,7 @@
 React = require 'react'
 Node = require "./figures/Node"
 Path = require "./figures/Path"
-
+Configs = require './config/Configs'
 
 App = React.createClass
 
@@ -11,6 +11,7 @@ App = React.createClass
 		IdsPath: []
 		Paths: []
 		Matrix: []
+		CONFIGS: {}
 	displayName: 'App'
 	handleClick: (e)->
 		#console.log "X: #{e.nativeEvent.offsetX}, Y: #{e.nativeEvent.offsetY}"
@@ -21,16 +22,13 @@ App = React.createClass
 			@AddPath e.target.id
 	AddNode: (cx, cy, id)->
 		@state.figures.push {cx: cx, cy: cy, id: id}
-		console.log @state.val
 		#console.log @state.figures
 	AddPath: (id)->
 		@state.IdsPath.push id
 		if @state.IdsPath.length == 2
-			console.log @state.IdsPath
 			@DrawPath @state.IdsPath
 			@state.Matrix.push @state.IdsPath
 			@setState IdsPath: []
-		console.log "Matix:", @state.Matrix
 	DrawPath: (ids)->
 		coords = []
 		str = "M"
@@ -48,10 +46,7 @@ App = React.createClass
 					str += " #{i.cx}, #{i.cy}"
 				else
 					str += "L #{i.cx}, #{i.cy}Z"
-		console.log coords
-		console.log str
 		@state.Paths.push str
-		
 	render: ->
 		<div id="wrap">
 		  <svg height="100%" version="1.1" width="100%" xmlns="http://www.w3.org/2000/svg" onClick={((e)=>this.handleClick e)}>
@@ -69,7 +64,8 @@ App = React.createClass
 		  		)
 		  	}
 		  </svg>
-		</div>       
+		  <Configs />
+		</div>      
 
 
 module.exports = App	  

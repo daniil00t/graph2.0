@@ -10,13 +10,15 @@ React.render(React.createElement(App, null), document.getElementById('app'));
 
 
 },{"./app":2,"react":"react"}],2:[function(require,module,exports){
-var App, Node, Path, React;
+var App, Configs, Node, Path, React;
 
 React = require('react');
 
 Node = require("./figures/Node");
 
 Path = require("./figures/Path");
+
+Configs = require('./config/Configs');
 
 App = React.createClass({
   getInitialState: function() {
@@ -25,7 +27,8 @@ App = React.createClass({
       val: 0,
       IdsPath: [],
       Paths: [],
-      Matrix: []
+      Matrix: [],
+      CONFIGS: {}
     };
   },
   displayName: 'App',
@@ -41,24 +44,21 @@ App = React.createClass({
     }
   },
   AddNode: function(cx, cy, id) {
-    this.state.figures.push({
+    return this.state.figures.push({
       cx: cx,
       cy: cy,
       id: id
     });
-    return console.log(this.state.val);
   },
   AddPath: function(id) {
     this.state.IdsPath.push(id);
     if (this.state.IdsPath.length === 2) {
-      console.log(this.state.IdsPath);
       this.DrawPath(this.state.IdsPath);
       this.state.Matrix.push(this.state.IdsPath);
-      this.setState({
+      return this.setState({
         IdsPath: []
       });
     }
-    return console.log("Matix:", this.state.Matrix);
   },
   DrawPath: function(ids) {
     var coords, cx, cy, i, j, k, l, len, len1, str;
@@ -89,8 +89,6 @@ App = React.createClass({
         }
       }
     }
-    console.log(coords);
-    console.log(str);
     return this.state.Paths.push(str);
   },
   render: function() {
@@ -116,7 +114,7 @@ App = React.createClass({
         "cy": i.cy,
         "id": i.id
       });
-    })));
+    })), React.createElement(Configs, null));
   }
 });
 
@@ -124,7 +122,115 @@ module.exports = App;
 
 
 
-},{"./figures/Node":3,"./figures/Path":4,"react":"react"}],3:[function(require,module,exports){
+},{"./config/Configs":3,"./figures/Node":5,"./figures/Path":6,"react":"react"}],3:[function(require,module,exports){
+var COLORS, Colors, Configs, React;
+
+React = require('react');
+
+Colors = require("./colors");
+
+COLORS = ["#2e9f5c", "#000", "blue", "red", "green", "gold"];
+
+Configs = React.createClass({
+  displayName: 'Configs',
+  getInitialState: function() {
+    return {
+      active: 0,
+      Items: [],
+      colorNow: "#2e9f5c"
+    };
+  },
+  handleChangeColor: function(id) {
+    var i, j, k, len, ref, results;
+    this.setState({
+      active: id
+    });
+    ref = this.state.Items;
+    results = [];
+    for (j = k = 0, len = ref.length; k < len; j = ++k) {
+      i = ref[j];
+      if (i.active) {
+        this.state.Items[j].active = false;
+        continue;
+      }
+      if (i.id === id) {
+        this.state.Items[j].active = true;
+        results.push(this.setState({
+          colorNow: i.color
+        }));
+      } else {
+        results.push(void 0);
+      }
+    }
+    return results;
+  },
+  componentWillMount: function() {
+    var i, j, k, len, results;
+    results = [];
+    for (j = k = 0, len = COLORS.length; k < len; j = ++k) {
+      i = COLORS[j];
+      results.push(this.state.Items.push({
+        color: i,
+        id: j,
+        active: j === 0 ? true : false
+      }));
+    }
+    return results;
+  },
+  render: function() {
+    return React.createElement("div", {
+      "className": "wrap_configs"
+    }, React.createElement("div", {
+      "className": "configs"
+    }, React.createElement(Colors, {
+      "colors": this.state.Items,
+      "onChange": ((function(_this) {
+        return function(id) {
+          return _this.handleChangeColor(id);
+        };
+      })(this))
+    }), React.createElement("hr", null)));
+  }
+});
+
+module.exports = Configs;
+
+
+
+},{"./colors":4,"react":"react"}],4:[function(require,module,exports){
+var Colors, React;
+
+React = require('react');
+
+Colors = React.createClass({
+  displayName: 'Colors',
+  handleSwitch: function(id) {
+    return console.log(id);
+  },
+  render: function() {
+    return React.createElement("div", {
+      "className": "colors_switch"
+    }, React.createElement("span", {
+      "id": "span_switch_color"
+    }, "Switch color nodes:"), React.createElement("br", null), this.props.colors.map((function(_this) {
+      return function(i) {
+        return React.createElement("div", {
+          "style": {
+            backgroundColor: i.color
+          },
+          "className": (i.active ? "color_item active" : "color_item"),
+          "onClick": _this.props.onChange.bind(null, i.id)
+        });
+      };
+    })(this)));
+  }
+});
+
+module.exports = Colors;
+
+
+
+},{"react":"react"}],5:[function(require,module,exports){
 var Node, React;
 
 React = require('react');
@@ -146,7 +252,7 @@ module.exports = Node;
 
 
 
-},{"react":"react"}],4:[function(require,module,exports){
+},{"react":"react"}],6:[function(require,module,exports){
 var Path, React;
 
 React = require('react');

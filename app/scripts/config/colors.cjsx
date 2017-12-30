@@ -1,0 +1,19 @@
+React = require 'react'
+
+
+
+Colors = React.createClass
+	displayName: 'Colors'
+	handleSwitch: (id)->
+		console.log id
+	render: ->
+		<div className="colors_switch">
+			<span id="span_switch_color">Switch color nodes:</span><br/>
+			{
+				@props.colors.map((i)=>
+					<div style={{backgroundColor: i.color}} className={if i.active then "color_item active" else "color_item"} onClick={@props.onChange.bind(null, i.id)}></div>
+				)
+			}
+		</div>
+
+module.exports = Colors
