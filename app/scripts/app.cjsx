@@ -1,7 +1,9 @@
 React = require 'react'
+ee = require './global/Events'
 Node = require "./figures/Node"
 Path = require "./figures/Path"
 Configs = require './config/Configs'
+
 
 App = React.createClass
 
@@ -11,17 +13,17 @@ App = React.createClass
 		IdsPath: []
 		Paths: []
 		Matrix: []
-		CONFIGS: {}
+		colorNodes: "#2e9f5c"
 	displayName: 'App'
 	handleClick: (e)->
 		#console.log "X: #{e.nativeEvent.offsetX}, Y: #{e.nativeEvent.offsetY}"
 		@setState val: @state.val + 1
 		if e.target.nodeName == "svg"
-			@AddNode e.nativeEvent.offsetX, e.nativeEvent.offsetY, "circle"+@state.val
+			@AddNode e.nativeEvent.offsetX, e.nativeEvent.offsetY, "circle"+@state.val, @state.colorNodes
 		if e.target.nodeName == "circle"
 			@AddPath e.target.id
-	AddNode: (cx, cy, id)->
-		@state.figures.push {cx: cx, cy: cy, id: id}
+	AddNode: (cx, cy, id, color)->
+		@state.figures.push {cx: cx, cy: cy, id: id, color: color}
 		#console.log @state.figures
 	AddPath: (id)->
 		@state.IdsPath.push id
@@ -47,20 +49,24 @@ App = React.createClass
 				else
 					str += "L #{i.cx}, #{i.cy}Z"
 		@state.Paths.push str
+	componentWillMount: ->
+		ee.on 'changeColorNodes', ((color)=>
+			console.log color
+			@setState colorNodes: color.color
+		)
 	render: ->
 		<div id="wrap">
 		  <svg height="100%" version="1.1" width="100%" xmlns="http://www.w3.org/2000/svg" onClick={((e)=>this.handleClick e)}>
-		  	<desc>Created with Snap</desc>
+		  	<desc>Created with Daniil(den50)</desc>
 		  	<defs></defs>
-
 				{
 		  		@state.Paths.map((i)->
 		  			<Path d={i}/>
 		  		)
 		  	}
 		  	{
-		  		@state.figures.map((i)->
-		  			<Node cx={i.cx} cy={i.cy} id={i.id}/>
+		  		@state.figures.map((i)=>
+		  			<Node cx={i.cx} cy={i.cy} id={i.id} bgc={i.color}/>
 		  		)
 		  	}
 		  </svg>

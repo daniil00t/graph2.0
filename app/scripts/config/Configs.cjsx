@@ -1,7 +1,7 @@
 React = require 'react'
 Colors = require "./colors"
-
-COLORS = ["#2e9f5c", "#000", "blue", "red", "green", "gold"]
+ee = require '../global/Events'
+COLORS = ["#2e9f5c", "#47356C", "#FF0018", "#0DF6FF", "#440BDB", "#FFAA0D"]
 
 
 Configs = React.createClass
@@ -19,6 +19,7 @@ Configs = React.createClass
 			if i.id == id
 				@state.Items[j].active = on
 				@setState colorNow: i.color
+				ee.emit "changeColorNodes", {color: i.color}
 	componentWillMount: ->
 		for i, j in COLORS
 			@state.Items.push {color: i, id: j, active: if j == 0 then on else no}
