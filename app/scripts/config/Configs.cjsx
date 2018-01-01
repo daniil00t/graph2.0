@@ -1,7 +1,10 @@
 React = require 'react'
 Colors = require "./colors"
+Matrix = require './matrix.class'
+RadiusChanger = require "./RadiusChanger"
 ee = require '../global/Events'
 COLORS = ["#2e9f5c", "#47356C", "#FF0018", "#0DF6FF", "#440BDB", "#FFAA0D"]
+
 
 
 Configs = React.createClass
@@ -10,6 +13,7 @@ Configs = React.createClass
 		active: 0
 		Items: []
 		colorNow: "#2e9f5c"
+		Matrix: []
 	handleChangeColor: (id)->
 		@setState active: id
 		for i, j in @state.Items
@@ -28,6 +32,9 @@ Configs = React.createClass
 			<div className="configs">
 				<Colors colors={@state.Items} onChange={((id)=>@handleChangeColor(id))}/>
 				<hr/>
+				<RadiusChanger />
+				<hr />
+				<Matrix matrix={@props.matrix}/>
 			</div>
 		</div>
 

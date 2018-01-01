@@ -3,33 +3,38 @@ ee = require './global/Events'
 Node = require "./figures/Node"
 Path = require "./figures/Path"
 Configs = require './config/Configs'
+mx = require './config/matrix.fn'
 
 
 App = React.createClass
+	displayName: 'App'
 
 	getInitialState:->
 		figures: []
 		val: 0
 		IdsPath: []
 		Paths: []
-		Matrix: []
+		MatrixNamesNodes: []
+		_Matrix: []
 		colorNodes: "#2e9f5c"
-	displayName: 'App'
+		radiusNode: 20
 	handleClick: (e)->
 		#console.log "X: #{e.nativeEvent.offsetX}, Y: #{e.nativeEvent.offsetY}"
 		@setState val: @state.val + 1
 		if e.target.nodeName == "svg"
-			@AddNode e.nativeEvent.offsetX, e.nativeEvent.offsetY, "circle"+@state.val, @state.colorNodes
+			@AddNode e.nativeEvent.offsetX, e.nativeEvent.offsetY, "circle"+@state.val, @state.colorNodes, @state.radiusNode
 		if e.target.nodeName == "circle"
 			@AddPath e.target.id
-	AddNode: (cx, cy, id, color)->
-		@state.figures.push {cx: cx, cy: cy, id: id, color: color}
+	AddNode: (cx, cy, id, color, r)->
+		@state.figures.push {cx: cx, cy: cy, id: id, color: color, r: r}
+		@setState _Matrix: mx @state.MatrixNamesNodes, @state.figures.length
 		#console.log @state.figures
 	AddPath: (id)->
 		@state.IdsPath.push id
 		if @state.IdsPath.length == 2
 			@DrawPath @state.IdsPath
-			@state.Matrix.push @state.IdsPath
+			@state.MatrixNamesNodes.push @state.IdsPath
+			@setState _Matrix: mx @state.MatrixNamesNodes, @state.figures.length
 			@setState IdsPath: []
 	DrawPath: (ids)->
 		coords = []
@@ -51,9 +56,14 @@ App = React.createClass
 		@state.Paths.push str
 	componentWillMount: ->
 		ee.on 'changeColorNodes', ((color)=>
-			console.log color
+			#console.log color
 			@setState colorNodes: color.color
 		)
+		ee.on 'radiusChangeNode', ((r)=>
+			#console.log r.r
+			@setState radiusNode: r.r
+		)
+		
 	render: ->
 		<div id="wrap">
 		  <svg height="100%" version="1.1" width="100%" xmlns="http://www.w3.org/2000/svg" onClick={((e)=>this.handleClick e)}>
@@ -66,11 +76,11 @@ App = React.createClass
 		  	}
 		  	{
 		  		@state.figures.map((i)=>
-		  			<Node cx={i.cx} cy={i.cy} id={i.id} bgc={i.color}/>
+		  			<Node cx={i.cx} cy={i.cy} id={i.id} bgc={i.color} r={i.r}/>
 		  		)
 		  	}
 		  </svg>
-		  <Configs />
+		  <Configs matrix={@state._Matrix}/>
 		</div>      
 
 

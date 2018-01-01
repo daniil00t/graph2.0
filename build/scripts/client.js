@@ -10,7 +10,7 @@ React.render(React.createElement(App, null), document.getElementById('app'));
 
 
 },{"./app":2,"react":"react"}],2:[function(require,module,exports){
-var App, Configs, Node, Path, React, ee;
+var App, Configs, Node, Path, React, ee, mx;
 
 React = require('react');
 
@@ -22,42 +22,53 @@ Path = require("./figures/Path");
 
 Configs = require('./config/Configs');
 
+mx = require('./config/matrix.fn');
+
 App = React.createClass({
+  displayName: 'App',
   getInitialState: function() {
     return {
       figures: [],
       val: 0,
       IdsPath: [],
       Paths: [],
-      Matrix: [],
-      colorNodes: "#2e9f5c"
+      MatrixNamesNodes: [],
+      _Matrix: [],
+      colorNodes: "#2e9f5c",
+      radiusNode: 20
     };
   },
-  displayName: 'App',
   handleClick: function(e) {
     this.setState({
       val: this.state.val + 1
     });
     if (e.target.nodeName === "svg") {
-      this.AddNode(e.nativeEvent.offsetX, e.nativeEvent.offsetY, "circle" + this.state.val, this.state.colorNodes);
+      this.AddNode(e.nativeEvent.offsetX, e.nativeEvent.offsetY, "circle" + this.state.val, this.state.colorNodes, this.state.radiusNode);
     }
     if (e.target.nodeName === "circle") {
       return this.AddPath(e.target.id);
     }
   },
-  AddNode: function(cx, cy, id, color) {
-    return this.state.figures.push({
+  AddNode: function(cx, cy, id, color, r) {
+    this.state.figures.push({
       cx: cx,
       cy: cy,
       id: id,
-      color: color
+      color: color,
+      r: r
+    });
+    return this.setState({
+      _Matrix: mx(this.state.MatrixNamesNodes, this.state.figures.length)
     });
   },
   AddPath: function(id) {
     this.state.IdsPath.push(id);
     if (this.state.IdsPath.length === 2) {
       this.DrawPath(this.state.IdsPath);
-      this.state.Matrix.push(this.state.IdsPath);
+      this.state.MatrixNamesNodes.push(this.state.IdsPath);
+      this.setState({
+        _Matrix: mx(this.state.MatrixNamesNodes, this.state.figures.length)
+      });
       return this.setState({
         IdsPath: []
       });
@@ -95,11 +106,17 @@ App = React.createClass({
     return this.state.Paths.push(str);
   },
   componentWillMount: function() {
-    return ee.on('changeColorNodes', ((function(_this) {
+    ee.on('changeColorNodes', ((function(_this) {
       return function(color) {
-        console.log(color);
         return _this.setState({
           colorNodes: color.color
+        });
+      };
+    })(this)));
+    return ee.on('radiusChangeNode', ((function(_this) {
+      return function(r) {
+        return _this.setState({
+          radiusNode: r.r
         });
       };
     })(this)));
@@ -127,10 +144,13 @@ App = React.createClass({
           "cx": i.cx,
           "cy": i.cy,
           "id": i.id,
-          "bgc": i.color
+          "bgc": i.color,
+          "r": i.r
         });
       };
-    })(this))), React.createElement(Configs, null));
+    })(this))), React.createElement(Configs, {
+      "matrix": this.state._Matrix
+    }));
   }
 });
 
@@ -138,12 +158,16 @@ module.exports = App;
 
 
 
-},{"./config/Configs":3,"./figures/Node":5,"./figures/Path":6,"./global/Events":7,"react":"react"}],3:[function(require,module,exports){
-var COLORS, Colors, Configs, React, ee;
+},{"./config/Configs":3,"./config/matrix.fn":7,"./figures/Node":8,"./figures/Path":9,"./global/Events":10,"react":"react"}],3:[function(require,module,exports){
+var COLORS, Colors, Configs, Matrix, RadiusChanger, React, ee;
 
 React = require('react');
 
 Colors = require("./colors");
+
+Matrix = require('./matrix.class');
+
+RadiusChanger = require("./RadiusChanger");
 
 ee = require('../global/Events');
 
@@ -155,7 +179,8 @@ Configs = React.createClass({
     return {
       active: 0,
       Items: [],
-      colorNow: "#2e9f5c"
+      colorNow: "#2e9f5c",
+      Matrix: []
     };
   },
   handleChangeColor: function(id) {
@@ -210,7 +235,9 @@ Configs = React.createClass({
           return _this.handleChangeColor(id);
         };
       })(this))
-    }), React.createElement("hr", null)));
+    }), React.createElement("hr", null), React.createElement(RadiusChanger, null), React.createElement("hr", null), React.createElement(Matrix, {
+      "matrix": this.props.matrix
+    })));
   }
 });
 
@@ -218,7 +245,64 @@ module.exports = Configs;
 
 
 
-},{"../global/Events":7,"./colors":4,"react":"react"}],4:[function(require,module,exports){
+},{"../global/Events":10,"./RadiusChanger":4,"./colors":5,"./matrix.class":6,"react":"react"}],4:[function(require,module,exports){
+var RadiusChanger, React, ee;
+
+React = require('react');
+
+ee = require('../global/Events');
+
+RadiusChanger = React.createClass({
+  displayName: "RadiusChanger",
+  getInitialState: function() {
+    return {
+      RadiusNow: 20,
+      range: {}
+    };
+  },
+  handleChange: function(e) {
+    this.setState({
+      RadiusNow: +e.target.value
+    });
+    return ee.emit('radiusChangeNode', {
+      r: +e.target.value
+    });
+  },
+  handleClickReset: function() {
+    return this.setState({
+      RadiusNow: 20
+    });
+  },
+  render: function() {
+    return React.createElement("div", {
+      "className": "wrapRadiusChanger"
+    }, React.createElement("span", {
+      "id": "span_switch_color"
+    }, "Change radius nodes:"), React.createElement("br", null), React.createElement("span", {
+      "className": "showRadius"
+    }, this.state.RadiusNow), React.createElement("button", {
+      "onClick": this.handleClickReset,
+      "className": "resetRadiusNode"
+    }, "Reset"), React.createElement("input", {
+      "type": "range",
+      "min": "10",
+      "max": "30",
+      "id": "InRange",
+      "step": "1",
+      "onChange": ((function(_this) {
+        return function(e) {
+          return _this.handleChange(e);
+        };
+      })(this))
+    }));
+  }
+});
+
+module.exports = RadiusChanger;
+
+
+
+},{"../global/Events":10,"react":"react"}],5:[function(require,module,exports){
 var Colors, React;
 
 React = require('react');
@@ -251,7 +335,109 @@ module.exports = Colors;
 
 
 
-},{"react":"react"}],5:[function(require,module,exports){
+},{"react":"react"}],6:[function(require,module,exports){
+var Matrix, React;
+
+React = require('react');
+
+Matrix = React.createClass({
+  displayName: "Matrix",
+  render: function() {
+    return React.createElement("table", {
+      "className": "Matrix"
+    }, this.props.matrix.map(function(i) {
+      return React.createElement("tr", null, i.map(function(j) {
+        return React.createElement("td", null, j);
+      }));
+    }));
+  }
+});
+
+module.exports = Matrix;
+
+
+
+},{"react":"react"}],7:[function(require,module,exports){
+var _Matrix, getMatrix;
+
+_Matrix = [["circle0", "circle0"], ["circle0", "circle1"], ["circle1", "circle2"], ["circle2", "circle2"], ["circle2", "circle3"], ["circle3", "circle3"]];
+
+
+/*
+matrix = [
+	   0  1  2  3
+	0 [1, 1, 0, 1]
+	1 [1, 0, 0, 1]
+	2 [0, 1, 0, 1]
+	3 [1, 1, 1, 0]
+
+]
+tmp_all = ""
+	for i in arr
+		tmp_all+= i[0]
+		tmp_all+= i[1]
+	console.log tmp_all
+	arr_ints = tmp_all.match /\d+/g
+	for i, j in arr_ints
+		arr_ints[j] = +i
+ */
+
+getMatrix = function(arr, n) {
+  var Mx, RevArr, i, j, k, l, len, len1, len2, len3, len4, len5, len6, m, o, p, q, r, ref, ref1, ref2, ref3, ref4, ref5, s, t, tmpArr, tmpObj, u;
+  if (n > 0) {
+    Mx = [];
+    tmpObj = {};
+    for (i = k = 0, ref = n - 1; 0 <= ref ? k <= ref : k >= ref; i = 0 <= ref ? ++k : --k) {
+      tmpObj["circle" + i] = {};
+      for (q = l = 0, ref1 = n - 1; 0 <= ref1 ? l <= ref1 : l >= ref1; q = 0 <= ref1 ? ++l : --l) {
+        tmpObj["circle" + i]["circle" + q] = 0;
+      }
+    }
+    for (j = m = 0, len = arr.length; m < len; j = ++m) {
+      i = arr[j];
+      ref2 = Object.keys(tmpObj);
+      for (o = 0, len1 = ref2.length; o < len1; o++) {
+        q = ref2[o];
+        if (i[0] === q) {
+          tmpObj[q][i[1]] = 1;
+        }
+      }
+    }
+    RevArr = [];
+    for (p = 0, len2 = arr.length; p < len2; p++) {
+      i = arr[p];
+      RevArr.push([i[1], i[0]]);
+    }
+    for (j = r = 0, len3 = RevArr.length; r < len3; j = ++r) {
+      i = RevArr[j];
+      ref3 = Object.keys(tmpObj);
+      for (s = 0, len4 = ref3.length; s < len4; s++) {
+        q = ref3[s];
+        if (i[0] === q) {
+          tmpObj[q][i[1]] = 1;
+        }
+      }
+    }
+    ref4 = Object.keys(tmpObj);
+    for (t = 0, len5 = ref4.length; t < len5; t++) {
+      i = ref4[t];
+      tmpArr = [];
+      ref5 = Object.keys(tmpObj[i]);
+      for (u = 0, len6 = ref5.length; u < len6; u++) {
+        j = ref5[u];
+        tmpArr.push(tmpObj[i][j]);
+      }
+      Mx.push(tmpArr);
+    }
+    return Mx;
+  }
+};
+
+module.exports = getMatrix;
+
+
+
+},{}],8:[function(require,module,exports){
 var Node, React;
 
 React = require('react');
@@ -262,7 +448,7 @@ Node = React.createClass({
     return React.createElement("circle", {
       "cx": this.props.cx,
       "cy": this.props.cy,
-      "r": "20",
+      "r": this.props.r,
       "fill": this.props.bgc,
       "id": this.props.id
     });
@@ -273,7 +459,7 @@ module.exports = Node;
 
 
 
-},{"react":"react"}],6:[function(require,module,exports){
+},{"react":"react"}],9:[function(require,module,exports){
 var Path, React;
 
 React = require('react');
@@ -296,7 +482,7 @@ module.exports = Path;
 
 
 
-},{"react":"react"}],7:[function(require,module,exports){
+},{"react":"react"}],10:[function(require,module,exports){
 var EventEmitter, ee;
 
 EventEmitter = require("events").EventEmitter;
@@ -307,7 +493,7 @@ module.exports = ee;
 
 
 
-},{"events":8}],8:[function(require,module,exports){
+},{"events":11}],11:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
