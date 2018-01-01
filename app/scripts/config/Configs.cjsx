@@ -1,8 +1,9 @@
 React = require 'react'
+ee = require '../global/Events'
 Colors = require "./colors"
 Matrix = require './matrix.class'
 RadiusChanger = require "./RadiusChanger"
-ee = require '../global/Events'
+History = require './history.class'
 COLORS = ["#2e9f5c", "#47356C", "#FF0018", "#0DF6FF", "#440BDB", "#FFAA0D"]
 
 
@@ -35,6 +36,8 @@ Configs = React.createClass
 				<RadiusChanger />
 				<hr />
 				<Matrix matrix={@props.matrix}/>
+				<hr />
+				<History data={@props.history}/>
 			</div>
 		</div>
 

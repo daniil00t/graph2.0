@@ -10,7 +10,7 @@ React.render(React.createElement(App, null), document.getElementById('app'));
 
 
 },{"./app":2,"react":"react"}],2:[function(require,module,exports){
-var App, Configs, Node, Path, React, ee, mx;
+var App, Configs, History_class, Node, Path, React, ee, history, mx;
 
 React = require('react');
 
@@ -24,6 +24,10 @@ Configs = require('./config/Configs');
 
 mx = require('./config/matrix.fn');
 
+History_class = require("./config/history.module");
+
+history = new History_class;
+
 App = React.createClass({
   displayName: 'App',
   getInitialState: function() {
@@ -35,7 +39,8 @@ App = React.createClass({
       MatrixNamesNodes: [],
       _Matrix: [],
       colorNodes: "#2e9f5c",
-      radiusNode: 20
+      radiusNode: 20,
+      history: []
     };
   },
   handleClick: function(e) {
@@ -57,9 +62,16 @@ App = React.createClass({
       color: color,
       r: r
     });
-    return this.setState({
+    this.setState({
       _Matrix: mx(this.state.MatrixNamesNodes, this.state.Nodes.length)
     });
+    return history.setEvent({
+      cx: cx,
+      cy: cy,
+      id: id,
+      color: color,
+      r: r
+    }, 'AddNode');
   },
   AddPath: function(id) {
     this.state.IdsPath.push(id);
@@ -69,9 +81,10 @@ App = React.createClass({
       this.setState({
         _Matrix: mx(this.state.MatrixNamesNodes, this.state.Nodes.length)
       });
-      return this.setState({
+      this.setState({
         IdsPath: []
       });
+      return history.setEvent(this.state.IdsPath, "AddPath");
     }
   },
   DrawPath: function(ids) {
@@ -108,18 +121,31 @@ App = React.createClass({
   componentWillMount: function() {
     ee.on('changeColorNodes', ((function(_this) {
       return function(color) {
-        return _this.setState({
+        _this.setState({
           colorNodes: color.color
         });
+        return history.setEvent({
+          color: color.color
+        }, 'changeColorNode');
       };
     })(this)));
-    return ee.on('radiusChangeNode', ((function(_this) {
+    ee.on('radiusChangeNode', ((function(_this) {
       return function(r) {
-        return _this.setState({
+        _this.setState({
           radiusNode: r.r
         });
+        return history.setEvent({
+          r: r.r
+        }, 'changeRadiusNode');
       };
     })(this)));
+    return ee.on('changeHistory', (function(_this) {
+      return function(data) {
+        return _this.setState({
+          history: data.data
+        });
+      };
+    })(this));
   },
   render: function() {
     return React.createElement("div", {
@@ -149,7 +175,8 @@ App = React.createClass({
         });
       };
     })(this))), React.createElement(Configs, {
-      "matrix": this.state._Matrix
+      "matrix": this.state._Matrix,
+      "history": this.state.history
     }));
   }
 });
@@ -158,10 +185,12 @@ module.exports = App;
 
 
 
-},{"./config/Configs":3,"./config/matrix.fn":7,"./figures/Node":8,"./figures/Path":9,"./global/Events":10,"react":"react"}],3:[function(require,module,exports){
-var COLORS, Colors, Configs, Matrix, RadiusChanger, React, ee;
+},{"./config/Configs":3,"./config/history.module":7,"./config/matrix.fn":9,"./figures/Node":10,"./figures/Path":11,"./global/Events":12,"react":"react"}],3:[function(require,module,exports){
+var COLORS, Colors, Configs, History, Matrix, RadiusChanger, React, ee;
 
 React = require('react');
+
+ee = require('../global/Events');
 
 Colors = require("./colors");
 
@@ -169,7 +198,7 @@ Matrix = require('./matrix.class');
 
 RadiusChanger = require("./RadiusChanger");
 
-ee = require('../global/Events');
+History = require('./history.class');
 
 COLORS = ["#2e9f5c", "#47356C", "#FF0018", "#0DF6FF", "#440BDB", "#FFAA0D"];
 
@@ -237,6 +266,8 @@ Configs = React.createClass({
       })(this))
     }), React.createElement("hr", null), React.createElement(RadiusChanger, null), React.createElement("hr", null), React.createElement(Matrix, {
       "matrix": this.props.matrix
+    }), React.createElement("hr", null), React.createElement(History, {
+      "data": this.props.history
     })));
   }
 });
@@ -245,7 +276,7 @@ module.exports = Configs;
 
 
 
-},{"../global/Events":10,"./RadiusChanger":4,"./colors":5,"./matrix.class":6,"react":"react"}],4:[function(require,module,exports){
+},{"../global/Events":12,"./RadiusChanger":4,"./colors":5,"./history.class":6,"./matrix.class":8,"react":"react"}],4:[function(require,module,exports){
 var RadiusChanger, React, ee;
 
 React = require('react');
@@ -302,7 +333,7 @@ module.exports = RadiusChanger;
 
 
 
-},{"../global/Events":10,"react":"react"}],5:[function(require,module,exports){
+},{"../global/Events":12,"react":"react"}],5:[function(require,module,exports){
 var Colors, React;
 
 React = require('react');
@@ -336,6 +367,79 @@ module.exports = Colors;
 
 
 },{"react":"react"}],6:[function(require,module,exports){
+var History, React;
+
+React = require('react');
+
+History = React.createClass({
+  displayName: "History",
+  render: function() {
+    return React.createElement("div", {
+      "className": "wrap_history"
+    }, this.props.data.map(function(i) {
+      return React.createElement("div", {
+        "className": "history_item"
+      }, i.type);
+    }));
+  }
+});
+
+module.exports = History;
+
+
+
+},{"react":"react"}],7:[function(require,module,exports){
+var History, ee;
+
+ee = require("../global/Events");
+
+
+/*
+HISTORY = [
+	{ type: "AddNode", date: "21:3:58", id: "circle0" }
+	{ type: "AddNode", date: "21:3:59", id: "circle1" }
+	{ type: "AddPath", date: "21:4:11" }
+]
+ */
+
+History = (function() {
+  function History() {
+    this.HISTORY = [];
+    this.Configs = {
+      use: ["user", "App"]
+    };
+    this.types_history = ["AddNode", "AddPath", "DeleteNode", "ColorChange", "RadiusChange"];
+  }
+
+  History.prototype.setEvent = function(obj, type_event) {
+    var strDate, tmp, tmpstrDate;
+    tmp = {};
+    tmpstrDate = new Date;
+    strDate = "" + tmpstrDate.getHours() + ":" + tmpstrDate.getMinutes() + ":" + tmpstrDate.getSeconds();
+    tmp["type"] = type_event;
+    tmp["date"] = strDate;
+    if (obj.id != null) {
+      tmp['id'] = obj.id;
+    }
+    this.HISTORY.push(tmp);
+    return ee.emit('changeHistory', {
+      data: this.HISTORY
+    });
+  };
+
+  History.prototype.getHistory = function() {
+    return this.HISTORY;
+  };
+
+  return History;
+
+})();
+
+module.exports = History;
+
+
+
+},{"../global/Events":12}],8:[function(require,module,exports){
 var Matrix, React;
 
 React = require('react');
@@ -343,13 +447,15 @@ React = require('react');
 Matrix = React.createClass({
   displayName: "Matrix",
   render: function() {
-    return React.createElement("table", {
+    return React.createElement("div", {
+      "className": "wrapMatrix"
+    }, React.createElement("table", {
       "className": "Matrix"
     }, this.props.matrix.map(function(i) {
       return React.createElement("tr", null, i.map(function(j) {
         return React.createElement("td", null, j);
       }));
-    }));
+    })));
   }
 });
 
@@ -357,7 +463,7 @@ module.exports = Matrix;
 
 
 
-},{"react":"react"}],7:[function(require,module,exports){
+},{"react":"react"}],9:[function(require,module,exports){
 var _Matrix, getMatrix;
 
 _Matrix = [["circle0", "circle0"], ["circle0", "circle1"], ["circle1", "circle2"], ["circle2", "circle2"], ["circle2", "circle3"], ["circle3", "circle3"]];
@@ -437,7 +543,7 @@ module.exports = getMatrix;
 
 
 
-},{}],8:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 var Node, React;
 
 React = require('react');
@@ -459,7 +565,7 @@ module.exports = Node;
 
 
 
-},{"react":"react"}],9:[function(require,module,exports){
+},{"react":"react"}],11:[function(require,module,exports){
 var Path, React;
 
 React = require('react');
@@ -482,7 +588,7 @@ module.exports = Path;
 
 
 
-},{"react":"react"}],10:[function(require,module,exports){
+},{"react":"react"}],12:[function(require,module,exports){
 var EventEmitter, ee;
 
 EventEmitter = require("events").EventEmitter;
@@ -493,7 +599,7 @@ module.exports = ee;
 
 
 
-},{"events":11}],11:[function(require,module,exports){
+},{"events":13}],13:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a

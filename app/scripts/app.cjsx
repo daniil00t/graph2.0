@@ -4,6 +4,9 @@ Node = require "./figures/Node"
 Path = require "./figures/Path"
 Configs = require './config/Configs'
 mx = require './config/matrix.fn'
+History_class = require "./config/history.module"
+
+history = new History_class
 
 
 App = React.createClass
@@ -18,6 +21,7 @@ App = React.createClass
 		_Matrix: []
 		colorNodes: "#2e9f5c"
 		radiusNode: 20
+		history: []
 	handleClick: (e)->
 		#console.log "X: #{e.nativeEvent.offsetX}, Y: #{e.nativeEvent.offsetY}"
 		if e.target.nodeName == "svg"
@@ -28,6 +32,7 @@ App = React.createClass
 	AddNode: (cx, cy, id, color, r)->
 		@state.Nodes.push {cx: cx, cy: cy, id: id, color: color, r: r}
 		@setState _Matrix: mx @state.MatrixNamesNodes, @state.Nodes.length
+		history.setEvent {cx: cx, cy: cy, id: id, color: color, r: r}, 'AddNode'
 		#console.log @state.Nodes
 	AddPath: (id)->
 		@state.IdsPath.push id
@@ -36,6 +41,7 @@ App = React.createClass
 			@state.MatrixNamesNodes.push @state.IdsPath
 			@setState _Matrix: mx @state.MatrixNamesNodes, @state.Nodes.length
 			@setState IdsPath: []
+			history.setEvent @state.IdsPath, "AddPath"
 	DrawPath: (ids)->
 		coords = []
 		str = "M"
@@ -58,12 +64,15 @@ App = React.createClass
 		ee.on 'changeColorNodes', ((color)=>
 			#console.log color
 			@setState colorNodes: color.color
+			history.setEvent {color: color.color}, 'changeColorNode'
 		)
 		ee.on 'radiusChangeNode', ((r)=>
 			#console.log r.r
 			@setState radiusNode: r.r
+			history.setEvent {r: r.r}, 'changeRadiusNode'
 		)
-		
+		ee.on 'changeHistory', (data) =>
+			@setState history: data.data
 	render: ->
 		<div id="wrap">
 		  <svg height="100%" version="1.1" width="100%" xmlns="http://www.w3.org/2000/svg" onClick={((e)=>this.handleClick e)}>
@@ -80,7 +89,7 @@ App = React.createClass
 		  		)
 		  	}
 		  </svg>
-		  <Configs matrix={@state._Matrix}/>
+		  <Configs matrix={@state._Matrix} history={@state.history}/>
 		</div>      
 
 
