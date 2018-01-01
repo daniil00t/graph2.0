@@ -10,7 +10,7 @@ App = React.createClass
 	displayName: 'App'
 
 	getInitialState:->
-		figures: []
+		Nodes: []
 		val: 0
 		IdsPath: []
 		Paths: []
@@ -20,21 +20,21 @@ App = React.createClass
 		radiusNode: 20
 	handleClick: (e)->
 		#console.log "X: #{e.nativeEvent.offsetX}, Y: #{e.nativeEvent.offsetY}"
-		@setState val: @state.val + 1
 		if e.target.nodeName == "svg"
+			@setState val: @state.val + 1
 			@AddNode e.nativeEvent.offsetX, e.nativeEvent.offsetY, "circle"+@state.val, @state.colorNodes, @state.radiusNode
 		if e.target.nodeName == "circle"
 			@AddPath e.target.id
 	AddNode: (cx, cy, id, color, r)->
-		@state.figures.push {cx: cx, cy: cy, id: id, color: color, r: r}
-		@setState _Matrix: mx @state.MatrixNamesNodes, @state.figures.length
-		#console.log @state.figures
+		@state.Nodes.push {cx: cx, cy: cy, id: id, color: color, r: r}
+		@setState _Matrix: mx @state.MatrixNamesNodes, @state.Nodes.length
+		#console.log @state.Nodes
 	AddPath: (id)->
 		@state.IdsPath.push id
 		if @state.IdsPath.length == 2
 			@DrawPath @state.IdsPath
 			@state.MatrixNamesNodes.push @state.IdsPath
-			@setState _Matrix: mx @state.MatrixNamesNodes, @state.figures.length
+			@setState _Matrix: mx @state.MatrixNamesNodes, @state.Nodes.length
 			@setState IdsPath: []
 	DrawPath: (ids)->
 		coords = []
@@ -75,7 +75,7 @@ App = React.createClass
 		  		)
 		  	}
 		  	{
-		  		@state.figures.map((i)=>
+		  		@state.Nodes.map((i)=>
 		  			<Node cx={i.cx} cy={i.cy} id={i.id} bgc={i.color} r={i.r}/>
 		  		)
 		  	}

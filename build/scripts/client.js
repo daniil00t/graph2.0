@@ -28,7 +28,7 @@ App = React.createClass({
   displayName: 'App',
   getInitialState: function() {
     return {
-      figures: [],
+      Nodes: [],
       val: 0,
       IdsPath: [],
       Paths: [],
@@ -39,10 +39,10 @@ App = React.createClass({
     };
   },
   handleClick: function(e) {
-    this.setState({
-      val: this.state.val + 1
-    });
     if (e.target.nodeName === "svg") {
+      this.setState({
+        val: this.state.val + 1
+      });
       this.AddNode(e.nativeEvent.offsetX, e.nativeEvent.offsetY, "circle" + this.state.val, this.state.colorNodes, this.state.radiusNode);
     }
     if (e.target.nodeName === "circle") {
@@ -50,7 +50,7 @@ App = React.createClass({
     }
   },
   AddNode: function(cx, cy, id, color, r) {
-    this.state.figures.push({
+    this.state.Nodes.push({
       cx: cx,
       cy: cy,
       id: id,
@@ -58,7 +58,7 @@ App = React.createClass({
       r: r
     });
     return this.setState({
-      _Matrix: mx(this.state.MatrixNamesNodes, this.state.figures.length)
+      _Matrix: mx(this.state.MatrixNamesNodes, this.state.Nodes.length)
     });
   },
   AddPath: function(id) {
@@ -67,7 +67,7 @@ App = React.createClass({
       this.DrawPath(this.state.IdsPath);
       this.state.MatrixNamesNodes.push(this.state.IdsPath);
       this.setState({
-        _Matrix: mx(this.state.MatrixNamesNodes, this.state.figures.length)
+        _Matrix: mx(this.state.MatrixNamesNodes, this.state.Nodes.length)
       });
       return this.setState({
         IdsPath: []
@@ -138,7 +138,7 @@ App = React.createClass({
       return React.createElement(Path, {
         "d": i
       });
-    }), this.state.figures.map((function(_this) {
+    }), this.state.Nodes.map((function(_this) {
       return function(i) {
         return React.createElement(Node, {
           "cx": i.cx,
