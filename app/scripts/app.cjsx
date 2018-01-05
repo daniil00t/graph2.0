@@ -1,12 +1,13 @@
-React = require 'react'
-ee = require './global/Events'
-Node = require "./figures/Node"
-Path = require "./figures/Path"
-Configs = require './config/Configs'
-mx = require './config/matrix.fn'
-History_class = require "./config/history.module"
+React = require 'react'																		#|Platform
+ee = require './global/Events'														#|Events
 
-history = new History_class
+Node = require "./figures/Node"														#|Figures
+Path = require "./figures/Path"														#|
+
+Configs = require './config/classes/Configs'							#|Configs class
+mx = require './config/modules/matrix.fn'									#|module matrix
+history_app = require "./config/modules/history.module"	#|module history
+
 
 
 App = React.createClass
@@ -21,19 +22,40 @@ App = React.createClass
 		_Matrix: []
 		colorNodes: "#2e9f5c"
 		radiusNode: 20
-		history: []
+		history_app: []
+		deletingMode: false
+
+
 	handleClick: (e)->
 		#console.log "X: #{e.nativeEvent.offsetX}, Y: #{e.nativeEvent.offsetY}"
+
 		if e.target.nodeName == "svg"
 			@setState val: @state.val + 1
 			@AddNode e.nativeEvent.offsetX, e.nativeEvent.offsetY, "circle"+@state.val, @state.colorNodes, @state.radiusNode
 		if e.target.nodeName == "circle"
-			@AddPath e.target.id
+			if !@state.deletingMode
+				@AddPath e.target.id
+			else
+				@DeleteNodeById(e.target.id)
+
 	AddNode: (cx, cy, id, color, r)->
 		@state.Nodes.push {cx: cx, cy: cy, id: id, color: color, r: r}
 		@setState _Matrix: mx @state.MatrixNamesNodes, @state.Nodes.length
-		history.setEvent {cx: cx, cy: cy, id: id, color: color, r: r}, 'AddNode'
+		history_app.setEvent {cx: cx, cy: cy, id: id, color: color, r: r}, 'AddNode'
 		#console.log @state.Nodes
+	DeleteLastNode: ->
+		tmp = @state.Nodes
+		tmp.splice tmp.length - 1, tmp.length
+		@setState Nodes: tmp
+	DeleteNodeById: (id)->
+		console.log id
+		tmp = @state.Nodes
+		for i, l in @state.Nodes
+			if id == i.id
+				tmp.splice l, l+1
+				break
+		console.log tmp
+		@setState Nodes: tmp
 	AddPath: (id)->
 		@state.IdsPath.push id
 		if @state.IdsPath.length == 2
@@ -41,7 +63,8 @@ App = React.createClass
 			@state.MatrixNamesNodes.push @state.IdsPath
 			@setState _Matrix: mx @state.MatrixNamesNodes, @state.Nodes.length
 			@setState IdsPath: []
-			history.setEvent @state.IdsPath, "AddPath"
+			
+
 	DrawPath: (ids)->
 		coords = []
 		str = "M"
@@ -59,20 +82,30 @@ App = React.createClass
 					str += " #{i.cx}, #{i.cy}"
 				else
 					str += "L #{i.cx}, #{i.cy}Z"
+		history_app.setEvent {d: str}, "AddPath"
 		@state.Paths.push str
+	deletingModeActive: ->
+		for i in @state.Nodes
+			i.color = "#FF0018"
+		@setState colorNodes: "#FF0018"
 	componentWillMount: ->
 		ee.on 'changeColorNodes', ((color)=>
 			#console.log color
 			@setState colorNodes: color.color
-			history.setEvent {color: color.color}, 'changeColorNode'
+			history_app.setEvent {color: color.color}, 'changeColorNode'
 		)
 		ee.on 'radiusChangeNode', ((r)=>
 			#console.log r.r
 			@setState radiusNode: r.r
-			history.setEvent {r: r.r}, 'changeRadiusNode'
+			history_app.setEvent {r: r.r}, 'changeRadiusNode'
 		)
+		ee.on "changeDeletingMode", (data)=>
+			@setState deletingMode: data.data
+			@deletingModeActive()
+
 		ee.on 'changeHistory', (data) =>
-			@setState history: data.data
+			@setState history_app: data.data
+			
 	render: ->
 		<div id="wrap">
 		  <svg height="100%" version="1.1" width="100%" xmlns="http://www.w3.org/2000/svg" onClick={((e)=>this.handleClick e)}>
@@ -80,16 +113,16 @@ App = React.createClass
 		  	<defs></defs>
 				{
 		  		@state.Paths.map((i)->
-		  			<Path d={i}/>
+		  			<Path d={i} key="path#{@state.val}"/>
 		  		)
 		  	}
 		  	{
 		  		@state.Nodes.map((i)=>
-		  			<Node cx={i.cx} cy={i.cy} id={i.id} bgc={i.color} r={i.r}/>
+		  			<Node cx={i.cx} cy={i.cy} id={i.id} bgc={i.color} r={i.r} key="node#{@state.val}"/>
 		  		)
 		  	}
 		  </svg>
-		  <Configs matrix={@state._Matrix} history={@state.history}/>
+		  <Configs matrix={@state._Matrix} history={@state.history_app} key="Configs"/>
 		</div>      
 
 

@@ -1,4 +1,4 @@
-ee = require "../global/Events"
+ee = require "../../global/Events"
 
 ###
 HISTORY = [
@@ -7,7 +7,7 @@ HISTORY = [
 	{ type: "AddPath", date: "21:4:11" }
 ]
 ###
-class History
+class History_class
 	constructor: ->
 		@HISTORY = []
 		@Configs = {
@@ -17,14 +17,21 @@ class History
 			"AddNode"
 			"AddPath"
 			"DeleteNode"
-			"ColorChange"
-			"RadiusChange"
+			"changeColorNode"
+			"changeRadiusNode"
 		]
 	setEvent: (obj, type_event)->
 		tmp = {}
 		tmpstrDate = new Date
 		strDate = ""+tmpstrDate.getHours() + ":"+tmpstrDate.getMinutes() + ":"+tmpstrDate.getSeconds()
 		tmp["type"] = type_event
+		
+		if type_event is "AddNode" then tmp["MainData"] = obj.id else 
+		if type_event == "changeColorNode" then tmp["MainData"] = obj.color else 
+		if type_event == "AddPath" then tmp["MainData"] = obj.d else 
+		if type_event == "changeRadiusNode" then tmp["MainData"] = obj.r else
+		if type_event == "deleteMode" then tmp["MainData"] = (if obj.deletingMode then "true" else "false")
+		console.log obj
 		tmp["date"] = strDate
 		if obj.id? then tmp['id'] = obj.id
 		@HISTORY.push tmp
@@ -32,4 +39,6 @@ class History
 	getHistory: ->
 		@HISTORY
 
-module.exports = History
+history_app = new History_class
+
+module.exports = history_app

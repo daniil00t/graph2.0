@@ -1,5 +1,5 @@
 React = require 'react'
-ee = require '../global/Events'
+ee = require '../../global/Events'
 
 RadiusChanger = React.createClass
 	displayName: "RadiusChanger"
@@ -10,10 +10,10 @@ RadiusChanger = React.createClass
 	handleChange: (e)->
 		@setState RadiusNow: +e.target.value
 		ee.emit 'radiusChangeNode', {r: +e.target.value}
-		#document.getElementById('InRange').value = 20
-		#document.getElementById('InRange').draggable = on
 	handleClickReset: ->
 		@setState RadiusNow: 20
+		document.getElementById('InRange').value = 20
+		ee.emit 'radiusChangeNode', {r: 20}
 	render: ->
 		<div className="wrapRadiusChanger">
 			<span id="span_switch_color">Change radius nodes:</span><br/>

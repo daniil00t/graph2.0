@@ -1,9 +1,12 @@
 React = require 'react'
-ee = require '../global/Events'
+ee = require '../../global/Events'
 Colors = require "./colors"
 Matrix = require './matrix.class'
 RadiusChanger = require "./RadiusChanger"
 History = require './history.class'
+Deleting = require "./deleting.class"
+
+
 COLORS = ["#2e9f5c", "#47356C", "#FF0018", "#0DF6FF", "#440BDB", "#FFAA0D"]
 
 
@@ -31,13 +34,15 @@ Configs = React.createClass
 	render: ->
 		<div className="wrap_configs">
 			<div className="configs">
-				<Colors colors={@state.Items} onChange={((id)=>@handleChangeColor(id))}/>
+				<Colors colors={@state.Items} onChange={((id)=>@handleChangeColor(id))} key="Colors"/>
 				<hr/>
-				<RadiusChanger />
+				<RadiusChanger key="RadiusChanger"/>
 				<hr />
-				<Matrix matrix={@props.matrix}/>
+				<Deleting />
 				<hr />
-				<History data={@props.history}/>
+				<Matrix matrix={@props.matrix} key="Matrix"/>
+				<hr />
+				<History data={@props.history} key="History"/>
 			</div>
 		</div>
 
