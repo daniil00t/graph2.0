@@ -49,7 +49,7 @@ App = React.createClass({
       });
       this.AddNode(e.nativeEvent.offsetX, e.nativeEvent.offsetY, "circle" + this.state.val, this.state.colorNodes, this.state.radiusNode);
     }
-    if (e.target.nodeName === "circle") {
+    if (e.target.nodeName === "circle" || e.target.nodeName === "text") {
       if (!this.state.deletingMode) {
         return this.AddPath(e.target.id);
       } else {
@@ -85,7 +85,7 @@ App = React.createClass({
     });
   },
   DeleteNodeById: function(id) {
-    var IT, NOW0, NOW1, i, j, k, l, len, len1, len2, len3, len4, m, maxVal, maxValArr, n, num, o, p, q, ref, ref1, tmp, tmpMN, w, warr;
+    var IT, NOW0, NOW1, i, j, k, l, len, len1, len2, len3, len4, len5, m, maxVal, maxValArr, n, num, o, p, q, ref, ref1, s, tmp, tmpMN, w, warr;
     tmp = this.state.Nodes;
     tmpMN = this.state.MatrixNamesNodes;
     ref = this.state.Nodes;
@@ -122,11 +122,16 @@ App = React.createClass({
         break;
       }
     }
+    for (j = o = 0, len3 = tmp.length; o < len3; j = ++o) {
+      i = tmp[j];
+      i.id = "circle" + j;
+      tmp[j] = i;
+    }
     this.setState({
       Nodes: tmp
     });
     maxValArr = [];
-    for (j = o = 0, len3 = tmpMN.length; o < len3; j = ++o) {
+    for (j = p = 0, len4 = tmpMN.length; p < len4; j = ++p) {
       i = tmpMN[j];
       IT = +id.match(/\d+/g)[0];
       num = /\d+/g;
@@ -140,13 +145,13 @@ App = React.createClass({
       }
     }
     ref1 = this.state.Nodes;
-    for (p = 0, len4 = ref1.length; p < len4; p++) {
-      i = ref1[p];
+    for (s = 0, len5 = ref1.length; s < len5; s++) {
+      i = ref1[s];
       maxValArr.push(+i.id.match(/\d+/g)[0]);
     }
     maxVal = Math.max.apply(null, maxValArr);
     this.setState({
-      val: maxVal
+      val: maxVal + 1
     });
     this.setState({
       MatrixNamesNodes: tmpMN
@@ -763,13 +768,24 @@ React = require('react');
 Node = React.createClass({
   displayName: 'Node',
   render: function() {
-    return React.createElement("circle", {
+    return React.createElement("g", null, React.createElement("circle", {
       "cx": this.props.cx,
       "cy": this.props.cy,
       "r": this.props.r,
       "fill": this.props.bgc,
       "id": this.props.id
-    });
+    }), React.createElement("text", {
+      "x": this.props.cx,
+      "y": this.props.cy - 3,
+      "id": this.props.id,
+      "stroke": "#fff",
+      "fill": "#fff",
+      "textAnchor": "middle",
+      "alignmentBaseline": "middle",
+      "dy": ".6em",
+      "fontFamily": "sans-serif",
+      "fontSize": "17px"
+    }, (this.props.id.match(/\d+/g)[0])));
   }
 });
 

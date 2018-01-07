@@ -32,7 +32,7 @@ App = React.createClass
 		if e.target.nodeName == "svg" and !@state.deletingMode
 			@setState val: @state.val + 1
 			@AddNode e.nativeEvent.offsetX, e.nativeEvent.offsetY, "circle"+@state.val, @state.colorNodes, @state.radiusNode
-		if e.target.nodeName == "circle"
+		if e.target.nodeName == "circle" or e.target.nodeName == "text" 
 			if !@state.deletingMode
 				@AddPath e.target.id
 			else
@@ -73,6 +73,9 @@ App = React.createClass
 				End...
 				###
 				break
+		for i, j in tmp
+			i.id = "circle#{j}"
+			tmp[j] = i
 		@setState Nodes: tmp
 		maxValArr = []
 		#Rename nodes)
@@ -88,7 +91,11 @@ App = React.createClass
 		for i in @state.Nodes
 			maxValArr.push +i.id.match(/\d+/g)[0]
 		maxVal = Math.max.apply(null, maxValArr);
-		@setState val: maxVal
+
+
+
+
+		@setState val: maxVal + 1
 
 		@setState MatrixNamesNodes: tmpMN
 
