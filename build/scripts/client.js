@@ -31,19 +31,19 @@ App = React.createClass({
   getInitialState: function() {
     return {
       Nodes: [],
-      val: 0,
-      IdsPath: [],
       Paths: [],
-      MatrixNamesNodes: [],
+      deletingMode: false,
+      history_app: [],
       _Matrix: [],
+      MatrixNamesNodes: [],
       colorNodes: "#2e9f5c",
       radiusNode: 20,
-      history_app: [],
-      deletingMode: false
+      IdsPath: [],
+      val: 0
     };
   },
   handleClick: function(e) {
-    if (e.target.nodeName === "svg") {
+    if (e.target.nodeName === "svg" && !this.state.deletingMode) {
       this.setState({
         val: this.state.val + 1
       });
@@ -85,20 +85,74 @@ App = React.createClass({
     });
   },
   DeleteNodeById: function(id) {
-    var i, k, l, len, ref, tmp;
-    console.log(id);
+    var IT, NOW0, NOW1, i, j, k, l, len, len1, len2, len3, len4, m, maxVal, maxValArr, n, num, o, p, q, ref, ref1, tmp, tmpMN, w, warr;
     tmp = this.state.Nodes;
+    tmpMN = this.state.MatrixNamesNodes;
     ref = this.state.Nodes;
     for (l = k = 0, len = ref.length; k < len; l = ++k) {
       i = ref[l];
       if (id === i.id) {
-        tmp.splice(l, l + 1);
+        history_app.setEvent({
+          id: id
+        }, "DeleteNodeById");
+        tmp.splice(l, 1);
+        warr = [];
+
+        /*
+        				Delete nodes in Adjacency matrix
+        				begin....
+         */
+        for (w = m = 0, len1 = tmpMN.length; m < len1; w = ++m) {
+          q = tmpMN[w];
+          if (q[0] === id || q[1] === id) {
+            warr.push(w);
+          }
+        }
+        warr.reverse();
+        for (n = 0, len2 = warr.length; n < len2; n++) {
+          i = warr[n];
+          tmpMN.splice(i, 1);
+          this.state.Paths.splice(i, 1);
+        }
+
+        /*
+        				Delete nodes in Adjacency matrix
+        				End...
+         */
         break;
       }
     }
-    console.log(tmp);
-    return this.setState({
+    this.setState({
       Nodes: tmp
+    });
+    maxValArr = [];
+    for (j = o = 0, len3 = tmpMN.length; o < len3; j = ++o) {
+      i = tmpMN[j];
+      IT = +id.match(/\d+/g)[0];
+      num = /\d+/g;
+      NOW0 = +i[0].match(num)[0];
+      NOW1 = +i[1].match(num)[0];
+      if (NOW0 > IT) {
+        tmpMN[j][0] = "circle" + (NOW0 - 1);
+      }
+      if (NOW1 > IT) {
+        tmpMN[j][1] = "circle" + (NOW1 - 1);
+      }
+    }
+    ref1 = this.state.Nodes;
+    for (p = 0, len4 = ref1.length; p < len4; p++) {
+      i = ref1[p];
+      maxValArr.push(+i.id.match(/\d+/g)[0]);
+    }
+    maxVal = Math.max.apply(null, maxValArr);
+    this.setState({
+      val: maxVal
+    });
+    this.setState({
+      MatrixNamesNodes: tmpMN
+    });
+    return this.setState({
+      _Matrix: mx(this.state.MatrixNamesNodes, this.state.Nodes.length)
     });
   },
   AddPath: function(id) {
@@ -149,15 +203,24 @@ App = React.createClass({
     return this.state.Paths.push(str);
   },
   deletingModeActive: function() {
-    var i, k, len, ref;
+    var i, k, len, ref, results;
     ref = this.state.Nodes;
+    results = [];
     for (k = 0, len = ref.length; k < len; k++) {
       i = ref[k];
-      i.color = "#FF0018";
+      results.push(i.color = "#FF0018");
     }
-    return this.setState({
-      colorNodes: "#FF0018"
-    });
+    return results;
+  },
+  deletingModeNoActive: function() {
+    var i, k, len, ref, results;
+    ref = this.state.Nodes;
+    results = [];
+    for (k = 0, len = ref.length; k < len; k++) {
+      i = ref[k];
+      results.push(i.color = this.state.colorNodes);
+    }
+    return results;
   },
   componentWillMount: function() {
     ee.on('changeColorNodes', ((function(_this) {
@@ -185,7 +248,11 @@ App = React.createClass({
         _this.setState({
           deletingMode: data.data
         });
-        return _this.deletingModeActive();
+        if (data.data) {
+          return _this.deletingModeActive();
+        } else {
+          return _this.deletingModeNoActive();
+        }
       };
     })(this));
     return ee.on('changeHistory', (function(_this) {
@@ -211,8 +278,7 @@ App = React.createClass({
       })(this))
     }, React.createElement("desc", null, "Created with Daniil(den50)"), React.createElement("defs", null), this.state.Paths.map(function(i) {
       return React.createElement(Path, {
-        "d": i,
-        "key": "path" + this.state.val
+        "d": i
       });
     }), this.state.Nodes.map((function(_this) {
       return function(i) {
@@ -221,8 +287,7 @@ App = React.createClass({
           "cy": i.cy,
           "id": i.id,
           "bgc": i.color,
-          "r": i.r,
-          "key": "node" + _this.state.val
+          "r": i.r
         });
       };
     })(this))), React.createElement(Configs, {
@@ -581,8 +646,12 @@ History_class = (function() {
     }
     if (type_event === "deleteMode") {
       tmp["MainData"] = (obj.deletingMode ? "true" : "false");
+    } else {
+
     }
-    console.log(obj);
+    if (type_event === "DeleteNodeById") {
+      tmp["MainData"] = obj.id;
+    }
     tmp["date"] = strDate;
     if (obj.id != null) {
       tmp['id'] = obj.id;
@@ -608,10 +677,6 @@ module.exports = history_app;
 
 
 },{"../../global/Events":13}],10:[function(require,module,exports){
-var _Matrix, getMatrix;
-
-_Matrix = [["circle0", "circle0"], ["circle0", "circle1"], ["circle1", "circle2"], ["circle2", "circle2"], ["circle2", "circle3"], ["circle3", "circle3"]];
-
 
 /*
 matrix = [
@@ -631,6 +696,7 @@ tmp_all = ""
 	for i, j in arr_ints
 		arr_ints[j] = +i
  */
+var getMatrix;
 
 getMatrix = function(arr, n) {
   var Mx, RevArr, i, j, k, l, len, len1, len2, len3, len4, len5, len6, m, o, p, q, r, ref, ref1, ref2, ref3, ref4, ref5, s, t, tmpArr, tmpObj, u;
@@ -680,6 +746,8 @@ getMatrix = function(arr, n) {
       Mx.push(tmpArr);
     }
     return Mx;
+  } else {
+    return [];
   }
 };
 

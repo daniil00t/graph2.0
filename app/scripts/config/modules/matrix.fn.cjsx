@@ -1,11 +1,11 @@
-_Matrix = [
-	["circle0", "circle0"]
-	["circle0", "circle1"]
-	["circle1", "circle2"]
-	["circle2", "circle2"]
-	["circle2", "circle3"]
-	["circle3", "circle3"]
-]
+# _Matrix = [
+# 	["circle0", "circle0"]
+# 	["circle0", "circle1"]
+# 	["circle1", "circle2"]
+# 	["circle2", "circle2"]
+# 	["circle2", "circle3"]
+# 	["circle3", "circle3"]
+# ]
 ###
 matrix = [
 	   0  1  2  3
@@ -34,7 +34,7 @@ getMatrix = (arr, n)->
 			tmpObj["circle#{i}"] = {}
 			for q in [0..n-1]
 				tmpObj["circle#{i}"]["circle#{q}"] = 0
-
+		#console.log tmpObj
 		#Fitst going
 		for i, j in arr
 			for q in Object.keys tmpObj
@@ -51,14 +51,15 @@ getMatrix = (arr, n)->
 			for q in Object.keys tmpObj
 				if i[0] == q
 					tmpObj[q][i[1]] = 1
-
+		#From object into array
 		for i in Object.keys tmpObj
 			tmpArr = []
 			for j in Object.keys tmpObj[i]
 				tmpArr.push tmpObj[i][j]
 			Mx.push tmpArr
 		Mx
-
+	else
+		[]
 
 	
 module.exports = getMatrix
