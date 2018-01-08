@@ -4,7 +4,7 @@ Colors = require "./colors"
 Matrix = require './matrix.class'
 RadiusChanger = require "./RadiusChanger"
 History = require './history.class'
-Deleting = require "./deleting.class"
+Mods = require "./mods.class"
 
 
 COLORS = ["#2e9f5c", "#47356C", "#FF0018", "#0DF6FF", "#440BDB", "#FFAA0D"]
@@ -38,7 +38,7 @@ Configs = React.createClass
 				<hr/>
 				<RadiusChanger key="RadiusChanger"/>
 				<hr />
-				<Deleting />
+				<Mods/>
 				<hr />
 				<Matrix matrix={@props.matrix} key="Matrix"/>
 				<hr />
