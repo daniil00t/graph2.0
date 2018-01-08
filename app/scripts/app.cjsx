@@ -17,6 +17,7 @@ App = React.createClass
 		Nodes: []
 		Paths: []
 		deletingMode: false
+		modeNodesNumbering: false
 		history_app: []
 		_Matrix: []
 		MatrixNamesNodes: []
@@ -91,22 +92,9 @@ App = React.createClass
 		for i in @state.Nodes
 			maxValArr.push +i.id.match(/\d+/g)[0]
 		maxVal = Math.max.apply(null, maxValArr);
-
-
-
-
 		@setState val: maxVal + 1
-
 		@setState MatrixNamesNodes: tmpMN
-
-		# console.log @state.MatrixNamesNodes
-		# console.log "----"
-		# console.log @state.Nodes.length
-
-
-
 		@setState _Matrix: mx @state.MatrixNamesNodes, @state.Nodes.length
-
 
 	AddPath: (id)->
 		@state.IdsPath.push id
@@ -156,6 +144,9 @@ App = React.createClass
 		ee.on "changeDeletingMode", (data)=>
 			@setState deletingMode: data.data
 			if data.data then @deletingModeActive() else @deletingModeNoActive()
+		ee.on "ChangeModeNodesNumbering", (data)=>
+			@setState modeNodesNumbering: data.data
+
 
 		ee.on 'changeHistory', (data) =>
 			@setState history_app: data.data
@@ -172,7 +163,7 @@ App = React.createClass
 		  	}
 		  	{
 		  		@state.Nodes.map((i)=>
-		  			<Node cx={i.cx} cy={i.cy} id={i.id} bgc={i.color} r={i.r} />
+		  			<Node cx={i.cx} cy={i.cy} id={i.id} bgc={i.color} r={i.r}  numberingNodesMode={@state.modeNodesNumbering} />
 		  		)
 		  	}
 		  </svg>
