@@ -7,7 +7,7 @@ History = require './history.class'
 Mods = require "./mods.class"
 
 
-COLORS = ["#2e9f5c", "#47356C", "#FF0018", "#0DF6FF", "#440BDB", "#FFAA0D"]
+COLORS = ["#2e9f5c", "#2866F7", "#C9283E", "#0DF6FF", "#023852", ["#FFAA0D", "#2B9483", "#F53855"]]
 
 
 

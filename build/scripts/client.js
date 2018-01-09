@@ -339,7 +339,7 @@ History = require('./history.class');
 
 Mods = require("./mods.class");
 
-COLORS = ["#2e9f5c", "#47356C", "#FF0018", "#0DF6FF", "#440BDB", "#FFAA0D"];
+COLORS = ["#2e9f5c", "#2866F7", "#C9283E", "#0DF6FF", "#023852", ["#FFAA0D", "#2B9483", "#F53855"]];
 
 Configs = React.createClass({
   displayName: 'Configs',
@@ -498,14 +498,25 @@ Colors = React.createClass({
       "id": "span_switch_color"
     }, "Switch color nodes:"), React.createElement("br", null), this.props.colors.map((function(_this) {
       return function(i, j) {
-        return React.createElement("div", {
-          "style": {
-            backgroundColor: i.color
-          },
-          "className": (i.active ? "color_item active" : "color_item"),
-          "onClick": _this.props.onChange.bind(null, i.id),
-          "key": "Color" + j
-        });
+        if (typeof i.color === "string") {
+          return React.createElement("div", {
+            "style": {
+              backgroundColor: i.color
+            },
+            "className": (i.active ? "color_item active" : "color_item"),
+            "onClick": _this.props.onChange.bind(null, i.id),
+            "key": "Color" + j
+          });
+        } else {
+          return React.createElement("div", {
+            "style": {
+              backgroundColor: i.color[0]
+            },
+            "className": (i.active ? "color_item active" : "color_item"),
+            "onClick": _this.props.onChange.bind(null, i.id),
+            "key": "Color" + j
+          });
+        }
       };
     })(this)));
   }
