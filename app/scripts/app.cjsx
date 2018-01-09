@@ -5,7 +5,7 @@ Node = require "./figures/Node"														#|Figures
 Path = require "./figures/Path"														#|
 
 Configs = require './config/classes/Configs'							#|Configs class
-mx = require './config/modules/matrix.fn'									#|module matrix
+amx = require './config/modules/adjacency_matrix.fn'									#|module matrix
 history_app = require "./config/modules/history.module"	  #|module history
 
 
@@ -41,7 +41,7 @@ App = React.createClass
 
 	AddNode: (cx, cy, id, color, r)->
 		@state.Nodes.push {cx: cx, cy: cy, id: id, color: color, r: r}
-		@setState _Matrix: mx @state.MatrixNamesNodes, @state.Nodes.length
+		@setState _Matrix: amx @state.MatrixNamesNodes, @state.Nodes.length
 		history_app.setEvent {cx: cx, cy: cy, id: id, color: color, r: r}, 'AddNode'
 		#console.log @state.Nodes
 	DeleteLastNode: ->
@@ -97,14 +97,14 @@ App = React.createClass
 		else
 			@setState val: maxVal + 1
 		@setState MatrixNamesNodes: tmpMN
-		@setState _Matrix: mx @state.MatrixNamesNodes, @state.Nodes.length
+		@setState _Matrix: amx @state.MatrixNamesNodes, @state.Nodes.length
 
 	AddPath: (id)->
 		@state.IdsPath.push id
 		if @state.IdsPath.length == 2
 			@DrawPath @state.IdsPath
 			@state.MatrixNamesNodes.push @state.IdsPath
-			@setState _Matrix: mx @state.MatrixNamesNodes, @state.Nodes.length
+			@setState _Matrix: amx @state.MatrixNamesNodes, @state.Nodes.length
 			@setState IdsPath: []
 			
 

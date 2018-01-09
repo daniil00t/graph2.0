@@ -14,13 +14,12 @@ Deleting = React.createClass
 	render: ->
 
 		<div className="wrapMods">
-			<i class="fa fa-sliders" aria-hidden="true"></i>
 			<div className="wrapDeleting">
 				<div className="labelFor">
 					<span>Deleting Mode: </span>
 				</div>
 				<div className="toggleWrapper">
-				  <input type="checkbox" name="toggle2" className="mobileToggle" id="toggle2" onChange={(e) => @handleChangeDeleting e}/>
+				  <input type="checkbox" name="toggle2" className="mobileToggle" id="toggle1" onChange={(e) => @handleChangeDeleting e}/>
 				</div>
 			</div>
 			<div className="wrapModeNodesNumbering">

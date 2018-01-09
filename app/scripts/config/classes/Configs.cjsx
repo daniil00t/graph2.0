@@ -43,6 +43,7 @@ Configs = React.createClass
 				<Matrix matrix={@props.matrix} key="Matrix"/>
 				<hr />
 				<History data={@props.history} key="History"/>
+				<p className="copyright_configs">&copy;Daniil Shenyagin, 2018</p>
 			</div>
 		</div>
 

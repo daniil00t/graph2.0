@@ -6,6 +6,7 @@ History = React.createClass
 		<div className="wrap_history">
 			<div className="history">
 				{
+					
 					@props.data.map (i, j)->
 						<div className="history_item" key="item#{j}">{i.type}: {i.MainData}</div>
 				}

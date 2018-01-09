@@ -4,7 +4,7 @@
 @import "layout";
 @import "overrides";
 @import "checkbox";
-@import "./libs/less/font-awesome";
+@import "./libs/less/fontawesome";
 
 #app{
   height: 100%;
@@ -25,13 +25,16 @@ svg{
 .wrap_configs{
 	float: right;
 	width: 19.9999%;
+	height: 100%;
 	.configs{
+		overflow: hidden;
+		position: relative;
 		padding: 10px;
 		display: block;
 		background-color: #333;
 		border-radius: 5px;
 		width: 90%;
-		height: 700px;
+		height: 97%;
 		margin: 10px auto;
 		color: #fff;
 		.colors_switch{
@@ -70,6 +73,14 @@ svg{
 				height: 25px;
 			}
 		}
+	.copyright_configs{
+		position: absolute;
+		bottom: 0;
+		text-align: center;
+		width: 100%;
+		color: #DBDBDB;
+	}
+		
 	}
 	.wrap_history{
 		max-height: 150px;
@@ -85,8 +96,8 @@ svg{
 }
 .wrapMatrix{
 	overflow-y: scroll;
-	max-height: 150px;
-	table.Matrix{
+	max-height: 250px;
+	table.AdjecancyMatrix{
 		tr{
 			td{
 				padding: 0 5px;
@@ -95,5 +106,13 @@ svg{
 	}	
 }
 
-
-
+.cgray50{
+	color: #ACACAC;
+}
+.switchMatrix{
+	font-size: 20px !important;
+	margin-right: 5px;
+}
+.IconAction{
+	color: #3BCDB5;
+}
