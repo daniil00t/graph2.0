@@ -7,7 +7,7 @@ History = require './history.class'
 Mods = require "./mods.class"
 
 
-COLORS = ["#2e9f5c", "#47356C", "#FF0018", "#0DF6FF", "#440BDB", "#FFAA0D"]
+COLORS = ["#2e9f5c", "#2866F7", "#C9283E", "#0DF6FF", "#023852", ["#FFAA0D", "#2B9483", "#F53855"]]
 
 
 
@@ -43,6 +43,7 @@ Configs = React.createClass
 				<Matrix matrix={@props.matrix} key="Matrix"/>
 				<hr />
 				<History data={@props.history} key="History"/>
+				<p className="copyright_configs">&copy;Daniil Shenyagin, 2018</p>
 			</div>
 		</div>
 

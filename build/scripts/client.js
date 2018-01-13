@@ -10,7 +10,7 @@ React.render(React.createElement(App, null), document.getElementById('app'));
 
 
 },{"./app":2,"react":"react"}],2:[function(require,module,exports){
-var App, Configs, Node, Path, React, ee, history_app, mx;
+var App, Configs, Node, Path, React, amx, ee, history_app;
 
 React = require('react');
 
@@ -22,7 +22,7 @@ Path = require("./figures/Path");
 
 Configs = require('./config/classes/Configs');
 
-mx = require('./config/modules/matrix.fn');
+amx = require('./config/modules/adjacency_matrix.fn');
 
 history_app = require("./config/modules/history.module");
 
@@ -67,7 +67,7 @@ App = React.createClass({
       r: r
     });
     this.setState({
-      _Matrix: mx(this.state.MatrixNamesNodes, this.state.Nodes.length)
+      _Matrix: amx(this.state.MatrixNamesNodes, this.state.Nodes.length)
     });
     return history_app.setEvent({
       cx: cx,
@@ -164,7 +164,7 @@ App = React.createClass({
       MatrixNamesNodes: tmpMN
     });
     return this.setState({
-      _Matrix: mx(this.state.MatrixNamesNodes, this.state.Nodes.length)
+      _Matrix: amx(this.state.MatrixNamesNodes, this.state.Nodes.length)
     });
   },
   AddPath: function(id) {
@@ -173,7 +173,7 @@ App = React.createClass({
       this.DrawPath(this.state.IdsPath);
       this.state.MatrixNamesNodes.push(this.state.IdsPath);
       this.setState({
-        _Matrix: mx(this.state.MatrixNamesNodes, this.state.Nodes.length)
+        _Matrix: amx(this.state.MatrixNamesNodes, this.state.Nodes.length)
       });
       return this.setState({
         IdsPath: []
@@ -322,7 +322,7 @@ module.exports = App;
 
 
 
-},{"./config/classes/Configs":3,"./config/modules/history.module":9,"./config/modules/matrix.fn":10,"./figures/Node":11,"./figures/Path":12,"./global/Events":13,"react":"react"}],3:[function(require,module,exports){
+},{"./config/classes/Configs":3,"./config/modules/adjacency_matrix.fn":9,"./config/modules/history.module":10,"./figures/Node":11,"./figures/Path":12,"./global/Events":13,"react":"react"}],3:[function(require,module,exports){
 var COLORS, Colors, Configs, History, Matrix, Mods, RadiusChanger, React, ee;
 
 React = require('react');
@@ -339,7 +339,7 @@ History = require('./history.class');
 
 Mods = require("./mods.class");
 
-COLORS = ["#2e9f5c", "#47356C", "#FF0018", "#0DF6FF", "#440BDB", "#FFAA0D"];
+COLORS = ["#2e9f5c", "#2866F7", "#C9283E", "#0DF6FF", "#023852", ["#FFAA0D", "#2B9483", "#F53855"]];
 
 Configs = React.createClass({
   displayName: 'Configs',
@@ -412,7 +412,9 @@ Configs = React.createClass({
     }), React.createElement("hr", null), React.createElement(History, {
       "data": this.props.history,
       "key": "History"
-    })));
+    }), React.createElement("p", {
+      "className": "copyright_configs"
+    }, "©Daniil Shenyagin, 2018")));
   }
 });
 
@@ -498,14 +500,25 @@ Colors = React.createClass({
       "id": "span_switch_color"
     }, "Switch color nodes:"), React.createElement("br", null), this.props.colors.map((function(_this) {
       return function(i, j) {
-        return React.createElement("div", {
-          "style": {
-            backgroundColor: i.color
-          },
-          "className": (i.active ? "color_item active" : "color_item"),
-          "onClick": _this.props.onChange.bind(null, i.id),
-          "key": "Color" + j
-        });
+        if (typeof i.color === "string") {
+          return React.createElement("div", {
+            "style": {
+              backgroundColor: i.color
+            },
+            "className": (i.active ? "color_item active" : "color_item"),
+            "onClick": _this.props.onChange.bind(null, i.id),
+            "key": "Color" + j
+          });
+        } else {
+          return React.createElement("div", {
+            "style": {
+              backgroundColor: i.color[0]
+            },
+            "className": (i.active ? "color_item active" : "color_item"),
+            "onClick": _this.props.onChange.bind(null, i.id),
+            "key": "Color" + j
+          });
+        }
       };
     })(this)));
   }
@@ -547,23 +560,74 @@ React = require('react');
 
 Matrix = React.createClass({
   displayName: "Matrix",
+  getInitialState: function() {
+    return {
+      matrixNow: "AdjecencyMatrix"
+    };
+  },
+  switchMatrix: function(obj) {
+    var i, k, len, tmp;
+    tmp = obj.e.target.classList.value.split(' ');
+    for (k = 0, len = tmp.length; k < len; k++) {
+      i = tmp[k];
+      if (i !== "IconAction") {
+        continue;
+      } else {
+        tmp.push("IconAction");
+        break;
+      }
+    }
+    obj.e.target.classList.value = tmp.join(" ");
+    if (this.state.matrixNow !== obj.type) {
+      return this.setState({
+        matrixNow: obj.type
+      });
+    }
+  },
   render: function() {
     return React.createElement("div", {
       "className": "wrapMatrix"
     }, React.createElement("i", {
-      "class": "fa fa-th",
-      "aria-hidden": "true"
-    }), React.createElement("table", {
-      "className": "Matrix"
+      "className": (this.state.matrixNow === "AdjecencyMatrix" ? "fa far fa-table switchMatrix IconAction" : "fa far fa-table switchMatrix"),
+      "title": "AdjecencyMatrix",
+      "onClick": ((function(_this) {
+        return function(e) {
+          return _this.switchMatrix({
+            type: "AdjecencyMatrix",
+            e: e
+          });
+        };
+      })(this))
+    }), React.createElement("i", {
+      "className": (this.state.matrixNow === "IncindenceMatrix" ? "fa far fa-table switchMatrix IconAction" : "fa far fa-table switchMatrix"),
+      "title": "IncindenceMatrix",
+      "onClick": ((function(_this) {
+        return function(e) {
+          return _this.switchMatrix({
+            type: "IncindenceMatrix",
+            e: e
+          });
+        };
+      })(this))
+    }), React.createElement("br", null), (this.state.matrixNow === "AdjecencyMatrix" ? this.props.matrix.length !== 0 ? React.createElement("table", {
+      "className": "AdjecancyMatrix"
     }, this.props.matrix.map(function(i, l) {
       return React.createElement("tr", {
         "key": "tr" + l
       }, i.map(function(j, p) {
-        return React.createElement("td", {
-          "key": "td" + p
-        }, j);
+        if (j === 1) {
+          return React.createElement("td", {
+            "key": "td" + p
+          }, j);
+        }
+        if (j === 0) {
+          return React.createElement("td", {
+            "className": "cgray50",
+            "key": "td" + p
+          }, j);
+        }
       }));
-    })));
+    })) : React.createElement("span", null, "Adjecency matrix is empty", React.createElement("br", null), "Сlick into the empty space...") : this.state.matrixNow === "IncindenceMatrix" ? React.createElement("span", null, "Incindence matrix is empty", React.createElement("br", null), "Сlick into the empty space...") : void 0));
   }
 });
 
@@ -601,10 +665,7 @@ Deleting = React.createClass({
   render: function() {
     return React.createElement("div", {
       "className": "wrapMods"
-    }, React.createElement("i", {
-      "class": "fa fa-sliders",
-      "aria-hidden": "true"
-    }), React.createElement("div", {
+    }, React.createElement("div", {
       "className": "wrapDeleting"
     }, React.createElement("div", {
       "className": "labelFor"
@@ -614,7 +675,7 @@ Deleting = React.createClass({
       "type": "checkbox",
       "name": "toggle2",
       "className": "mobileToggle",
-      "id": "toggle2",
+      "id": "toggle1",
       "onChange": ((function(_this) {
         return function(e) {
           return _this.handleChangeDeleting(e);
@@ -644,81 +705,7 @@ module.exports = Deleting;
 
 
 
-},{"../../global/Events":13,"../modules/history.module":9,"react":"react"}],9:[function(require,module,exports){
-var History_class, ee, history_app;
-
-ee = require("../../global/Events");
-
-
-/*
-HISTORY = [
-	{ type: "AddNode", date: "21:3:58", id: "circle0" }
-	{ type: "AddNode", date: "21:3:59", id: "circle1" }
-	{ type: "AddPath", date: "21:4:11" }
-]
- */
-
-History_class = (function() {
-  function History_class() {
-    this.HISTORY = [];
-    this.Configs = {
-      use: ["user", "App"]
-    };
-    this.types_history = ["AddNode", "AddPath", "DeleteNode", "changeColorNode", "changeRadiusNode"];
-  }
-
-  History_class.prototype.setEvent = function(obj, type_event) {
-    var strDate, tmp, tmpstrDate;
-    tmp = {};
-    tmpstrDate = new Date;
-    strDate = "" + tmpstrDate.getHours() + ":" + tmpstrDate.getMinutes() + ":" + tmpstrDate.getSeconds();
-    tmp["type"] = type_event;
-    if (type_event === "AddNode") {
-      tmp["MainData"] = obj.id;
-    }
-    if (type_event === "changeColorNode") {
-      tmp["MainData"] = obj.color;
-    }
-    if (type_event === "AddPath") {
-      tmp["MainData"] = obj.d;
-    }
-    if (type_event === "changeRadiusNode") {
-      tmp["MainData"] = obj.r;
-    }
-    if (type_event === "deleteMode") {
-      tmp["MainData"] = "" + obj.deletingMode;
-    }
-    if (type_event === "DeleteNodeById") {
-      tmp["MainData"] = obj.id;
-    }
-    if (type_event === "modeNodesNumbering") {
-      tmp["MainData"] = "" + obj.modeNodesNumbering;
-    }
-    tmp["date"] = strDate;
-    if (obj.id != null) {
-      tmp['id'] = obj.id;
-    }
-    this.HISTORY.push(tmp);
-    return ee.emit('changeHistory', {
-      data: this.HISTORY
-    });
-  };
-
-  History_class.prototype.getHistory = function() {
-    return this.HISTORY;
-  };
-
-  return History_class;
-
-})();
-
-history_app = new History_class;
-
-module.exports = history_app;
-
-
-
-},{"../../global/Events":13}],10:[function(require,module,exports){
+},{"../../global/Events":13,"../modules/history.module":10,"react":"react"}],9:[function(require,module,exports){
 
 /*
 matrix = [
@@ -797,7 +784,81 @@ module.exports = getMatrix;
 
 
 
-},{}],11:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
+var History_class, ee, history_app;
+
+ee = require("../../global/Events");
+
+
+/*
+HISTORY = [
+	{ type: "AddNode", date: "21:3:58", id: "circle0" }
+	{ type: "AddNode", date: "21:3:59", id: "circle1" }
+	{ type: "AddPath", date: "21:4:11" }
+]
+ */
+
+History_class = (function() {
+  function History_class() {
+    this.HISTORY = [];
+    this.Configs = {
+      use: ["user", "App"]
+    };
+    this.types_history = ["AddNode", "AddPath", "DeleteNode", "changeColorNode", "changeRadiusNode"];
+  }
+
+  History_class.prototype.setEvent = function(obj, type_event) {
+    var strDate, tmp, tmpstrDate;
+    tmp = {};
+    tmpstrDate = new Date;
+    strDate = "" + tmpstrDate.getHours() + ":" + tmpstrDate.getMinutes() + ":" + tmpstrDate.getSeconds();
+    tmp["type"] = type_event;
+    if (type_event === "AddNode") {
+      tmp["MainData"] = obj.id;
+    }
+    if (type_event === "changeColorNode") {
+      tmp["MainData"] = obj.color;
+    }
+    if (type_event === "AddPath") {
+      tmp["MainData"] = obj.d;
+    }
+    if (type_event === "changeRadiusNode") {
+      tmp["MainData"] = obj.r;
+    }
+    if (type_event === "deleteMode") {
+      tmp["MainData"] = "" + obj.deletingMode;
+    }
+    if (type_event === "DeleteNodeById") {
+      tmp["MainData"] = obj.id;
+    }
+    if (type_event === "modeNodesNumbering") {
+      tmp["MainData"] = "" + obj.modeNodesNumbering;
+    }
+    tmp["date"] = strDate;
+    if (obj.id != null) {
+      tmp['id'] = obj.id;
+    }
+    this.HISTORY.push(tmp);
+    return ee.emit('changeHistory', {
+      data: this.HISTORY
+    });
+  };
+
+  History_class.prototype.getHistory = function() {
+    return this.HISTORY;
+  };
+
+  return History_class;
+
+})();
+
+history_app = new History_class;
+
+module.exports = history_app;
+
+
+
+},{"../../global/Events":13}],11:[function(require,module,exports){
 var Node, React;
 
 React = require('react');
@@ -823,7 +884,7 @@ Node = React.createClass({
         "dy": ".6em",
         "fontFamily": "sans-serif",
         "fontSize": "17px"
-      }, (this.props.id.match(/\d+/g)[0])));
+      }, "" + (+this.props.id.match(/\d+/g)[0] + 1)));
     } else {
       return React.createElement("circle", {
         "cx": this.props.cx,
