@@ -8,9 +8,13 @@ Deleting = React.createClass
 		#console.log e.target.checked
 		history_app.setEvent {deletingMode: e.target.checked}, "deleteMode"
 		ee.emit 'changeDeletingMode', {data: e.target.checked}
-	handleChangeModeNodesNumbering: (e) ->
+	handleChangeModeNodesNumbering: (e)->
 		history_app.setEvent {modeNodesNumbering: e.target.checked}, "modeNodesNumbering"
 		ee.emit 'ChangeModeNodesNumbering', {data: e.target.checked}
+	handleChangeModeCalcWeight: (e)->
+		history_app.setEvent {data: e.target.checked}, "calcWeightPathsMode"
+		ee.emit 'ChangeCalcWeightPathsMode', {data: e.target.checked}
+
 	render: ->
 
 		<div className="wrapMods">
@@ -28,6 +32,14 @@ Deleting = React.createClass
 				</div>
 				<div className="toggleWrapper">
 				  <input type="checkbox" name="toggle2" className="mobileToggle" id="toggle2" onChange={(e) => @handleChangeModeNodesNumbering e}/>
+				</div>
+			</div>
+			<div className="wrapModeCalcWeight">
+				<div className="labelFor">
+					<span>CalcWeightPathMode: </span>
+				</div>
+				<div className="toggleWrapper">
+				  <input type="checkbox" name="toggle2" className="mobileToggle" id="toggle3" onChange={(e) => @handleChangeModeCalcWeight e}/>
 				</div>
 			</div>
 		</div>

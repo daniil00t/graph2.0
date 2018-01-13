@@ -10,7 +10,7 @@ React.render(React.createElement(App, null), document.getElementById('app'));
 
 
 },{"./app":2,"react":"react"}],2:[function(require,module,exports){
-var App, Configs, Node, Path, React, amx, ee, history_app;
+var App, Configs, Node, Path, React, amx, ee, getWeight, history_app;
 
 React = require('react');
 
@@ -19,6 +19,8 @@ ee = require('./global/Events');
 Node = require("./figures/Node");
 
 Path = require("./figures/Path");
+
+getWeight = require("./config/modules/calcWeightPaths.fn");
 
 Configs = require('./config/classes/Configs');
 
@@ -34,6 +36,7 @@ App = React.createClass({
       Paths: [],
       deletingMode: false,
       modeNodesNumbering: false,
+      calcWeightMode: false,
       history_app: [],
       _Matrix: [],
       MatrixNamesNodes: [],
@@ -185,7 +188,7 @@ App = React.createClass({
     }
   },
   DrawPath: function(ids) {
-    var coords, cx, cy, i, j, k, len, len1, m, str;
+    var __xy, _xy, coords, cx, cy, i, j, k, len, len1, len2, m, n, ref, self, str;
     coords = [];
     str = "M";
     if (ids[0] === ids[1]) {
@@ -216,7 +219,49 @@ App = React.createClass({
     history_app.setEvent({
       d: str
     }, "AddPath");
-    return this.state.Paths.push(str);
+    _xy = {
+      x: 0,
+      y: 0
+    };
+    __xy = {
+      x: 0,
+      y: 0
+    };
+    ref = this.state.Nodes;
+    for (n = 0, len2 = ref.length; n < len2; n++) {
+      i = ref[n];
+      if (ids[0] === i.id) {
+        _xy.x = i.cx;
+        _xy.y = i.cy;
+      } else {
+        if (ids[1] === i.id) {
+          __xy.x = i.cx;
+          __xy.y = i.cy;
+        }
+      }
+    }
+    self = this;
+    return this.state.Paths.push({
+      d: str,
+      coords1: {
+        x: _xy.x,
+        y: _xy.y
+      },
+      coords2: {
+        x: __xy.x,
+        y: __xy.y
+      },
+      weight: getWeight([
+        {
+          x: _xy.x,
+          y: _xy.y
+        }, {
+          x: __xy.x,
+          y: __xy.y
+        }
+      ]),
+      fill: self.state.colorNodes
+    });
   },
   deletingModeActive: function() {
     var i, k, len, ref, results;
@@ -278,6 +323,13 @@ App = React.createClass({
         });
       };
     })(this));
+    ee.on("ChangeCalcWeightPathsMode", (function(_this) {
+      return function(data) {
+        return _this.setState({
+          calcWeightMode: data.data
+        });
+      };
+    })(this));
     return ee.on('changeHistory', (function(_this) {
       return function(data) {
         return _this.setState({
@@ -299,11 +351,19 @@ App = React.createClass({
           return _this.handleClick(e);
         };
       })(this))
-    }, React.createElement("desc", null, "Created with Daniil(den50)"), React.createElement("defs", null), this.state.Paths.map(function(i) {
-      return React.createElement(Path, {
-        "d": i
-      });
-    }), this.state.Nodes.map((function(_this) {
+    }, React.createElement("desc", null, "Created with Daniil(den50)"), React.createElement("defs", null), this.state.Paths.map((function(_this) {
+      return function(i) {
+        console.log(i);
+        return React.createElement(Path, {
+          "d": i.d,
+          "_xy": i.coords1,
+          "__xy": i.coords2,
+          "weight": i.weight,
+          "fill": i.fill,
+          "CalcWeightMode": _this.state.calcWeightMode
+        });
+      };
+    })(this)), this.state.Nodes.map((function(_this) {
       return function(i) {
         return React.createElement(Node, {
           "cx": i.cx,
@@ -326,7 +386,7 @@ module.exports = App;
 
 
 
-},{"./config/classes/Configs":3,"./config/modules/adjacency_matrix.fn":9,"./config/modules/history.module":10,"./figures/Node":11,"./figures/Path":12,"./global/Events":13,"react":"react"}],3:[function(require,module,exports){
+},{"./config/classes/Configs":3,"./config/modules/adjacency_matrix.fn":9,"./config/modules/calcWeightPaths.fn":10,"./config/modules/history.module":11,"./figures/Node":12,"./figures/Path":13,"./global/Events":14,"react":"react"}],3:[function(require,module,exports){
 var COLORS, Colors, Configs, History, Matrix, Mods, RadiusChanger, React, ee;
 
 React = require('react');
@@ -426,7 +486,7 @@ module.exports = Configs;
 
 
 
-},{"../../global/Events":13,"./RadiusChanger":4,"./colors":5,"./history.class":6,"./matrix.class":7,"./mods.class":8,"react":"react"}],4:[function(require,module,exports){
+},{"../../global/Events":14,"./RadiusChanger":4,"./colors":5,"./history.class":6,"./matrix.class":7,"./mods.class":8,"react":"react"}],4:[function(require,module,exports){
 var RadiusChanger, React, ee;
 
 React = require('react');
@@ -487,7 +547,7 @@ module.exports = RadiusChanger;
 
 
 
-},{"../../global/Events":13,"react":"react"}],5:[function(require,module,exports){
+},{"../../global/Events":14,"react":"react"}],5:[function(require,module,exports){
 var Colors, React;
 
 React = require('react');
@@ -666,6 +726,14 @@ Deleting = React.createClass({
       data: e.target.checked
     });
   },
+  handleChangeModeCalcWeight: function(e) {
+    history_app.setEvent({
+      data: e.target.checked
+    }, "calcWeightPathsMode");
+    return ee.emit('ChangeCalcWeightPathsMode', {
+      data: e.target.checked
+    });
+  },
   render: function() {
     return React.createElement("div", {
       "className": "wrapMods"
@@ -701,6 +769,22 @@ Deleting = React.createClass({
           return _this.handleChangeModeNodesNumbering(e);
         };
       })(this))
+    }))), React.createElement("div", {
+      "className": "wrapModeCalcWeight"
+    }, React.createElement("div", {
+      "className": "labelFor"
+    }, React.createElement("span", null, "CalcWeightPathMode: ")), React.createElement("div", {
+      "className": "toggleWrapper"
+    }, React.createElement("input", {
+      "type": "checkbox",
+      "name": "toggle2",
+      "className": "mobileToggle",
+      "id": "toggle3",
+      "onChange": ((function(_this) {
+        return function(e) {
+          return _this.handleChangeModeCalcWeight(e);
+        };
+      })(this))
     }))));
   }
 });
@@ -709,7 +793,7 @@ module.exports = Deleting;
 
 
 
-},{"../../global/Events":13,"../modules/history.module":10,"react":"react"}],9:[function(require,module,exports){
+},{"../../global/Events":14,"../modules/history.module":11,"react":"react"}],9:[function(require,module,exports){
 
 /*
 matrix = [
@@ -789,6 +873,39 @@ module.exports = getMatrix;
 
 
 },{}],10:[function(require,module,exports){
+
+/*
+	coords = [
+		{
+			d: "M 365, 171L 123, 66Z", 
+			coords1: {x: 365, y: 171}, 
+			coords2: {x: 123, y: 66}
+		}
+	]
+ */
+var getWeight;
+
+getWeight = function(coords) {
+  var cat1, cat2, coords1, coords2, hypotenuse;
+  coords1 = {
+    x: coords[0].x,
+    y: coords[0].y
+  };
+  coords2 = {
+    x: coords[1].x,
+    y: coords[1].y
+  };
+  cat1 = Math.abs(coords1.x - coords2.x);
+  cat2 = Math.abs(coords1.y - coords2.y);
+  hypotenuse = Math.sqrt((Math.pow(cat1, 2)) + (Math.pow(cat2, 2)));
+  return (Math.round(hypotenuse)) / 20;
+};
+
+module.exports = getWeight;
+
+
+
+},{}],11:[function(require,module,exports){
 var History_class, ee, history_app;
 
 ee = require("../../global/Events");
@@ -838,6 +955,9 @@ History_class = (function() {
     if (type_event === "modeNodesNumbering") {
       tmp["MainData"] = "" + obj.modeNodesNumbering;
     }
+    if (type_event === "calcWeightPathsMode") {
+      tmp["MainData"] = "" + obj.data;
+    }
     tmp["date"] = strDate;
     if (obj.id != null) {
       tmp['id'] = obj.id;
@@ -862,7 +982,7 @@ module.exports = history_app;
 
 
 
-},{"../../global/Events":13}],11:[function(require,module,exports){
+},{"../../global/Events":14}],12:[function(require,module,exports){
 var Node, React;
 
 React = require('react');
@@ -905,22 +1025,52 @@ module.exports = Node;
 
 
 
-},{"react":"react"}],12:[function(require,module,exports){
+},{"react":"react"}],13:[function(require,module,exports){
 var Path, React;
 
 React = require('react');
 
 Path = React.createClass({
   displayName: 'Path',
+  componentWillMount: function() {
+    return console.log(Math.min(this.props._xy.x, this.props.__xy.x + (Math.abs(this.props._xy.x - this.props.__xy.x)) / 2 - 10));
+  },
   render: function() {
-    return React.createElement("path", {
-      "d": this.props.d,
-      "fill": "transparent",
-      "stroke": "black",
-      "style": {
-        strokeWidth: 2
-      }
-    });
+    if (this.props.CalcWeightMode) {
+      return React.createElement("g", null, React.createElement("path", {
+        "d": this.props.d,
+        "fill": "transparent",
+        "stroke": "black",
+        "style": {
+          strokeWidth: 2
+        }
+      }), React.createElement("rect", {
+        "x": Math.min(this.props._xy.x, this.props.__xy.x) + (Math.abs(this.props._xy.x - this.props.__xy.x)) / 2 - 23.5,
+        "y": Math.min(this.props._xy.y, this.props.__xy.y) + (Math.abs(this.props._xy.y - this.props.__xy.y)) / 2 - 16,
+        "width": "60",
+        "height": "30",
+        "fill": this.props.fill,
+        "widthStroke": "5",
+        "stroke": "#333"
+      }), React.createElement("text", {
+        "x": Math.min(this.props._xy.x, this.props.__xy.x) + (Math.abs(this.props._xy.x - this.props.__xy.x)) / 2 - 15,
+        "y": Math.min(this.props._xy.y, this.props.__xy.y) + (Math.abs(this.props._xy.y - this.props.__xy.y)) / 2 - 5,
+        "fill": "#fff",
+        "dy": ".6em",
+        "fontFamily": "sans-serif",
+        "fontSize": "17px",
+        "className": "weightPaths"
+      }, "" + this.props.weight));
+    } else {
+      return React.createElement("path", {
+        "d": this.props.d,
+        "fill": "transparent",
+        "stroke": "black",
+        "style": {
+          strokeWidth: 2
+        }
+      });
+    }
   }
 });
 
@@ -928,7 +1078,7 @@ module.exports = Path;
 
 
 
-},{"react":"react"}],13:[function(require,module,exports){
+},{"react":"react"}],14:[function(require,module,exports){
 var EventEmitter, ee;
 
 EventEmitter = require("events").EventEmitter;
@@ -939,7 +1089,7 @@ module.exports = ee;
 
 
 
-},{"events":14}],14:[function(require,module,exports){
+},{"events":15}],15:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a

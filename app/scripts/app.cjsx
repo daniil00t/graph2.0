@@ -4,6 +4,8 @@ ee = require './global/Events'														#|Events
 Node = require "./figures/Node"														#|Figures
 Path = require "./figures/Path"														#|
 
+getWeight = require "./config/modules/calcWeightPaths.fn"
+
 Configs = require './config/classes/Configs'							#|Configs class
 amx = require './config/modules/adjacency_matrix.fn'									#|module matrix
 history_app = require "./config/modules/history.module"	  #|module history
@@ -18,6 +20,7 @@ App = React.createClass
 		Paths: []
 		deletingMode: false
 		modeNodesNumbering: false
+		calcWeightMode: false
 		history_app: []
 		_Matrix: []
 		MatrixNamesNodes: []
@@ -25,6 +28,7 @@ App = React.createClass
 		radiusNode: 20
 		IdsPath: []
 		val: 0
+
 
 
 	handleClick: (e)->
@@ -129,7 +133,28 @@ App = React.createClass
 				else
 					str += "L #{i.cx}, #{i.cy}Z"
 		history_app.setEvent {d: str}, "AddPath"
-		@state.Paths.push str
+		_xy = 
+			x: 0
+			y: 0
+		__xy = 
+			x: 0
+			y: 0
+		for i in @state.Nodes
+			if ids[0] == i.id
+				_xy.x = i.cx
+				_xy.y = i.cy
+			else
+				if ids[1] == i.id
+					__xy.x = i.cx
+					__xy.y = i.cy
+
+		self = @
+		@state.Paths.push 
+			d: str
+			coords1: {x: _xy.x, y: _xy.y}
+			coords2: {x: __xy.x, y: __xy.y}
+			weight: getWeight [{x: _xy.x, y: _xy.y}, x: __xy.x, y: __xy.y]
+			fill: self.state.colorNodes
 	deletingModeActive: ->
 		for i in @state.Nodes
 			i.color = "#FF0018"
@@ -152,6 +177,8 @@ App = React.createClass
 			if data.data then @deletingModeActive() else @deletingModeNoActive()
 		ee.on "ChangeModeNodesNumbering", (data)=>
 			@setState modeNodesNumbering: data.data
+		ee.on "ChangeCalcWeightPathsMode", (data)=>
+					@setState calcWeightMode: data.data
 
 
 		ee.on 'changeHistory', (data) =>
@@ -163,13 +190,14 @@ App = React.createClass
 		  	<desc>Created with Daniil(den50)</desc>
 		  	<defs></defs>
 				{
-		  		@state.Paths.map((i)->
-		  			<Path d={i}/>
+		  		@state.Paths.map((i)=>
+		  			console.log i
+		  			<Path d={i.d} _xy={i.coords1} __xy={i.coords2} weight={i.weight} fill={i.fill} CalcWeightMode={@state.calcWeightMode} />
 		  		)
 		  	}
 		  	{
 		  		@state.Nodes.map((i)=>
-		  			<Node cx={i.cx} cy={i.cy} id={i.id} bgc={i.color} r={i.r}  numberingNodesMode={@state.modeNodesNumbering} />
+		  			<Node cx={i.cx} cy={i.cy} id={i.id} bgc={i.color} r={i.r} numberingNodesMode={@state.modeNodesNumbering} />
 		  		)
 		  	}
 		  </svg>
