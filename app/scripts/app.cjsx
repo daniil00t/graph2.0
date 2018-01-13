@@ -33,11 +33,14 @@ App = React.createClass
 		if e.target.nodeName == "svg" and !@state.deletingMode
 			@setState val: @state.val + 1
 			@AddNode e.nativeEvent.offsetX, e.nativeEvent.offsetY, "circle"+@state.val, @state.colorNodes, @state.radiusNode
-		if e.target.nodeName == "circle" or e.target.nodeName == "text" 
-			if !@state.deletingMode
-				@AddPath e.target.id
-			else
+		if e.target.nodeName == "circle" or e.target.nodeName == "text"
+			if e.altKey
 				@DeleteNodeById(e.target.id)
+			else
+				if !@state.deletingMode
+					@AddPath e.target.id
+				else
+					@DeleteNodeById(e.target.id)
 
 	AddNode: (cx, cy, id, color, r)->
 		@state.Nodes.push {cx: cx, cy: cy, id: id, color: color, r: r}

@@ -51,10 +51,14 @@ App = React.createClass({
       this.AddNode(e.nativeEvent.offsetX, e.nativeEvent.offsetY, "circle" + this.state.val, this.state.colorNodes, this.state.radiusNode);
     }
     if (e.target.nodeName === "circle" || e.target.nodeName === "text") {
-      if (!this.state.deletingMode) {
-        return this.AddPath(e.target.id);
-      } else {
+      if (e.altKey) {
         return this.DeleteNodeById(e.target.id);
+      } else {
+        if (!this.state.deletingMode) {
+          return this.AddPath(e.target.id);
+        } else {
+          return this.DeleteNodeById(e.target.id);
+        }
       }
     }
   },
