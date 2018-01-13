@@ -74,7 +74,7 @@ App = React.createClass({
       r: r
     });
     this.setState({
-      _Matrix: amx(this.state.MatrixNamesNodes, this.state.Nodes.length)
+      _Matrix: amx(this.state.MatrixNamesNodes, this.state.Paths, this.state.Nodes.length, this.state.calcWeightMode)
     });
     return history_app.setEvent({
       cx: cx,
@@ -171,7 +171,7 @@ App = React.createClass({
       MatrixNamesNodes: tmpMN
     });
     return this.setState({
-      _Matrix: amx(this.state.MatrixNamesNodes, this.state.Nodes.length)
+      _Matrix: amx(this.state.MatrixNamesNodes, this.state.Paths, this.state.Nodes.length, this.state.calcWeightMode)
     });
   },
   AddPath: function(id) {
@@ -180,7 +180,7 @@ App = React.createClass({
       this.DrawPath(this.state.IdsPath);
       this.state.MatrixNamesNodes.push(this.state.IdsPath);
       this.setState({
-        _Matrix: amx(this.state.MatrixNamesNodes, this.state.Nodes.length)
+        _Matrix: amx(this.state.MatrixNamesNodes, this.state.Paths, this.state.Nodes.length, this.state.calcWeightMode)
       });
       return this.setState({
         IdsPath: []
@@ -233,11 +233,10 @@ App = React.createClass({
       if (ids[0] === i.id) {
         _xy.x = i.cx;
         _xy.y = i.cy;
-      } else {
-        if (ids[1] === i.id) {
-          __xy.x = i.cx;
-          __xy.y = i.cy;
-        }
+      }
+      if (ids[1] === i.id) {
+        __xy.x = i.cx;
+        __xy.y = i.cy;
       }
     }
     self = this;
@@ -325,8 +324,11 @@ App = React.createClass({
     })(this));
     ee.on("ChangeCalcWeightPathsMode", (function(_this) {
       return function(data) {
-        return _this.setState({
+        _this.setState({
           calcWeightMode: data.data
+        });
+        return _this.setState({
+          _Matrix: amx(_this.state.MatrixNamesNodes, _this.state.Paths, _this.state.Nodes.length, data.data)
         });
       };
     })(this));
@@ -351,9 +353,8 @@ App = React.createClass({
           return _this.handleClick(e);
         };
       })(this))
-    }, React.createElement("desc", null, "Created with Daniil(den50)"), React.createElement("defs", null), this.state.Paths.map((function(_this) {
+    }, React.createElement("desc", null, "Created with Daniil(https:\x2F\x2Fgithub.com\x2Fden50)"), React.createElement("defs", null), this.state.Paths.map((function(_this) {
       return function(i) {
-        console.log(i);
         return React.createElement(Path, {
           "d": i.d,
           "_xy": i.coords1,
@@ -604,8 +605,67 @@ React = require('react');
 
 History = React.createClass({
   displayName: "History",
+  getInitialState: function() {
+    return {
+      itemNow: "history"
+    };
+  },
+  switchItem: function(obj) {
+    var i, k, len, tmp;
+    tmp = obj.e.target.classList.value.split(' ');
+    for (k = 0, len = tmp.length; k < len; k++) {
+      i = tmp[k];
+      if (i !== "IconActionGold") {
+        continue;
+      } else {
+        tmp.push("IconActionGold");
+        break;
+      }
+    }
+    obj.e.target.classList.value = tmp.join(" ");
+    if (this.state.itemNow !== obj.type) {
+      return this.setState({
+        itemNow: obj.type
+      });
+    }
+  },
   render: function() {
     return React.createElement("div", {
+      "className": "wrapInfo"
+    }, React.createElement("i", {
+      "className": (this.state.itemNow === "history" ? "fa fa-history itemInfoIcon IconActionGold" : "fa fa-history itemInfoIcon"),
+      "title": "history",
+      "onClick": ((function(_this) {
+        return function(e) {
+          return _this.switchItem({
+            type: "history",
+            e: e
+          });
+        };
+      })(this))
+    }), React.createElement("i", {
+      "className": (this.state.itemNow === "database" ? "fa fa-database itemInfoIcon IconActionGold" : "fa fa-database itemInfoIcon"),
+      "title": "history",
+      "onClick": ((function(_this) {
+        return function(e) {
+          return _this.switchItem({
+            type: "database",
+            e: e
+          });
+        };
+      })(this))
+    }), React.createElement("i", {
+      "className": (this.state.itemNow === "map" ? "fa fa-map itemInfoIcon IconActionGold" : "fa fa-map itemInfoIcon"),
+      "title": "history",
+      "onClick": ((function(_this) {
+        return function(e) {
+          return _this.switchItem({
+            type: "map",
+            e: e
+          });
+        };
+      })(this))
+    }), (this.state.itemNow === "history" ? React.createElement("div", {
       "className": "wrap_history"
     }, React.createElement("div", {
       "className": "history"
@@ -614,7 +674,7 @@ History = React.createClass({
         "className": "history_item",
         "key": "item" + j
       }, i.type, ": ", i.MainData);
-    })));
+    }))) : this.state.itemNow === "database" ? React.createElement("div", null, "\t\t\t\t\t\t\tdatabase") : this.state.itemNow === "map" ? React.createElement("div", null, "\t\t\t\t\t\t\t\tmap") : void 0));
   }
 });
 
@@ -684,14 +744,13 @@ Matrix = React.createClass({
       return React.createElement("tr", {
         "key": "tr" + l
       }, i.map(function(j, p) {
-        if (j === 1) {
-          return React.createElement("td", {
-            "key": "td" + p
-          }, j);
-        }
         if (j === 0) {
           return React.createElement("td", {
             "className": "cgray50",
+            "key": "td" + p
+          }, j);
+        } else {
+          return React.createElement("td", {
             "key": "td" + p
           }, j);
         }
@@ -820,7 +879,7 @@ tmp_all = ""
  */
 var getMatrix;
 
-getMatrix = function(arr, n) {
+getMatrix = function(arr, paths, n, WeightMode) {
   var Mx, RevArr, i, j, k, l, len, len1, len2, len3, len4, len5, len6, m, o, p, q, r, ref, ref1, ref2, ref3, ref4, ref5, s, t, tmpArr, tmpObj, u;
   if (n > 0) {
     Mx = [];
@@ -837,7 +896,7 @@ getMatrix = function(arr, n) {
       for (o = 0, len1 = ref2.length; o < len1; o++) {
         q = ref2[o];
         if (i[0] === q) {
-          tmpObj[q][i[1]] = 1;
+          tmpObj[q][i[1]] = WeightMode ? Math.round(paths[j].weight) : 1;
         }
       }
     }
@@ -852,7 +911,7 @@ getMatrix = function(arr, n) {
       for (s = 0, len4 = ref3.length; s < len4; s++) {
         q = ref3[s];
         if (i[0] === q) {
-          tmpObj[q][i[1]] = 1;
+          tmpObj[q][i[1]] = WeightMode ? Math.round(paths[j].weight) : 1;
         }
       }
     }
@@ -900,10 +959,14 @@ getWeight = function(coords) {
     x: coords[1].x,
     y: coords[1].y
   };
-  cat1 = Math.abs(coords1.x - coords2.x);
-  cat2 = Math.abs(coords1.y - coords2.y);
-  hypotenuse = Math.sqrt((Math.pow(cat1, 2)) + (Math.pow(cat2, 2)));
-  return (Math.round(hypotenuse)) / 20;
+  if (coords1.x === coords2.x && coords1.y === coords2.y) {
+    return 12;
+  } else {
+    cat1 = Math.abs(coords1.x - coords2.x);
+    cat2 = Math.abs(coords1.y - coords2.y);
+    hypotenuse = Math.sqrt((Math.pow(cat1, 2)) + (Math.pow(cat2, 2)));
+    return (Math.round(hypotenuse)) / 20;
+  }
 };
 
 module.exports = getWeight;
@@ -1037,9 +1100,6 @@ React = require('react');
 
 Path = React.createClass({
   displayName: 'Path',
-  componentWillMount: function() {
-    return console.log(Math.min(this.props._xy.x, this.props.__xy.x + (Math.abs(this.props._xy.x - this.props.__xy.x)) / 2 - 10));
-  },
   render: function() {
     if (this.props.CalcWeightMode) {
       return React.createElement("g", null, React.createElement("path", {
@@ -1050,16 +1110,16 @@ Path = React.createClass({
           strokeWidth: 2
         }
       }), React.createElement("rect", {
-        "x": Math.min(this.props._xy.x, this.props.__xy.x) + (Math.abs(this.props._xy.x - this.props.__xy.x)) / 2 - 23.5,
-        "y": Math.min(this.props._xy.y, this.props.__xy.y) + (Math.abs(this.props._xy.y - this.props.__xy.y)) / 2 - 16,
+        "x": (this.props._xy.x !== this.props.__xy.x && this.props._xy.y !== this.props.__xy.y ? Math.min(this.props._xy.x, this.props.__xy.x) + (Math.abs(this.props._xy.x - this.props.__xy.x)) / 2 - 23.5 : this.props._xy.x - 29.5),
+        "y": (this.props._xy.x !== this.props.__xy.x && this.props._xy.y !== this.props.__xy.y ? Math.min(this.props._xy.y, this.props.__xy.y) + (Math.abs(this.props._xy.y - this.props.__xy.y)) / 2 - 16 : this.props._xy.y - 130),
         "width": "60",
         "height": "30",
         "fill": this.props.fill,
         "widthStroke": "5",
         "stroke": "#333"
       }), React.createElement("text", {
-        "x": Math.min(this.props._xy.x, this.props.__xy.x) + (Math.abs(this.props._xy.x - this.props.__xy.x)) / 2 - 15,
-        "y": Math.min(this.props._xy.y, this.props.__xy.y) + (Math.abs(this.props._xy.y - this.props.__xy.y)) / 2 - 5,
+        "x": (this.props._xy.x !== this.props.__xy.x && this.props._xy.y !== this.props.__xy.y ? Math.min(this.props._xy.x, this.props.__xy.x) + (Math.abs(this.props._xy.x - this.props.__xy.x)) / 2 - 15 : this.props._xy.x - 10),
+        "y": (this.props._xy.x !== this.props.__xy.x && this.props._xy.y !== this.props.__xy.y ? Math.min(this.props._xy.y, this.props.__xy.y) + (Math.abs(this.props._xy.y - this.props.__xy.y)) / 2 - 5 : this.props._xy.y - 120),
         "fill": "#fff",
         "dy": ".6em",
         "fontFamily": "sans-serif",

@@ -48,7 +48,7 @@ App = React.createClass
 
 	AddNode: (cx, cy, id, color, r)->
 		@state.Nodes.push {cx: cx, cy: cy, id: id, color: color, r: r}
-		@setState _Matrix: amx @state.MatrixNamesNodes, @state.Nodes.length
+		@setState _Matrix: amx @state.MatrixNamesNodes, @state.Paths, @state.Nodes.length, @state.calcWeightMode
 		history_app.setEvent {cx: cx, cy: cy, id: id, color: color, r: r}, 'AddNode'
 		#console.log @state.Nodes
 	DeleteLastNode: ->
@@ -104,14 +104,14 @@ App = React.createClass
 		else
 			@setState val: maxVal + 1
 		@setState MatrixNamesNodes: tmpMN
-		@setState _Matrix: amx @state.MatrixNamesNodes, @state.Nodes.length
+		@setState _Matrix: amx @state.MatrixNamesNodes, @state.Paths, @state.Nodes.length, @state.calcWeightMode
 
 	AddPath: (id)->
 		@state.IdsPath.push id
 		if @state.IdsPath.length == 2
 			@DrawPath @state.IdsPath
 			@state.MatrixNamesNodes.push @state.IdsPath
-			@setState _Matrix: amx @state.MatrixNamesNodes, @state.Nodes.length
+			@setState _Matrix: amx @state.MatrixNamesNodes, @state.Paths, @state.Nodes.length, @state.calcWeightMode
 			@setState IdsPath: []
 			
 
@@ -143,10 +143,9 @@ App = React.createClass
 			if ids[0] == i.id
 				_xy.x = i.cx
 				_xy.y = i.cy
-			else
-				if ids[1] == i.id
-					__xy.x = i.cx
-					__xy.y = i.cy
+			if ids[1] == i.id
+				__xy.x = i.cx
+				__xy.y = i.cy
 
 		self = @
 		@state.Paths.push 
@@ -178,7 +177,8 @@ App = React.createClass
 		ee.on "ChangeModeNodesNumbering", (data)=>
 			@setState modeNodesNumbering: data.data
 		ee.on "ChangeCalcWeightPathsMode", (data)=>
-					@setState calcWeightMode: data.data
+			@setState calcWeightMode: data.data
+			@setState _Matrix: amx @state.MatrixNamesNodes, @state.Paths, @state.Nodes.length, data.data
 
 
 		ee.on 'changeHistory', (data) =>
@@ -187,11 +187,10 @@ App = React.createClass
 	render: ->
 		<div id="wrap">
 		  <svg height="100%" version="1.1" width="100%" xmlns="http://www.w3.org/2000/svg" onClick={((e)=>this.handleClick e)}>
-		  	<desc>Created with Daniil(den50)</desc>
+		  	<desc>Created with Daniil(https://github.com/den50)</desc>
 		  	<defs></defs>
 				{
 		  		@state.Paths.map((i)=>
-		  			console.log i
 		  			<Path d={i.d} _xy={i.coords1} __xy={i.coords2} weight={i.weight} fill={i.fill} CalcWeightMode={@state.calcWeightMode} />
 		  		)
 		  	}

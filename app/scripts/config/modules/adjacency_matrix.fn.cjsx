@@ -25,7 +25,7 @@ tmp_all = ""
 		arr_ints[j] = +i
 
 ###
-getMatrix = (arr, n)->
+getMatrix = (arr, paths, n, WeightMode)->
 	if n > 0
 		Mx = []
 		tmpObj = {}
@@ -39,7 +39,7 @@ getMatrix = (arr, n)->
 		for i, j in arr
 			for q in Object.keys tmpObj
 				if i[0] == q
-					tmpObj[q][i[1]] = 1
+					tmpObj[q][i[1]] = if WeightMode then Math.round paths[j].weight else 1
 
 		#reverse arr
 		RevArr = []
@@ -50,7 +50,8 @@ getMatrix = (arr, n)->
 		for i, j in RevArr
 			for q in Object.keys tmpObj
 				if i[0] == q
-					tmpObj[q][i[1]] = 1
+					tmpObj[q][i[1]] = if WeightMode then Math.round paths[j].weight else 1
+
 		#From object into array
 		for i in Object.keys tmpObj
 			tmpArr = []

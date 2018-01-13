@@ -31,10 +31,10 @@ Matrix = React.createClass
 									<tr key="tr#{l}">
 										{
 											i.map (j, p)->
-												if j == 1
-													return <td key="td#{p}">{j}</td>
 												if j == 0
 													return <td className="cgray50" key="td#{p}">{j}</td>
+												else
+													return <td key="td#{p}">{j}</td>
 										}
 									</tr>
 							}
