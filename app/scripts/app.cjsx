@@ -206,3 +206,8 @@ App = React.createClass
 
 
 module.exports = App	  
+
+
+###
+copyright; Daniil Shenyagin, 2018
+###

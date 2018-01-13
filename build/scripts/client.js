@@ -385,6 +385,11 @@ App = React.createClass({
 module.exports = App;
 
 
+/*
+copyright; Daniil Shenyagin, 2018
+ */
+
+
 
 },{"./config/classes/Configs":3,"./config/modules/adjacency_matrix.fn":9,"./config/modules/calcWeightPaths.fn":10,"./config/modules/history.module":11,"./figures/Node":12,"./figures/Path":13,"./global/Events":14,"react":"react"}],3:[function(require,module,exports){
 var COLORS, Colors, Configs, History, Matrix, Mods, RadiusChanger, React, ee;
