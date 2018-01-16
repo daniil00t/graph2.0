@@ -4,10 +4,10 @@ ee = require './global/Events'														#|Events
 Node = require "./figures/Node"														#|Figures
 Path = require "./figures/Path"														#|
 
-getWeight = require "./config/modules/calcWeightPaths.fn"
+getWeight = require "./config/modules/calcWeightPaths.fn"	#|Get Weight for paths in Graph
 
 Configs = require './config/classes/Configs'							#|Configs class
-amx = require './config/modules/adjacency_matrix.fn'									#|module matrix
+amx = require './config/modules/adjacency_matrix.fn'			#|module matrix
 history_app = require "./config/modules/history.module"	  #|module history
 
 
@@ -24,6 +24,7 @@ App = React.createClass
 		history_app: []
 		_Matrix: []
 		MatrixNamesNodes: []
+		maps: []
 		colorNodes: "#2e9f5c"
 		radiusNode: 20
 		IdsPath: []
@@ -200,7 +201,11 @@ App = React.createClass
 		  		)
 		  	}
 		  </svg>
-		  <Configs matrix={@state._Matrix} history={@state.history_app} key="Configs"/>
+		  <Configs 
+		  	matrix={@state._Matrix} 
+		  	history={@state.history_app} 
+		  	database={{nodes: @state.Nodes, paths: @state.Paths}}
+		  	maps={@state.maps}/>
 		</div>      
 
 

@@ -1,7 +1,7 @@
 React = require 'react'
 
-History = React.createClass
-	displayName: "History"
+Info = React.createClass
+	displayName: "Info"
 	getInitialState: ->
 		itemNow: "history"
 	switchItem: (obj)->
@@ -20,14 +20,14 @@ History = React.createClass
 	render: ->
 		<div className="wrapInfo">
 			<i className={if @state.itemNow == "history" then "fa fa-history itemInfoIcon IconActionGold" else "fa fa-history itemInfoIcon"} title="history" onClick={(e) => @switchItem {type: "history", e: e}}></i>
-			<i className={if @state.itemNow == "database" then "fa fa-database itemInfoIcon IconActionGold" else "fa fa-database itemInfoIcon"} title="history" onClick={(e) => @switchItem {type: "database", e: e}}></i>
-			<i className={if @state.itemNow == "map" then "fa fa-map itemInfoIcon IconActionGold" else "fa fa-map itemInfoIcon"} title="history" onClick={(e) => @switchItem {type: "map", e: e}}></i>
+			<i className={if @state.itemNow == "database" then "fa fa-database itemInfoIcon IconActionGold" else "fa fa-database itemInfoIcon"} title="database" onClick={(e) => @switchItem {type: "database", e: e}}></i>
+			<i className={if @state.itemNow == "map" then "fa fa-map itemInfoIcon IconActionGold" else "fa fa-map itemInfoIcon"} title="map" onClick={(e) => @switchItem {type: "map", e: e}}></i>
 			{
 				if @state.itemNow == "history"
 					<div className="wrap_history">
 						<div className="history">
 							{
-								@props.data.map (i, j)->
+								@props.history.map (i, j)->
 									<div className="history_item" key="item#{j}">{i.type}: {i.MainData}</div>
 							}
 						</div>
@@ -35,7 +35,8 @@ History = React.createClass
 				else
 					if @state.itemNow == "database"
 						<div>
-							database
+							<span>Count nodes: {@props.database.nodes.length}</span><br/>
+							<span>Count paths: {@props.database.paths.length}</span> 
 						</div>
 					else
 						if @state.itemNow == "map"
@@ -46,4 +47,4 @@ History = React.createClass
 			
 		</div>
 
-module.exports = History
+module.exports = Info

@@ -40,6 +40,7 @@ App = React.createClass({
       history_app: [],
       _Matrix: [],
       MatrixNamesNodes: [],
+      maps: [],
       colorNodes: "#2e9f5c",
       radiusNode: 20,
       IdsPath: [],
@@ -378,7 +379,11 @@ App = React.createClass({
     })(this))), React.createElement(Configs, {
       "matrix": this.state._Matrix,
       "history": this.state.history_app,
-      "key": "Configs"
+      "database": {
+        nodes: this.state.Nodes,
+        paths: this.state.Paths
+      },
+      "maps": this.state.maps
     }));
   }
 });
@@ -393,7 +398,7 @@ copyright; Daniil Shenyagin, 2018
 
 
 },{"./config/classes/Configs":3,"./config/modules/adjacency_matrix.fn":9,"./config/modules/calcWeightPaths.fn":10,"./config/modules/history.module":11,"./figures/Node":12,"./figures/Path":13,"./global/Events":14,"react":"react"}],3:[function(require,module,exports){
-var COLORS, Colors, Configs, History, Matrix, Mods, RadiusChanger, React, ee;
+var COLORS, Colors, Configs, Info, Matrix, Mods, RadiusChanger, React, ee;
 
 React = require('react');
 
@@ -405,7 +410,7 @@ Matrix = require('./matrix.class');
 
 RadiusChanger = require("./RadiusChanger");
 
-History = require('./history.class');
+Info = require('./info.class');
 
 Mods = require("./mods.class");
 
@@ -479,9 +484,11 @@ Configs = React.createClass({
     }), React.createElement("hr", null), React.createElement(Mods, null), React.createElement("hr", null), React.createElement(Matrix, {
       "matrix": this.props.matrix,
       "key": "Matrix"
-    }), React.createElement("hr", null), React.createElement(History, {
-      "data": this.props.history,
-      "key": "History"
+    }), React.createElement("hr", null), React.createElement(Info, {
+      "history": this.props.history,
+      "key": "History",
+      "database": this.props.database,
+      "maps": this.props.maps
     }), React.createElement("p", {
       "className": "copyright_configs"
     }, "©Daniil Shenyagin, 2018")));
@@ -492,7 +499,7 @@ module.exports = Configs;
 
 
 
-},{"../../global/Events":14,"./RadiusChanger":4,"./colors":5,"./history.class":6,"./matrix.class":7,"./mods.class":8,"react":"react"}],4:[function(require,module,exports){
+},{"../../global/Events":14,"./RadiusChanger":4,"./colors":5,"./info.class":6,"./matrix.class":7,"./mods.class":8,"react":"react"}],4:[function(require,module,exports){
 var RadiusChanger, React, ee;
 
 React = require('react');
@@ -599,12 +606,12 @@ module.exports = Colors;
 
 
 },{"react":"react"}],6:[function(require,module,exports){
-var History, React;
+var Info, React;
 
 React = require('react');
 
-History = React.createClass({
-  displayName: "History",
+Info = React.createClass({
+  displayName: "Info",
   getInitialState: function() {
     return {
       itemNow: "history"
@@ -645,7 +652,7 @@ History = React.createClass({
       })(this))
     }), React.createElement("i", {
       "className": (this.state.itemNow === "database" ? "fa fa-database itemInfoIcon IconActionGold" : "fa fa-database itemInfoIcon"),
-      "title": "history",
+      "title": "database",
       "onClick": ((function(_this) {
         return function(e) {
           return _this.switchItem({
@@ -656,7 +663,7 @@ History = React.createClass({
       })(this))
     }), React.createElement("i", {
       "className": (this.state.itemNow === "map" ? "fa fa-map itemInfoIcon IconActionGold" : "fa fa-map itemInfoIcon"),
-      "title": "history",
+      "title": "map",
       "onClick": ((function(_this) {
         return function(e) {
           return _this.switchItem({
@@ -669,16 +676,16 @@ History = React.createClass({
       "className": "wrap_history"
     }, React.createElement("div", {
       "className": "history"
-    }, this.props.data.map(function(i, j) {
+    }, this.props.history.map(function(i, j) {
       return React.createElement("div", {
         "className": "history_item",
         "key": "item" + j
       }, i.type, ": ", i.MainData);
-    }))) : this.state.itemNow === "database" ? React.createElement("div", null, "\t\t\t\t\t\t\tdatabase") : this.state.itemNow === "map" ? React.createElement("div", null, "\t\t\t\t\t\t\t\tmap") : void 0));
+    }))) : this.state.itemNow === "database" ? React.createElement("div", null, React.createElement("span", null, "Count nodes: ", this.props.database.nodes.length), React.createElement("br", null), React.createElement("span", null, "Count paths: ", this.props.database.paths.length)) : this.state.itemNow === "map" ? React.createElement("div", null, "\t\t\t\t\t\t\t\tmap") : void 0));
   }
 });
 
-module.exports = History;
+module.exports = Info;
 
 
 
