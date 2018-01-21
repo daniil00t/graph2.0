@@ -37,9 +37,11 @@ App = React.createClass({
       deletingMode: false,
       modeNodesNumbering: false,
       calcWeightMode: false,
+      addItemMapMode: false,
       history_app: [],
       _Matrix: [],
       MatrixNamesNodes: [],
+      maps: [],
       colorNodes: "#2e9f5c",
       radiusNode: 20,
       IdsPath: [],
@@ -47,6 +49,8 @@ App = React.createClass({
     };
   },
   handleClick: function(e) {
+    var i, j, k, len, ref, results, tmp;
+    console.log(this.state.MatrixNamesNodes);
     if (e.target.nodeName === "svg" && !this.state.deletingMode) {
       this.setState({
         val: this.state.val + 1
@@ -54,13 +58,33 @@ App = React.createClass({
       this.AddNode(e.nativeEvent.offsetX, e.nativeEvent.offsetY, "circle" + this.state.val, this.state.colorNodes, this.state.radiusNode);
     }
     if (e.target.nodeName === "circle" || e.target.nodeName === "text") {
-      if (e.altKey) {
-        return this.DeleteNodeById(e.target.id);
+      if (this.state.addItemMapMode) {
+        ref = this.state.Nodes;
+        results = [];
+        for (j = k = 0, len = ref.length; k < len; j = ++k) {
+          i = ref[j];
+          if (i.id === e.target.attributes.id.nodeValue) {
+            tmp = this.state.Nodes;
+            tmp[j].color = "#FF0018";
+            this.setState({
+              Nodes: tmp
+            });
+            this.state.maps.push(i);
+            break;
+          } else {
+            results.push(void 0);
+          }
+        }
+        return results;
       } else {
-        if (!this.state.deletingMode) {
-          return this.AddPath(e.target.id);
-        } else {
+        if (e.altKey) {
           return this.DeleteNodeById(e.target.id);
+        } else {
+          if (!this.state.deletingMode) {
+            return this.AddPath(e.target.id);
+          } else {
+            return this.DeleteNodeById(e.target.id);
+          }
         }
       }
     }
@@ -259,7 +283,9 @@ App = React.createClass({
           y: __xy.y
         }
       ]),
-      fill: self.state.colorNodes
+      color: "#000",
+      fill: self.state.colorNodes,
+      id: ids[0] + "." + ids[1]
     });
   },
   deletingModeActive: function() {
@@ -332,6 +358,31 @@ App = React.createClass({
         });
       };
     })(this));
+    ee.on("AddItemMapMode", (function(_this) {
+      return function(data) {
+        var i, j, k, len, ref, results, tmp;
+        _this.setState({
+          addItemMapMode: data.data
+        });
+        if (!data.data) {
+          ref = _this.state.Nodes;
+          results = [];
+          for (j = k = 0, len = ref.length; k < len; j = ++k) {
+            i = ref[j];
+            if (i.color === "#FF0018") {
+              tmp = _this.state.Nodes;
+              tmp[j].color = _this.state.colorNodes;
+              results.push(_this.setState({
+                Nodes: tmp
+              }));
+            } else {
+              results.push(void 0);
+            }
+          }
+          return results;
+        }
+      };
+    })(this));
     return ee.on('changeHistory', (function(_this) {
       return function(data) {
         return _this.setState({
@@ -361,7 +412,9 @@ App = React.createClass({
           "__xy": i.coords2,
           "weight": i.weight,
           "fill": i.fill,
-          "CalcWeightMode": _this.state.calcWeightMode
+          "CalcWeightMode": _this.state.calcWeightMode,
+          "id": i.id,
+          "color": i.color
         });
       };
     })(this)), this.state.Nodes.map((function(_this) {
@@ -378,7 +431,11 @@ App = React.createClass({
     })(this))), React.createElement(Configs, {
       "matrix": this.state._Matrix,
       "history": this.state.history_app,
-      "key": "Configs"
+      "database": {
+        nodes: this.state.Nodes,
+        paths: this.state.Paths
+      },
+      "maps": this.state.maps
     }));
   }
 });
@@ -393,7 +450,7 @@ copyright; Daniil Shenyagin, 2018
 
 
 },{"./config/classes/Configs":3,"./config/modules/adjacency_matrix.fn":9,"./config/modules/calcWeightPaths.fn":10,"./config/modules/history.module":11,"./figures/Node":12,"./figures/Path":13,"./global/Events":14,"react":"react"}],3:[function(require,module,exports){
-var COLORS, Colors, Configs, History, Matrix, Mods, RadiusChanger, React, ee;
+var COLORS, Colors, Configs, Info, Matrix, Mods, RadiusChanger, React, ee;
 
 React = require('react');
 
@@ -405,7 +462,7 @@ Matrix = require('./matrix.class');
 
 RadiusChanger = require("./RadiusChanger");
 
-History = require('./history.class');
+Info = require('./info.class');
 
 Mods = require("./mods.class");
 
@@ -479,9 +536,11 @@ Configs = React.createClass({
     }), React.createElement("hr", null), React.createElement(Mods, null), React.createElement("hr", null), React.createElement(Matrix, {
       "matrix": this.props.matrix,
       "key": "Matrix"
-    }), React.createElement("hr", null), React.createElement(History, {
-      "data": this.props.history,
-      "key": "History"
+    }), React.createElement("hr", null), React.createElement(Info, {
+      "history": this.props.history,
+      "key": "History",
+      "database": this.props.database,
+      "maps": this.props.maps
     }), React.createElement("p", {
       "className": "copyright_configs"
     }, "©Daniil Shenyagin, 2018")));
@@ -492,7 +551,7 @@ module.exports = Configs;
 
 
 
-},{"../../global/Events":14,"./RadiusChanger":4,"./colors":5,"./history.class":6,"./matrix.class":7,"./mods.class":8,"react":"react"}],4:[function(require,module,exports){
+},{"../../global/Events":14,"./RadiusChanger":4,"./colors":5,"./info.class":6,"./matrix.class":7,"./mods.class":8,"react":"react"}],4:[function(require,module,exports){
 var RadiusChanger, React, ee;
 
 React = require('react');
@@ -599,12 +658,12 @@ module.exports = Colors;
 
 
 },{"react":"react"}],6:[function(require,module,exports){
-var History, React;
+var Info, React;
 
 React = require('react');
 
-History = React.createClass({
-  displayName: "History",
+Info = React.createClass({
+  displayName: "Info",
   getInitialState: function() {
     return {
       itemNow: "history"
@@ -645,7 +704,7 @@ History = React.createClass({
       })(this))
     }), React.createElement("i", {
       "className": (this.state.itemNow === "database" ? "fa fa-database itemInfoIcon IconActionGold" : "fa fa-database itemInfoIcon"),
-      "title": "history",
+      "title": "database",
       "onClick": ((function(_this) {
         return function(e) {
           return _this.switchItem({
@@ -656,7 +715,7 @@ History = React.createClass({
       })(this))
     }), React.createElement("i", {
       "className": (this.state.itemNow === "map" ? "fa fa-map itemInfoIcon IconActionGold" : "fa fa-map itemInfoIcon"),
-      "title": "history",
+      "title": "map",
       "onClick": ((function(_this) {
         return function(e) {
           return _this.switchItem({
@@ -669,16 +728,16 @@ History = React.createClass({
       "className": "wrap_history"
     }, React.createElement("div", {
       "className": "history"
-    }, this.props.data.map(function(i, j) {
+    }, this.props.history.map(function(i, j) {
       return React.createElement("div", {
         "className": "history_item",
         "key": "item" + j
       }, i.type, ": ", i.MainData);
-    }))) : this.state.itemNow === "database" ? React.createElement("div", null, "\t\t\t\t\t\t\tdatabase") : this.state.itemNow === "map" ? React.createElement("div", null, "\t\t\t\t\t\t\t\tmap") : void 0));
+    }))) : this.state.itemNow === "database" ? React.createElement("div", null, React.createElement("span", null, "Count nodes: ", this.props.database.nodes.length), React.createElement("br", null), React.createElement("span", null, "Count paths: ", this.props.database.paths.length)) : this.state.itemNow === "map" ? React.createElement("div", null, "\t\t\t\t\t\t\t\tmap") : void 0));
   }
 });
 
-module.exports = History;
+module.exports = Info;
 
 
 
@@ -798,6 +857,14 @@ Deleting = React.createClass({
       data: e.target.checked
     });
   },
+  handleAddItemMapMode: function(e) {
+    history_app.setEvent({
+      data: e.target.checked
+    }, "addItemMapMode");
+    return ee.emit('AddItemMapMode', {
+      data: e.target.checked
+    });
+  },
   render: function() {
     return React.createElement("div", {
       "className": "wrapMods"
@@ -847,6 +914,22 @@ Deleting = React.createClass({
       "onChange": ((function(_this) {
         return function(e) {
           return _this.handleChangeModeCalcWeight(e);
+        };
+      })(this))
+    }))), React.createElement("div", {
+      "className": "wrapAddItemMapMode"
+    }, React.createElement("div", {
+      "className": "labelFor"
+    }, React.createElement("span", null, "AddItemMapMode: ")), React.createElement("div", {
+      "className": "toggleWrapper"
+    }, React.createElement("input", {
+      "type": "checkbox",
+      "name": "toggle2",
+      "className": "mobileToggle",
+      "id": "toggle4",
+      "onChange": ((function(_this) {
+        return function(e) {
+          return _this.handleAddItemMapMode(e);
         };
       })(this))
     }))));
@@ -1026,6 +1109,9 @@ History_class = (function() {
     if (type_event === "calcWeightPathsMode") {
       tmp["MainData"] = "" + obj.data;
     }
+    if (type_event === "addItemMapMode") {
+      tmp["MainData"] = "" + obj.data;
+    }
     tmp["date"] = strDate;
     if (obj.id != null) {
       tmp['id'] = obj.id;
@@ -1130,7 +1216,7 @@ Path = React.createClass({
       return React.createElement("path", {
         "d": this.props.d,
         "fill": "transparent",
-        "stroke": "black",
+        "stroke": this.props.color,
         "style": {
           strokeWidth: 2
         }

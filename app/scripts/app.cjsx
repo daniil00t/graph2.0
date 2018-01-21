@@ -4,10 +4,10 @@ ee = require './global/Events'														#|Events
 Node = require "./figures/Node"														#|Figures
 Path = require "./figures/Path"														#|
 
-getWeight = require "./config/modules/calcWeightPaths.fn"
+getWeight = require "./config/modules/calcWeightPaths.fn"	#|Get Weight for paths in Graph
 
 Configs = require './config/classes/Configs'							#|Configs class
-amx = require './config/modules/adjacency_matrix.fn'									#|module matrix
+amx = require './config/modules/adjacency_matrix.fn'			#|module matrix
 history_app = require "./config/modules/history.module"	  #|module history
 
 
@@ -21,9 +21,11 @@ App = React.createClass
 		deletingMode: false
 		modeNodesNumbering: false
 		calcWeightMode: false
+		addItemMapMode: false
 		history_app: []
 		_Matrix: []
 		MatrixNamesNodes: []
+		maps: []
 		colorNodes: "#2e9f5c"
 		radiusNode: 20
 		IdsPath: []
@@ -33,18 +35,41 @@ App = React.createClass
 
 	handleClick: (e)->
 		#console.log "X: #{e.nativeEvent.offsetX}, Y: #{e.nativeEvent.offsetY}"
-
+		console.log @state.MatrixNamesNodes
 		if e.target.nodeName == "svg" and !@state.deletingMode
 			@setState val: @state.val + 1
 			@AddNode e.nativeEvent.offsetX, e.nativeEvent.offsetY, "circle"+@state.val, @state.colorNodes, @state.radiusNode
 		if e.target.nodeName == "circle" or e.target.nodeName == "text"
-			if e.altKey
-				@DeleteNodeById(e.target.id)
+			#Map
+			if @state.addItemMapMode
+				#ReColor for Nodes =)
+				for i, j in @state.Nodes
+					if i.id == e.target.attributes.id.nodeValue
+						tmp = @state.Nodes
+						tmp[j].color = "#FF0018"
+						@setState Nodes: tmp
+						@state.maps.push i
+						break
+				# for i in @state.maps
+				# 	for k in @state.MatrixNamesNodes
+				# 		if (i.id == k[0] and e.target.attributes.id.nodeValue == k[1]) or (i.id == k[1] and e.target.attributes.id.nodeValue == k[0])
+				# 			for l, p in @state.Paths
+				# 				no1 = l.id.split(".")[0]
+				# 				no2 = l.id.split(".")[1]
+				# 				if (i.id == no1 and e.target.attributes.id.nodeValue == no2) or (i.id == no2 and e.target.attributes.id.nodeValue == no1)
+				# 					tmp = @state.Paths
+				# 					tmp[p].color = "red"
+				# 					@setState Paths: tmp
+				# 					break
 			else
-				if !@state.deletingMode
-					@AddPath e.target.id
-				else
+				#Delete on ckich keybord -> alt
+				if e.altKey
 					@DeleteNodeById(e.target.id)
+				else
+					if !@state.deletingMode
+						@AddPath e.target.id
+					else
+						@DeleteNodeById(e.target.id)
 
 	AddNode: (cx, cy, id, color, r)->
 		@state.Nodes.push {cx: cx, cy: cy, id: id, color: color, r: r}
@@ -153,7 +178,9 @@ App = React.createClass
 			coords1: {x: _xy.x, y: _xy.y}
 			coords2: {x: __xy.x, y: __xy.y}
 			weight: getWeight [{x: _xy.x, y: _xy.y}, x: __xy.x, y: __xy.y]
+			color: "#000"
 			fill: self.state.colorNodes
+			id: "#{ids[0]}.#{ids[1]}"
 	deletingModeActive: ->
 		for i in @state.Nodes
 			i.color = "#FF0018"
@@ -179,7 +206,14 @@ App = React.createClass
 		ee.on "ChangeCalcWeightPathsMode", (data)=>
 			@setState calcWeightMode: data.data
 			@setState _Matrix: amx @state.MatrixNamesNodes, @state.Paths, @state.Nodes.length, data.data
-
+		ee.on "AddItemMapMode", (data)=>
+			@setState addItemMapMode: data.data
+			if !data.data
+				for i, j in @state.Nodes
+					if i.color == "#FF0018"
+						tmp = @state.Nodes
+						tmp[j].color = @state.colorNodes
+						@setState Nodes: tmp
 
 		ee.on 'changeHistory', (data) =>
 			@setState history_app: data.data
@@ -191,7 +225,7 @@ App = React.createClass
 		  	<defs></defs>
 				{
 		  		@state.Paths.map((i)=>
-		  			<Path d={i.d} _xy={i.coords1} __xy={i.coords2} weight={i.weight} fill={i.fill} CalcWeightMode={@state.calcWeightMode} />
+		  			<Path d={i.d} _xy={i.coords1} __xy={i.coords2} weight={i.weight} fill={i.fill} CalcWeightMode={@state.calcWeightMode} id={i.id} color={i.color} />
 		  		)
 		  	}
 		  	{
@@ -200,7 +234,11 @@ App = React.createClass
 		  		)
 		  	}
 		  </svg>
-		  <Configs matrix={@state._Matrix} history={@state.history_app} key="Configs"/>
+		  <Configs 
+		  	matrix={@state._Matrix} 
+		  	history={@state.history_app} 
+		  	database={{nodes: @state.Nodes, paths: @state.Paths}}
+		  	maps={@state.maps}/>
 		</div>      
 
 

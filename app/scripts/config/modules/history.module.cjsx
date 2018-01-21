@@ -34,6 +34,7 @@ class History_class
 		if type_event == "DeleteNodeById" then tmp["MainData"] = obj.id
 		if type_event == "modeNodesNumbering" then tmp["MainData"] = ""+obj.modeNodesNumbering
 		if type_event == "calcWeightPathsMode" then tmp["MainData"] = ""+obj.data
+		if type_event == "addItemMapMode" then tmp["MainData"] = ""+obj.data
 		tmp["date"] = strDate
 		if obj.id? then tmp['id'] = obj.id
 		@HISTORY.push tmp

@@ -14,7 +14,9 @@ Deleting = React.createClass
 	handleChangeModeCalcWeight: (e)->
 		history_app.setEvent {data: e.target.checked}, "calcWeightPathsMode"
 		ee.emit 'ChangeCalcWeightPathsMode', {data: e.target.checked}
-
+	handleAddItemMapMode: (e)->
+		history_app.setEvent {data: e.target.checked}, "addItemMapMode"
+		ee.emit 'AddItemMapMode', {data: e.target.checked}
 	render: ->
 
 		<div className="wrapMods">
@@ -40,6 +42,14 @@ Deleting = React.createClass
 				</div>
 				<div className="toggleWrapper">
 				  <input type="checkbox" name="toggle2" className="mobileToggle" id="toggle3" onChange={(e) => @handleChangeModeCalcWeight e}/>
+				</div>
+			</div>
+			<div className="wrapAddItemMapMode">
+				<div className="labelFor">
+					<span>AddItemMapMode: </span>
+				</div>
+				<div className="toggleWrapper">
+				  <input type="checkbox" name="toggle2" className="mobileToggle" id="toggle4" onChange={(e) => @handleAddItemMapMode e}/>
 				</div>
 			</div>
 		</div>

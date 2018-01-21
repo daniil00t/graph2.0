@@ -3,7 +3,7 @@ ee = require '../../global/Events'
 Colors = require "./colors"
 Matrix = require './matrix.class'
 RadiusChanger = require "./RadiusChanger"
-History = require './history.class'
+Info = require './info.class'
 Mods = require "./mods.class"
 
 
@@ -42,7 +42,10 @@ Configs = React.createClass
 				<hr />
 				<Matrix matrix={@props.matrix} key="Matrix"/>
 				<hr />
-				<History data={@props.history} key="History"/>
+				<Info history={@props.history}
+					key="History"
+					database={@props.database}
+					maps={@props.maps}/>
 				<p className="copyright_configs">&copy;Daniil Shenyagin, 2018</p>
 			</div>
 		</div>
