@@ -4,6 +4,9 @@ history_app = require "../modules/history.module"
 
 Deleting = React.createClass
 	displayName: "Mods"
+	getInitialState: ->
+		algNow: "dejkstra"
+		algMode: false
 	handleChangeDeleting: (e)->
 		#console.log e.target.checked
 		history_app.setEvent {deletingMode: e.target.checked}, "deleteMode"
@@ -17,6 +20,9 @@ Deleting = React.createClass
 	handleAddItemMapMode: (e)->
 		history_app.setEvent {data: e.target.checked}, "addItemMapMode"
 		ee.emit 'AddItemMapMode', {data: e.target.checked}
+		@setState algMode: e.target.checked
+	changeSwitchAlgorithm: (e, data)->
+		ee.emit "switchAlgorithm", {data: data.type}
 	render: ->
 
 		<div className="wrapMods">
@@ -51,6 +57,15 @@ Deleting = React.createClass
 				<div className="toggleWrapper">
 				  <input type="checkbox" name="toggle2" className="mobileToggle" id="toggle4" onChange={(e) => @handleAddItemMapMode e}/>
 				</div>
+				{
+					if @state.algMode
+						<div className="switchAlgorithm">
+							<input type="radio" name="algorithm" id="dejkstra" onChange={(e) => @changeSwitchAlgorithm e, {type: "dejkstra"}}/>
+							<label for="dejkstra">Dejkstra Algorithm</label><br />
+							<input type="radio" name="algorithm" id="height" onChange={(e) => @changeSwitchAlgorithm e, {type: "height"}}/>
+							<label for="height">Height Algorithm</label>
+						</div>
+				}
 			</div>
 		</div>
 

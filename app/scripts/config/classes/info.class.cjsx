@@ -1,9 +1,11 @@
 React = require 'react'
+ee = require "../../global/Events"
 
 Info = React.createClass
 	displayName: "Info"
 	getInitialState: ->
 		itemNow: "history"
+		dataAlg: {}
 	switchItem: (obj)->
 		tmp = obj.e.target.classList.value.split(' ')
 		for i in tmp
@@ -17,6 +19,10 @@ Info = React.createClass
 		# obj.e.target.classList = tmp
 		if @state.itemNow != obj.type
 			@setState itemNow: obj.type
+	componentWillMount: ->
+		ee.on "switchAlgorithm", (data)=>
+			@state.dataAlg.type = data.type
+			@setState itemNow: "map"
 	render: ->
 		<div className="wrapInfo">
 			<i className={if @state.itemNow == "history" then "fa fa-history itemInfoIcon IconActionGold" else "fa fa-history itemInfoIcon"} title="history" onClick={(e) => @switchItem {type: "history", e: e}}></i>
@@ -40,8 +46,16 @@ Info = React.createClass
 						</div>
 					else
 						if @state.itemNow == "map"
-							<div>
-								map
+							<div className="wrapMap">
+								<span>Type_algorithm: {@props.dataAlg.type_algorithm}</span>
+								<div className="wrapMapItem">
+									{
+										Object.keys(@props.dataAlg.obj).map (i, j)=>
+											<div>
+											<span>{i}: {@props.dataAlg.obj[i]}</span><br />
+											</div>
+									}
+								</div>
 							</div>
 			}
 			

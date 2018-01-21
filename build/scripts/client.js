@@ -10,7 +10,7 @@ React.render(React.createElement(App, null), document.getElementById('app'));
 
 
 },{"./app":2,"react":"react"}],2:[function(require,module,exports){
-var App, Configs, Node, Path, React, amx, ee, getWeight, history_app;
+var App, Configs, Node, Path, React, amx, dejkstra, ee, getWeight, get_graph, history_app;
 
 React = require('react');
 
@@ -28,6 +28,10 @@ amx = require('./config/modules/adjacency_matrix.fn');
 
 history_app = require("./config/modules/history.module");
 
+dejkstra = require("./config/modules/dejkstra.algorithm.fn");
+
+get_graph = require("./config/modules/get_graph");
+
 App = React.createClass({
   displayName: 'App',
   getInitialState: function() {
@@ -38,6 +42,7 @@ App = React.createClass({
       modeNodesNumbering: false,
       calcWeightMode: false,
       addItemMapMode: false,
+      STARTNode: "",
       history_app: [],
       _Matrix: [],
       MatrixNamesNodes: [],
@@ -49,7 +54,7 @@ App = React.createClass({
     };
   },
   handleClick: function(e) {
-    var i, j, k, len, ref, results, tmp;
+    var i, j, k, len, len1, len2, m, n, ref, ref1, ref2, results, results1, tmp;
     console.log(this.state.MatrixNamesNodes);
     if (e.target.nodeName === "svg" && !this.state.deletingMode) {
       this.setState({
@@ -59,23 +64,59 @@ App = React.createClass({
     }
     if (e.target.nodeName === "circle" || e.target.nodeName === "text") {
       if (this.state.addItemMapMode) {
-        ref = this.state.Nodes;
-        results = [];
-        for (j = k = 0, len = ref.length; k < len; j = ++k) {
-          i = ref[j];
-          if (i.id === e.target.attributes.id.nodeValue) {
-            tmp = this.state.Nodes;
-            tmp[j].color = "#FF0018";
-            this.setState({
-              Nodes: tmp
-            });
-            this.state.maps.push(i);
-            break;
-          } else {
-            results.push(void 0);
+        this.setState({
+          STARTNode: e.target.attributes.id.nodeValue
+        });
+        if (this.state.STARTNode === "") {
+          ref = this.state.Nodes;
+          results = [];
+          for (j = k = 0, len = ref.length; k < len; j = ++k) {
+            i = ref[j];
+            if (i.id === e.target.attributes.id.nodeValue) {
+              tmp = this.state.Nodes;
+              tmp[j].color = "#FF0018";
+              this.setState({
+                Nodes: tmp
+              });
+              this.state.maps.push(i);
+              break;
+            } else {
+              results.push(void 0);
+            }
           }
+          return results;
+        } else {
+          ref1 = this.state.Nodes;
+          for (j = m = 0, len1 = ref1.length; m < len1; j = ++m) {
+            i = ref1[j];
+            if (i.id === this.state.STARTNode) {
+              tmp = this.state.Nodes;
+              tmp[j].color = this.state.colorNodes;
+              this.setState({
+                Nodes: tmp
+              });
+              this.state.maps.push(i);
+              break;
+            }
+          }
+          ref2 = this.state.Nodes;
+          results1 = [];
+          for (j = n = 0, len2 = ref2.length; n < len2; j = ++n) {
+            i = ref2[j];
+            if (i.id === e.target.attributes.id.nodeValue) {
+              tmp = this.state.Nodes;
+              tmp[j].color = "#FF0018";
+              this.setState({
+                Nodes: tmp
+              });
+              this.state.maps.push(i);
+              break;
+            } else {
+              results1.push(void 0);
+            }
+          }
+          return results1;
         }
-        return results;
       } else {
         if (e.altKey) {
           return this.DeleteNodeById(e.target.id);
@@ -435,7 +476,12 @@ App = React.createClass({
         nodes: this.state.Nodes,
         paths: this.state.Paths
       },
-      "maps": this.state.maps
+      "maps": this.state.maps,
+      "dataAlg": (this.state.MatrixNamesNodes.length !== 0 && this.state.Paths.length !== 0 && this.state.STARTNode.length !== 0 ? {
+        obj: dejkstra(get_graph(this.state.MatrixNamesNodes, this.state.Paths), this.state.STARTNode),
+        type_algorithm: "dejkstra",
+        time: 0
+      } : void 0)
     }));
   }
 });
@@ -449,8 +495,8 @@ copyright; Daniil Shenyagin, 2018
 
 
 
-},{"./config/classes/Configs":3,"./config/modules/adjacency_matrix.fn":9,"./config/modules/calcWeightPaths.fn":10,"./config/modules/history.module":11,"./figures/Node":12,"./figures/Path":13,"./global/Events":14,"react":"react"}],3:[function(require,module,exports){
-var COLORS, Colors, Configs, Info, Matrix, Mods, RadiusChanger, React, ee;
+},{"./config/classes/Configs":3,"./config/modules/adjacency_matrix.fn":9,"./config/modules/calcWeightPaths.fn":10,"./config/modules/dejkstra.algorithm.fn":11,"./config/modules/get_graph":12,"./config/modules/history.module":13,"./figures/Node":14,"./figures/Path":15,"./global/Events":16,"react":"react"}],3:[function(require,module,exports){
+var COLORS, Colors, Configs, Info, Matrix, Mods, RadiusChanger, React, dejkstra, ee;
 
 React = require('react');
 
@@ -465,6 +511,8 @@ RadiusChanger = require("./RadiusChanger");
 Info = require('./info.class');
 
 Mods = require("./mods.class");
+
+dejkstra = require("../modules/dejkstra.algorithm.fn");
 
 COLORS = ["#2e9f5c", "#2866F7", "#C9283E", "#0DF6FF", "#023852", ["#FFAA0D", "#2B9483", "#F53855"]];
 
@@ -540,7 +588,8 @@ Configs = React.createClass({
       "history": this.props.history,
       "key": "History",
       "database": this.props.database,
-      "maps": this.props.maps
+      "maps": this.props.maps,
+      "dataAlg": this.props.dataAlg
     }), React.createElement("p", {
       "className": "copyright_configs"
     }, "©Daniil Shenyagin, 2018")));
@@ -551,7 +600,7 @@ module.exports = Configs;
 
 
 
-},{"../../global/Events":14,"./RadiusChanger":4,"./colors":5,"./info.class":6,"./matrix.class":7,"./mods.class":8,"react":"react"}],4:[function(require,module,exports){
+},{"../../global/Events":16,"../modules/dejkstra.algorithm.fn":11,"./RadiusChanger":4,"./colors":5,"./info.class":6,"./matrix.class":7,"./mods.class":8,"react":"react"}],4:[function(require,module,exports){
 var RadiusChanger, React, ee;
 
 React = require('react');
@@ -612,7 +661,7 @@ module.exports = RadiusChanger;
 
 
 
-},{"../../global/Events":14,"react":"react"}],5:[function(require,module,exports){
+},{"../../global/Events":16,"react":"react"}],5:[function(require,module,exports){
 var Colors, React;
 
 React = require('react');
@@ -658,15 +707,18 @@ module.exports = Colors;
 
 
 },{"react":"react"}],6:[function(require,module,exports){
-var Info, React;
+var Info, React, ee;
 
 React = require('react');
+
+ee = require("../../global/Events");
 
 Info = React.createClass({
   displayName: "Info",
   getInitialState: function() {
     return {
-      itemNow: "history"
+      itemNow: "history",
+      dataAlg: {}
     };
   },
   switchItem: function(obj) {
@@ -687,6 +739,16 @@ Info = React.createClass({
         itemNow: obj.type
       });
     }
+  },
+  componentWillMount: function() {
+    return ee.on("switchAlgorithm", (function(_this) {
+      return function(data) {
+        _this.state.dataAlg.type = data.type;
+        return _this.setState({
+          itemNow: "map"
+        });
+      };
+    })(this));
   },
   render: function() {
     return React.createElement("div", {
@@ -733,7 +795,15 @@ Info = React.createClass({
         "className": "history_item",
         "key": "item" + j
       }, i.type, ": ", i.MainData);
-    }))) : this.state.itemNow === "database" ? React.createElement("div", null, React.createElement("span", null, "Count nodes: ", this.props.database.nodes.length), React.createElement("br", null), React.createElement("span", null, "Count paths: ", this.props.database.paths.length)) : this.state.itemNow === "map" ? React.createElement("div", null, "\t\t\t\t\t\t\t\tmap") : void 0));
+    }))) : this.state.itemNow === "database" ? React.createElement("div", null, React.createElement("span", null, "Count nodes: ", this.props.database.nodes.length), React.createElement("br", null), React.createElement("span", null, "Count paths: ", this.props.database.paths.length)) : this.state.itemNow === "map" ? React.createElement("div", {
+      "className": "wrapMap"
+    }, React.createElement("span", null, "Type_algorithm: ", this.props.dataAlg.type_algorithm), React.createElement("div", {
+      "className": "wrapMapItem"
+    }, Object.keys(this.props.dataAlg.obj).map((function(_this) {
+      return function(i, j) {
+        return React.createElement("div", null, React.createElement("span", null, i, ": ", _this.props.dataAlg.obj[i]), React.createElement("br", null));
+      };
+    })(this)))) : void 0));
   }
 });
 
@@ -741,7 +811,7 @@ module.exports = Info;
 
 
 
-},{"react":"react"}],7:[function(require,module,exports){
+},{"../../global/Events":16,"react":"react"}],7:[function(require,module,exports){
 var Matrix, React;
 
 React = require('react');
@@ -833,6 +903,12 @@ history_app = require("../modules/history.module");
 
 Deleting = React.createClass({
   displayName: "Mods",
+  getInitialState: function() {
+    return {
+      algNow: "dejkstra",
+      algMode: false
+    };
+  },
   handleChangeDeleting: function(e) {
     history_app.setEvent({
       deletingMode: e.target.checked
@@ -861,8 +937,16 @@ Deleting = React.createClass({
     history_app.setEvent({
       data: e.target.checked
     }, "addItemMapMode");
-    return ee.emit('AddItemMapMode', {
+    ee.emit('AddItemMapMode', {
       data: e.target.checked
+    });
+    return this.setState({
+      algMode: e.target.checked
+    });
+  },
+  changeSwitchAlgorithm: function(e, data) {
+    return ee.emit("switchAlgorithm", {
+      data: data.type
     });
   },
   render: function() {
@@ -932,7 +1016,35 @@ Deleting = React.createClass({
           return _this.handleAddItemMapMode(e);
         };
       })(this))
-    }))));
+    })), (this.state.algMode ? React.createElement("div", {
+      "className": "switchAlgorithm"
+    }, React.createElement("input", {
+      "type": "radio",
+      "name": "algorithm",
+      "id": "dejkstra",
+      "onChange": ((function(_this) {
+        return function(e) {
+          return _this.changeSwitchAlgorithm(e, {
+            type: "dejkstra"
+          });
+        };
+      })(this))
+    }), React.createElement("label", {
+      "for": "dejkstra"
+    }, "Dejkstra Algorithm"), React.createElement("br", null), React.createElement("input", {
+      "type": "radio",
+      "name": "algorithm",
+      "id": "height",
+      "onChange": ((function(_this) {
+        return function(e) {
+          return _this.changeSwitchAlgorithm(e, {
+            type: "height"
+          });
+        };
+      })(this))
+    }), React.createElement("label", {
+      "for": "height"
+    }, "Height Algorithm")) : void 0)));
   }
 });
 
@@ -940,7 +1052,7 @@ module.exports = Deleting;
 
 
 
-},{"../../global/Events":14,"../modules/history.module":11,"react":"react"}],9:[function(require,module,exports){
+},{"../../global/Events":16,"../modules/history.module":13,"react":"react"}],9:[function(require,module,exports){
 
 /*
 matrix = [
@@ -1057,6 +1169,140 @@ module.exports = getWeight;
 
 
 },{}],11:[function(require,module,exports){
+
+/*
+Path = {
+	color:"#000"
+	coords1: {…}
+	coords2: {…}
+	d: "M 366, 115L 896, 101Z"
+	fill: "#2e9f5c"
+	id: "circle0.circle1"
+	weight: 26.5
+}
+
+namesArr = [
+	["circle3", "circle0"]
+	["circle0", "circle2"]
+	["circle2", "circle1"]
+	["circle3", "circle1"]
+	["circle4", "circle1"]
+	["circle4", "circle0"]
+]
+
+Paths = [
+	{
+		id: "circle3.circle0"
+		weight: 5
+	},
+	{
+		id: "circle0.circle2"
+		weight: 10
+	},
+	{
+		id: "circle2.circle1"
+		weight: 7
+	},
+	{
+		id: "circle3.circle1"
+		weight: 4
+	}, 
+	{
+		id: "circle4.circle1"
+		weight: 6
+	},
+	{
+		id: "circle4.circle0"
+		weight: 8
+	}
+]
+
+namesArr = [
+	["circle3", "circle0"]
+	["circle0", "circle2"]
+	["circle2", "circle1"]
+	["circle3", "circle1"]
+	["circle4", "circle1"]
+	["circle4", "circle0"]
+]
+ */
+var getMapDejkstra,
+  indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+
+getMapDejkstra = function(graph, _start, p, u, d) {
+  var i, j, len, len1, min_v, min_x, ref, ref1, start, x;
+  if (p == null) {
+    p = {};
+  }
+  if (u == null) {
+    u = [];
+  }
+  if (d == null) {
+    d = {};
+  }
+  start = _start;
+  if (Object.keys(p).length === 0) {
+    p[start] = 0;
+  }
+  ref = Object.keys(graph[start]);
+  for (i = 0, len = ref.length; i < len; i++) {
+    x = ref[i];
+    if ((indexOf.call(u, x) < 0) && x !== start) {
+      if (indexOf.call(Object.keys(p), x) < 0 || (graph[start][x] + p[start]) < p[x]) {
+        p[x] = graph[start][x] + p[start];
+      }
+    }
+  }
+  u.push(start);
+  min_v = 0;
+  min_x = null;
+  ref1 = Object.keys(p);
+  for (j = 0, len1 = ref1.length; j < len1; j++) {
+    x = ref1[j];
+    if ((p[x] < min_v || min_v === 0) && indexOf.call(u, x) < 0) {
+      min_x = x;
+      min_v = p[x];
+    }
+  }
+  if ((u.length < Object.keys(graph).length) && min_x) {
+    return getMapDejkstra(graph, min_x, p, u);
+  } else {
+    return p;
+  }
+};
+
+module.exports = getMapDejkstra;
+
+
+
+},{}],12:[function(require,module,exports){
+module.exports = function(_arrNames, _paths) {
+  var arrNames, i, j, k, l, len, len1, len2, m, obj, paths, tmp;
+  arrNames = _arrNames;
+  paths = _paths;
+  obj = {};
+  for (j = k = 0, len = arrNames.length; k < len; j = ++k) {
+    i = arrNames[j];
+    obj[i[0]] = obj[i[0]] || {};
+    obj[i[0]][i[1]] = paths[j].weight;
+  }
+  for (j = l = 0, len1 = arrNames.length; l < len1; j = ++l) {
+    i = arrNames[j];
+    tmp = arrNames[j][0];
+    arrNames[j][0] = arrNames[j][1];
+    arrNames[j][1] = tmp;
+  }
+  for (j = m = 0, len2 = arrNames.length; m < len2; j = ++m) {
+    i = arrNames[j];
+    obj[i[0]] = obj[i[0]] || {};
+    obj[i[0]][i[1]] = paths[j].weight;
+  }
+  return obj;
+};
+
+
+
+},{}],13:[function(require,module,exports){
 var History_class, ee, history_app;
 
 ee = require("../../global/Events");
@@ -1136,7 +1382,7 @@ module.exports = history_app;
 
 
 
-},{"../../global/Events":14}],12:[function(require,module,exports){
+},{"../../global/Events":16}],14:[function(require,module,exports){
 var Node, React;
 
 React = require('react');
@@ -1162,7 +1408,7 @@ Node = React.createClass({
         "dy": ".6em",
         "fontFamily": "sans-serif",
         "fontSize": "17px"
-      }, "" + (+this.props.id.match(/\d+/g)[0] + 1)));
+      }, "" + (+this.props.id.match(/\d+/g)[0])));
     } else {
       return React.createElement("circle", {
         "cx": this.props.cx,
@@ -1179,7 +1425,7 @@ module.exports = Node;
 
 
 
-},{"react":"react"}],13:[function(require,module,exports){
+},{"react":"react"}],15:[function(require,module,exports){
 var Path, React;
 
 React = require('react');
@@ -1229,7 +1475,7 @@ module.exports = Path;
 
 
 
-},{"react":"react"}],14:[function(require,module,exports){
+},{"react":"react"}],16:[function(require,module,exports){
 var EventEmitter, ee;
 
 EventEmitter = require("events").EventEmitter;
@@ -1240,7 +1486,7 @@ module.exports = ee;
 
 
 
-},{"events":15}],15:[function(require,module,exports){
+},{"events":17}],17:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a

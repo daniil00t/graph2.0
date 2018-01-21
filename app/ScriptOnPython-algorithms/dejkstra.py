@@ -20,10 +20,10 @@ def dijkstra_shortest_path(graph, start, p={}, u=[], d={}):
 			min_x = x
 			min_v = p[x]
 
-	# if(len(u) < len(graph) and min_x):
-	# 	return dijkstra_shortest_path(graph, min_x, p, u)
-	# else:
-	# 	return p
+	if(len(u) < len(graph) and min_x):
+		return dijkstra_shortest_path(graph, min_x, p, u)
+	else:
+		return p
 
 if __name__ == '__main__':
 # инициализация графа с помощью словаря смежности
@@ -38,7 +38,7 @@ if __name__ == '__main__':
 		{h: 2},#g
 		{g: 2}#h
 	]
-	dijkstra_shortest_path(N, a)
+	print(dijkstra_shortest_path(N, a))
 # b in N[a] - смежность
 # len(N[f]) - степень
 # N[a][b] - вес (a,b)

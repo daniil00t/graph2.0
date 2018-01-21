@@ -10,7 +10,8 @@ Configs = require './config/classes/Configs'							#|Configs class
 amx = require './config/modules/adjacency_matrix.fn'			#|module matrix
 history_app = require "./config/modules/history.module"	  #|module history
 
-
+dejkstra = require "./config/modules/dejkstra.algorithm.fn"
+get_graph = require "./config/modules/get_graph"
 
 App = React.createClass
 	displayName: 'App'
@@ -22,6 +23,7 @@ App = React.createClass
 		modeNodesNumbering: false
 		calcWeightMode: false
 		addItemMapMode: false
+		STARTNode: ""
 		history_app: []
 		_Matrix: []
 		MatrixNamesNodes: []
@@ -43,13 +45,33 @@ App = React.createClass
 			#Map
 			if @state.addItemMapMode
 				#ReColor for Nodes =)
-				for i, j in @state.Nodes
-					if i.id == e.target.attributes.id.nodeValue
-						tmp = @state.Nodes
-						tmp[j].color = "#FF0018"
-						@setState Nodes: tmp
-						@state.maps.push i
-						break
+				
+				@setState STARTNode: e.target.attributes.id.nodeValue
+				if @state.STARTNode is ""
+					for i, j in @state.Nodes
+						if i.id == e.target.attributes.id.nodeValue
+							tmp = @state.Nodes
+							tmp[j].color = "#FF0018"
+							@setState Nodes: tmp
+							@state.maps.push i
+							break
+				else
+					for i, j in @state.Nodes
+						if i.id == @state.STARTNode
+							tmp = @state.Nodes
+							tmp[j].color = @state.colorNodes
+							@setState Nodes: tmp
+							@state.maps.push i
+							break
+					for i, j in @state.Nodes
+						if i.id == e.target.attributes.id.nodeValue
+							tmp = @state.Nodes
+							tmp[j].color = "#FF0018"
+							@setState Nodes: tmp
+							@state.maps.push i
+							break
+
+
 				# for i in @state.maps
 				# 	for k in @state.MatrixNamesNodes
 				# 		if (i.id == k[0] and e.target.attributes.id.nodeValue == k[1]) or (i.id == k[1] and e.target.attributes.id.nodeValue == k[0])
@@ -217,6 +239,8 @@ App = React.createClass
 
 		ee.on 'changeHistory', (data) =>
 			@setState history_app: data.data
+		#ee.on "switchAlgorithm", (data)=>
+		#	pass = 0
 			
 	render: ->
 		<div id="wrap">
@@ -238,7 +262,8 @@ App = React.createClass
 		  	matrix={@state._Matrix} 
 		  	history={@state.history_app} 
 		  	database={{nodes: @state.Nodes, paths: @state.Paths}}
-		  	maps={@state.maps}/>
+		  	maps={@state.maps} 
+		  	dataAlg={if @state.MatrixNamesNodes.length != 0 and @state.Paths.length != 0 and @state.STARTNode.length != 0 then {obj: dejkstra(get_graph(@state.MatrixNamesNodes, @state.Paths), @state.STARTNode), type_algorithm: "dejkstra", time: 0}}/>
 		</div>      
 
 
