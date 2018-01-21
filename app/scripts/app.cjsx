@@ -241,7 +241,11 @@ App = React.createClass
 			@setState history_app: data.data
 		#ee.on "switchAlgorithm", (data)=>
 		#	pass = 0
-			
+	getTimeWorkAlg: (f)->
+		time = performance.now();
+		f(get_graph(@state.MatrixNamesNodes, @state.Paths), @state.STARTNode)
+		time = performance.now() - time;
+		time
 	render: ->
 		<div id="wrap">
 		  <svg height="100%" version="1.1" width="100%" xmlns="http://www.w3.org/2000/svg" onClick={((e)=>this.handleClick e)}>
@@ -263,7 +267,7 @@ App = React.createClass
 		  	history={@state.history_app} 
 		  	database={{nodes: @state.Nodes, paths: @state.Paths}}
 		  	maps={@state.maps} 
-		  	dataAlg={if @state.MatrixNamesNodes.length != 0 and @state.Paths.length != 0 and @state.STARTNode.length != 0 then {obj: dejkstra(get_graph(@state.MatrixNamesNodes, @state.Paths), @state.STARTNode), type_algorithm: "dejkstra", time: 0}}/>
+		  	dataAlg={if @state.MatrixNamesNodes.length != 0 and @state.Paths.length != 0 and @state.STARTNode.length != 0 then {obj: dejkstra(get_graph(@state.MatrixNamesNodes, @state.Paths), @state.STARTNode), type_algorithm: "dejkstra", time: @getTimeWorkAlg dejkstra}}/>
 		</div>      
 
 

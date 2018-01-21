@@ -432,6 +432,13 @@ App = React.createClass({
       };
     })(this));
   },
+  getTimeWorkAlg: function(f) {
+    var time;
+    time = performance.now();
+    f(get_graph(this.state.MatrixNamesNodes, this.state.Paths), this.state.STARTNode);
+    time = performance.now() - time;
+    return time;
+  },
   render: function() {
     return React.createElement("div", {
       "id": "wrap"
@@ -480,7 +487,7 @@ App = React.createClass({
       "dataAlg": (this.state.MatrixNamesNodes.length !== 0 && this.state.Paths.length !== 0 && this.state.STARTNode.length !== 0 ? {
         obj: dejkstra(get_graph(this.state.MatrixNamesNodes, this.state.Paths), this.state.STARTNode),
         type_algorithm: "dejkstra",
-        time: 0
+        time: this.getTimeWorkAlg(dejkstra)
       } : void 0)
     }));
   }
@@ -795,15 +802,19 @@ Info = React.createClass({
         "className": "history_item",
         "key": "item" + j
       }, i.type, ": ", i.MainData);
-    }))) : this.state.itemNow === "database" ? React.createElement("div", null, React.createElement("span", null, "Count nodes: ", this.props.database.nodes.length), React.createElement("br", null), React.createElement("span", null, "Count paths: ", this.props.database.paths.length)) : this.state.itemNow === "map" ? React.createElement("div", {
+    }))) : this.state.itemNow === "database" ? React.createElement("div", null, React.createElement("span", null, "Count nodes: ", this.props.database.nodes.length), React.createElement("br", null), React.createElement("span", null, "Count paths: ", this.props.database.paths.length)) : this.state.itemNow === "map" ? this.props.dataAlg != null ? React.createElement("div", {
       "className": "wrapMap"
-    }, React.createElement("span", null, "Type_algorithm: ", this.props.dataAlg.type_algorithm), React.createElement("div", {
+    }, React.createElement("span", null, "Type_algorithm: ", React.createElement("span", {
+      "className": "klaster"
+    }, this.props.dataAlg.type_algorithm)), React.createElement("br", null), React.createElement("span", null, "Time work algorithm: ", React.createElement("span", {
+      "className": "klaster"
+    }, this.props.dataAlg.time)), React.createElement("div", {
       "className": "wrapMapItem"
     }, Object.keys(this.props.dataAlg.obj).map((function(_this) {
       return function(i, j) {
         return React.createElement("div", null, React.createElement("span", null, i, ": ", _this.props.dataAlg.obj[i]), React.createElement("br", null));
       };
-    })(this)))) : void 0));
+    })(this)))) : React.createElement("p", null, "ooooooh=)MAP IS EMPTY)") : void 0));
   }
 });
 

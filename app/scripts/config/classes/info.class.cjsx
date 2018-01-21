@@ -42,21 +42,26 @@ Info = React.createClass
 					if @state.itemNow == "database"
 						<div>
 							<span>Count nodes: {@props.database.nodes.length}</span><br/>
-							<span>Count paths: {@props.database.paths.length}</span> 
+							<span>Count paths: {@props.database.paths.length}</span>
 						</div>
 					else
 						if @state.itemNow == "map"
-							<div className="wrapMap">
-								<span>Type_algorithm: {@props.dataAlg.type_algorithm}</span>
-								<div className="wrapMapItem">
-									{
-										Object.keys(@props.dataAlg.obj).map (i, j)=>
-											<div>
-											<span>{i}: {@props.dataAlg.obj[i]}</span><br />
-											</div>
-									}
+							if @props.dataAlg?
+								<div className="wrapMap">
+									<span>Type_algorithm: <span className="klaster">{@props.dataAlg.type_algorithm}</span></span><br/>
+									<span>Time work algorithm: <span className="klaster">{@props.dataAlg.time}</span></span>
+									<div className="wrapMapItem">
+										{
+											Object.keys(@props.dataAlg.obj).map (i, j)=>
+												<div>
+												<span>{i}: {@props.dataAlg.obj[i]}</span><br />
+												</div>
+										}
+									</div>
 								</div>
-							</div>
+							else
+								<p>ooooooh=)MAP IS EMPTY)</p>
+							
 			}
 			
 		</div>
