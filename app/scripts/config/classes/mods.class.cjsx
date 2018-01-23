@@ -22,7 +22,7 @@ Deleting = React.createClass
 		ee.emit 'AddItemMapMode', {data: e.target.checked}
 		@setState algMode: e.target.checked
 	changeSwitchAlgorithm: (e, data)->
-		ee.emit "switchAlgorithm", {data: data.type}
+		ee.emit "switchAlgorithm", {data: {type: data.type}}
 	render: ->
 
 		<div className="wrapMods">
@@ -59,7 +59,7 @@ Deleting = React.createClass
 				</div>
 				{
 					if @state.algMode
-						<div className="switchAlgorithm">
+						<div className="switchAlgorithm fr">
 							<input type="radio" name="algorithm" id="dejkstra" onChange={(e) => @changeSwitchAlgorithm e, {type: "dejkstra"}}/>
 							<label for="dejkstra">Dejkstra Algorithm</label><br />
 							<input type="radio" name="algorithm" id="height" onChange={(e) => @changeSwitchAlgorithm e, {type: "height"}}/>

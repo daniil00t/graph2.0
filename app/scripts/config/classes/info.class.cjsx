@@ -5,7 +5,9 @@ Info = React.createClass
 	displayName: "Info"
 	getInitialState: ->
 		itemNow: "history"
+		typeAlg: ""
 		dataAlg: {}
+		timeAlg: 0
 	switchItem: (obj)->
 		tmp = obj.e.target.classList.value.split(' ')
 		for i in tmp
@@ -20,9 +22,15 @@ Info = React.createClass
 		if @state.itemNow != obj.type
 			@setState itemNow: obj.type
 	componentWillMount: ->
-		ee.on "switchAlgorithm", (data)=>
-			@state.dataAlg.type = data.type
+		# ee.on "switchAlgorithm", (data)=>
+		# 	@setState typeAlg: data.data
+		# 	@setState itemNow: "map"
+		ee.on "sendDataAlgs", (data)=>
 			@setState itemNow: "map"
+			console.log data
+			@setState typeAlg: data.type
+			@setState dataAlg: data.data
+			@setState timeAlg: data.time
 	render: ->
 		<div className="wrapInfo">
 			<i className={if @state.itemNow == "history" then "fa fa-history itemInfoIcon IconActionGold" else "fa fa-history itemInfoIcon"} title="history" onClick={(e) => @switchItem {type: "history", e: e}}></i>
@@ -46,15 +54,15 @@ Info = React.createClass
 						</div>
 					else
 						if @state.itemNow == "map"
-							if @props.dataAlg?
+							if @state.dataAlg?
 								<div className="wrapMap">
-									<span>Type_algorithm: <span className="klaster">{@props.dataAlg.type_algorithm}</span></span><br/>
-									<span>Time work algorithm: <span className="klaster">{@props.dataAlg.time}</span></span>
+									<span className="InfoAlg">Type_algorithm: <span className="klaster">{@state.typeAlg}</span></span>
+									<span className="InfoAlg">Time work algorithm: <span className="klaster">{@state.timeAlg}</span></span>
 									<div className="wrapMapItem">
 										{
-											Object.keys(@props.dataAlg.obj).map (i, j)=>
+											Object.keys(@state.dataAlg).map (i, j)=>
 												<div>
-												<span>{i}: {@props.dataAlg.obj[i]}</span><br />
+												<span>{i}: {@state.dataAlg[i]}</span><br />
 												</div>
 										}
 									</div>

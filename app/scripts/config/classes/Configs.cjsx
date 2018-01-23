@@ -44,7 +44,7 @@ Configs = React.createClass
 				<Matrix matrix={@props.matrix} key="Matrix"/>
 				<hr />
 				<Info history={@props.history}
-					key="History"
+					key="Info"
 					database={@props.database}
 					maps={@props.maps} 
 					dataAlg={@props.dataAlg}/>

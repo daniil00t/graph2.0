@@ -10,8 +10,7 @@ Configs = require './config/classes/Configs'							#|Configs class
 amx = require './config/modules/adjacency_matrix.fn'			#|module matrix
 history_app = require "./config/modules/history.module"	  #|module history
 
-dejkstra = require "./config/modules/dejkstra.algorithm.fn"
-get_graph = require "./config/modules/get_graph"
+switcher = require "./config/modules/switcher.controller"
 
 App = React.createClass
 	displayName: 'App'
@@ -33,11 +32,8 @@ App = React.createClass
 		IdsPath: []
 		val: 0
 
-
-
 	handleClick: (e)->
 		#console.log "X: #{e.nativeEvent.offsetX}, Y: #{e.nativeEvent.offsetY}"
-		console.log @state.MatrixNamesNodes
 		if e.target.nodeName == "svg" and !@state.deletingMode
 			@setState val: @state.val + 1
 			@AddNode e.nativeEvent.offsetX, e.nativeEvent.offsetY, "circle"+@state.val, @state.colorNodes, @state.radiusNode
@@ -47,6 +43,15 @@ App = React.createClass
 				#ReColor for Nodes =)
 				
 				@setState STARTNode: e.target.attributes.id.nodeValue
+				switcher.regist e.target.attributes.id.nodeValue
+
+
+
+				switcher.init "dejkstra" # run algorithms
+
+
+
+
 				if @state.STARTNode is ""
 					for i, j in @state.Nodes
 						if i.id == e.target.attributes.id.nodeValue
@@ -158,11 +163,13 @@ App = React.createClass
 		if @state.IdsPath.length == 2
 			@DrawPath @state.IdsPath
 			@state.MatrixNamesNodes.push @state.IdsPath
+			switcher.regist @state.MatrixNamesNodes
 			@setState _Matrix: amx @state.MatrixNamesNodes, @state.Paths, @state.Nodes.length, @state.calcWeightMode
 			@setState IdsPath: []
 			
 
 	DrawPath: (ids)->
+
 		coords = []
 		str = "M"
 		if ids[0] == ids[1]
@@ -203,6 +210,7 @@ App = React.createClass
 			color: "#000"
 			fill: self.state.colorNodes
 			id: "#{ids[0]}.#{ids[1]}"
+		switcher.regist @state.Paths
 	deletingModeActive: ->
 		for i in @state.Nodes
 			i.color = "#FF0018"
@@ -241,11 +249,6 @@ App = React.createClass
 			@setState history_app: data.data
 		#ee.on "switchAlgorithm", (data)=>
 		#	pass = 0
-	getTimeWorkAlg: (f)->
-		time = performance.now();
-		f(get_graph(@state.MatrixNamesNodes, @state.Paths), @state.STARTNode)
-		time = performance.now() - time;
-		time
 	render: ->
 		<div id="wrap">
 		  <svg height="100%" version="1.1" width="100%" xmlns="http://www.w3.org/2000/svg" onClick={((e)=>this.handleClick e)}>
@@ -266,11 +269,10 @@ App = React.createClass
 		  	matrix={@state._Matrix} 
 		  	history={@state.history_app} 
 		  	database={{nodes: @state.Nodes, paths: @state.Paths}}
-		  	maps={@state.maps} 
-		  	dataAlg={if @state.MatrixNamesNodes.length != 0 and @state.Paths.length != 0 and @state.STARTNode.length != 0 then {obj: dejkstra(get_graph(@state.MatrixNamesNodes, @state.Paths), @state.STARTNode), type_algorithm: "dejkstra", time: @getTimeWorkAlg dejkstra}}/>
+		  	maps={@state.maps} />
 		</div>      
 
-
+# dataAlg={if @state.MatrixNamesNodes.length != 0 and @state.Paths.length != 0 and @state.STARTNode.length != 0 then {obj: dejkstra(get_graph(@state.MatrixNamesNodes, @state.Paths), @state.STARTNode), type_algorithm: "dejkstra", time: @getTimeWorkAlg dejkstra}}
 module.exports = App	  
 
 
