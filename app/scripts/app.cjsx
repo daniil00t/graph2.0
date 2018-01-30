@@ -12,6 +12,9 @@ history_app = require "./config/modules/history.module"	  #|module history
 
 switcher = require "./config/modules/switcher.controller"
 
+generating_nodes = require("./config/modules/generate.fn").get_Nodes_sequence
+generating_paths = require("./config/modules/generate.fn").write_paths
+
 App = React.createClass
 	displayName: 'App'
 
@@ -22,6 +25,7 @@ App = React.createClass
 		modeNodesNumbering: false
 		calcWeightMode: false
 		addItemMapMode: false
+		ALGNOW: "dejkstra"
 		STARTNode: ""
 		history_app: []
 		_Matrix: []
@@ -47,7 +51,7 @@ App = React.createClass
 
 
 
-				switcher.init "dejkstra" # run algorithms
+				switcher.init @state.ALGNOW # run algorithms
 
 
 
@@ -249,6 +253,19 @@ App = React.createClass
 			@setState history_app: data.data
 		#ee.on "switchAlgorithm", (data)=>
 		#	pass = 0
+		ee.on 'switchAlgorithm', (data) =>
+			@setState ALGNOW: data.type
+			switcher.init data.type # run algorithms
+
+		#console.log generating_nodes 20, 30, 30, {width: window.innerWidth * 0.8, height: window.innerHeight}
+		for i, j in generating_nodes 20, 30, 30, {width: window.innerWidth * 0.8, height: window.innerHeight}
+			@AddNode i.cx, i.cy, "circle#{j}", @state.colorNodes, 20
+		setTimeout (=>
+			@setState MatrixNamesNodes: generating_paths 100, 20, 5
+			switcher.regist @state.MatrixNamesNodes
+			for i in generating_paths 100, 20, 5
+				@DrawPath i
+		), 500
 	render: ->
 		<div id="wrap">
 		  <svg height="100%" version="1.1" width="100%" xmlns="http://www.w3.org/2000/svg" onClick={((e)=>this.handleClick e)}>

@@ -22,7 +22,7 @@ Deleting = React.createClass
 		ee.emit 'AddItemMapMode', {data: e.target.checked}
 		@setState algMode: e.target.checked
 	changeSwitchAlgorithm: (e, data)->
-		ee.emit "switchAlgorithm", {data: {type: data.type}}
+		ee.emit "switchAlgorithm", {type: data.type}
 	render: ->
 
 		<div className="wrapMods">

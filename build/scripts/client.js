@@ -10,7 +10,7 @@ React.render(React.createElement(App, null), document.getElementById('app'));
 
 
 },{"./app":2,"react":"react"}],2:[function(require,module,exports){
-var App, Configs, Node, Path, React, amx, ee, getWeight, history_app, switcher;
+var App, Configs, Node, Path, React, amx, ee, generating_nodes, generating_paths, getWeight, history_app, switcher;
 
 React = require('react');
 
@@ -30,6 +30,10 @@ history_app = require("./config/modules/history.module");
 
 switcher = require("./config/modules/switcher.controller");
 
+generating_nodes = require("./config/modules/generate.fn").get_Nodes_sequence;
+
+generating_paths = require("./config/modules/generate.fn").write_paths;
+
 App = React.createClass({
   displayName: 'App',
   getInitialState: function() {
@@ -40,6 +44,7 @@ App = React.createClass({
       modeNodesNumbering: false,
       calcWeightMode: false,
       addItemMapMode: false,
+      ALGNOW: "dejkstra",
       STARTNode: "",
       history_app: [],
       _Matrix: [],
@@ -65,7 +70,7 @@ App = React.createClass({
           STARTNode: e.target.attributes.id.nodeValue
         });
         switcher.regist(e.target.attributes.id.nodeValue);
-        switcher.init("dejkstra");
+        switcher.init(this.state.ALGNOW);
         if (this.state.STARTNode === "") {
           ref = this.state.Nodes;
           results = [];
@@ -351,6 +356,7 @@ App = React.createClass({
     return results;
   },
   componentWillMount: function() {
+    var i, j, k, len, ref;
     ee.on('changeColorNodes', ((function(_this) {
       return function(color) {
         _this.setState({
@@ -425,13 +431,45 @@ App = React.createClass({
         }
       };
     })(this));
-    return ee.on('changeHistory', (function(_this) {
+    ee.on('changeHistory', (function(_this) {
       return function(data) {
         return _this.setState({
           history_app: data.data
         });
       };
     })(this));
+    ee.on('switchAlgorithm', (function(_this) {
+      return function(data) {
+        _this.setState({
+          ALGNOW: data.type
+        });
+        return switcher.init(data.type);
+      };
+    })(this));
+    ref = generating_nodes(20, 30, 30, {
+      width: window.innerWidth * 0.8,
+      height: window.innerHeight
+    });
+    for (j = k = 0, len = ref.length; k < len; j = ++k) {
+      i = ref[j];
+      this.AddNode(i.cx, i.cy, "circle" + j, this.state.colorNodes, 20);
+    }
+    return setTimeout(((function(_this) {
+      return function() {
+        var len1, m, ref1, results;
+        _this.setState({
+          MatrixNamesNodes: generating_paths(100, 20, 5)
+        });
+        switcher.regist(_this.state.MatrixNamesNodes);
+        ref1 = generating_paths(100, 20, 5);
+        results = [];
+        for (m = 0, len1 = ref1.length; m < len1; m++) {
+          i = ref1[m];
+          results.push(_this.DrawPath(i));
+        }
+        return results;
+      };
+    })(this)), 500);
   },
   render: function() {
     return React.createElement("div", {
@@ -491,8 +529,8 @@ copyright; Daniil Shenyagin, 2018
 
 
 
-},{"./config/classes/Configs":3,"./config/modules/adjacency_matrix.fn":9,"./config/modules/calcWeightPaths.fn":11,"./config/modules/history.module":13,"./config/modules/switcher.controller":14,"./figures/Node":15,"./figures/Path":16,"./global/Events":17,"react":"react"}],3:[function(require,module,exports){
-var COLORS, Colors, Configs, Info, Matrix, Mods, RadiusChanger, React, dejkstra, ee;
+},{"./config/classes/Configs":3,"./config/modules/adjacency_matrix.fn":9,"./config/modules/calcWeightPaths.fn":11,"./config/modules/generate.fn":12,"./config/modules/history.module":13,"./config/modules/switcher.controller":14,"./figures/Node":15,"./figures/Path":16,"./global/Events":17,"react":"react"}],3:[function(require,module,exports){
+var COLORS, Colors, Configs, Info, Matrix, Mods, RadiusChanger, React, ee;
 
 React = require('react');
 
@@ -507,8 +545,6 @@ RadiusChanger = require("./RadiusChanger");
 Info = require('./info.class');
 
 Mods = require("./mods.class");
-
-dejkstra = require("../modules/dejkstra.algorithm.fn");
 
 COLORS = ["#2e9f5c", "#2866F7", "#C9283E", "#0DF6FF", "#023852", ["#FFAA0D", "#2B9483", "#F53855"]];
 
@@ -596,7 +632,7 @@ module.exports = Configs;
 
 
 
-},{"../../global/Events":17,"../modules/dejkstra.algorithm.fn":12,"./RadiusChanger":4,"./colors":5,"./info.class":6,"./matrix.class":7,"./mods.class":8,"react":"react"}],4:[function(require,module,exports){
+},{"../../global/Events":17,"./RadiusChanger":4,"./colors":5,"./info.class":6,"./matrix.class":7,"./mods.class":8,"react":"react"}],4:[function(require,module,exports){
 var RadiusChanger, React, ee;
 
 React = require('react');
@@ -961,9 +997,7 @@ Deleting = React.createClass({
   },
   changeSwitchAlgorithm: function(e, data) {
     return ee.emit("switchAlgorithm", {
-      data: {
-        type: data.type
-      }
+      type: data.type
     });
   },
   render: function() {
@@ -1293,109 +1327,147 @@ module.exports = getWeight;
 
 
 },{}],12:[function(require,module,exports){
+var aniqueArray, div, getPaths_max, getRandomInt, get_Nodes_random, get_Nodes_sequence, hittingOnInterval, write_paths;
 
-/*
-Path = {
-	color:"#000"
-	coords1: {…}
-	coords2: {…}
-	d: "M 366, 115L 896, 101Z"
-	fill: "#2e9f5c"
-	id: "circle0.circle1"
-	weight: 26.5
-}
+getRandomInt = function(min, max) {
+  return Math.floor(Math.random() * (max - min)) + min;
+};
 
-namesArr = [
-	["circle3", "circle0"]
-	["circle0", "circle2"]
-	["circle2", "circle1"]
-	["circle3", "circle1"]
-	["circle4", "circle1"]
-	["circle4", "circle0"]
-]
-
-Paths = [
-	{
-		id: "circle3.circle0"
-		weight: 5
-	},
-	{
-		id: "circle0.circle2"
-		weight: 10
-	},
-	{
-		id: "circle2.circle1"
-		weight: 7
-	},
-	{
-		id: "circle3.circle1"
-		weight: 4
-	}, 
-	{
-		id: "circle4.circle1"
-		weight: 6
-	},
-	{
-		id: "circle4.circle0"
-		weight: 8
-	}
-]
-
-namesArr = [
-	["circle3", "circle0"]
-	["circle0", "circle2"]
-	["circle2", "circle1"]
-	["circle3", "circle1"]
-	["circle4", "circle1"]
-	["circle4", "circle0"]
-]
- */
-var getMapDejkstra,
-  indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
-
-getMapDejkstra = function(graph, _start, p, u, d) {
-  var i, j, len, len1, min_v, min_x, ref, ref1, start, x;
-  if (p == null) {
-    p = {};
+hittingOnInterval = function(nodes, fl_screen, cx, cy) {
+  var j, k, len, obj;
+  obj = {
+    x: 0,
+    y: 0
+  };
+  for (k = 0, len = nodes.length; k < len; k++) {
+    j = nodes[k];
+    if ((j.cx - fl_screen <= cx && cx <= j.cx + fl_screen)) {
+      obj.x = 1;
+    }
+    if ((j.cy - fl_screen <= cy && cy <= j.cy + fl_screen)) {
+      obj.y = 1;
+    }
   }
-  if (u == null) {
-    u = [];
-  }
-  if (d == null) {
-    d = {};
-  }
-  start = _start;
-  if (Object.keys(p).length === 0) {
-    p[start] = 0;
-  }
-  ref = Object.keys(graph[start]);
-  for (i = 0, len = ref.length; i < len; i++) {
-    x = ref[i];
-    if ((indexOf.call(u, x) < 0) && x !== start) {
-      if (indexOf.call(Object.keys(p), x) < 0 || (graph[start][x] + p[start]) < p[x]) {
-        p[x] = graph[start][x] + p[start];
+  return obj;
+};
+
+get_Nodes_random = function(n, fl_screen, fl_nodes, screen, _nodes) {
+  var cx, cy, i, k, nodes, ref, x_max, x_min, y_max, y_min;
+  fl_nodes += 20;
+  x_min = fl_screen;
+  x_max = screen.width - fl_screen;
+  y_min = fl_screen;
+  y_max = screen.height - fl_screen;
+  nodes = _nodes || [];
+  for (i = k = 0, ref = n - 1; 0 <= ref ? k <= ref : k >= ref; i = 0 <= ref ? ++k : --k) {
+    if (nodes.length === n) {
+      break;
+    } else {
+      console.log(i);
+      cx = getRandomInt(x_min, x_max);
+      cy = getRandomInt(y_min, y_max);
+      if (hittingOnInterval(nodes, fl_screen, cx, cy).x === 0 && hittingOnInterval(nodes, fl_screen, cx, cy).y === 0) {
+        nodes.push({
+          cx: cx,
+          cy: cy
+        });
+        console.log("ok");
+      } else {
+        console.log("no");
+        console.log([cx, cy]);
       }
     }
   }
-  u.push(start);
-  min_v = 0;
-  min_x = null;
-  ref1 = Object.keys(p);
-  for (j = 0, len1 = ref1.length; j < len1; j++) {
-    x = ref1[j];
-    if ((p[x] < min_v || min_v === 0) && indexOf.call(u, x) < 0) {
-      min_x = x;
-      min_v = p[x];
-    }
-  }
-  if ((u.length < Object.keys(graph).length) && min_x) {
-    return getMapDejkstra(graph, min_x, p, u);
+  if (nodes.length < n) {
+    return get_Nodes_random(n, fl_screen, fl_nodes, screen, nodes);
   } else {
-    return p;
+    return nodes;
   }
 };
 
-module.exports = getMapDejkstra;
+div = function(val, b) {
+  return (val - val % b) / b;
+};
+
+get_Nodes_sequence = function(n, fl_screen, fl_nodes, screen) {
+  var cx, cy, d, i, j, k, nodes, ref, x_max, x_min, y_max, y_min;
+  fl_nodes += 20;
+  x_min = fl_screen;
+  x_max = screen.width - fl_screen;
+  y_min = fl_screen;
+  y_max = screen.height - fl_screen;
+  nodes = [];
+  j = 0;
+  d = 0;
+  console.log(div(screen.width - fl_screen * 2, n));
+  console.log(div(Math.round(x_max - x_min), 50));
+  for (i = k = 0, ref = n - 1; 0 <= ref ? k <= ref : k >= ref; i = 0 <= ref ? ++k : --k) {
+    cx = x_min + j * fl_nodes + fl_nodes;
+    cy = fl_screen + d * 50;
+    if (i % div(Math.round(x_max - x_min), 50) === 0) {
+      d++;
+      j = 0;
+      cx = x_min + j * fl_nodes + fl_nodes;
+      cy = fl_screen + d * 50;
+      nodes.push({
+        cx: cx,
+        cy: cy
+      });
+    } else {
+      nodes.push({
+        cx: cx,
+        cy: cy
+      });
+    }
+    j++;
+  }
+  return nodes;
+};
+
+getPaths_max = function(n) {
+  var N, i, k, n1, ref;
+  n1 = 3;
+  N = 3;
+  for (i = k = 0, ref = n - 4; 0 <= ref ? k <= ref : k >= ref; i = 0 <= ref ? ++k : --k) {
+    N += n1;
+    n1++;
+  }
+  return N;
+};
+
+console.log(getPaths_max(8));
+
+aniqueArray = function(arr) {};
+
+write_paths = function(procents, n, I) {
+  var MAX, N, d, i, k, l, paths, ref, ref1;
+  if (I == null) {
+    I = 0;
+  }
+  MAX = getPaths_max(n);
+  N = MAX * procents / 100;
+  paths = [];
+  d = 1;
+  for (i = k = 0, ref = n - 2; 0 <= ref ? k <= ref : k >= ref; i = 0 <= ref ? ++k : --k) {
+    paths.push(["circle" + i, "circle" + d]);
+    d++;
+  }
+  if (paths.length < N) {
+    if (I !== 0) {
+      for (i = l = 0, ref1 = n - 1; 0 <= ref1 ? l <= ref1 : l >= ref1; i = 0 <= ref1 ? ++l : --l) {
+        paths.push(["circle" + I, "circle" + i]);
+      }
+    }
+  }
+  return paths;
+};
+
+console.log(write_paths(80, 9, 5));
+
+module.exports = {
+  get_Nodes_sequence: get_Nodes_sequence,
+  write_paths: write_paths
+};
 
 
 
@@ -1498,7 +1570,6 @@ Switcher = (function() {
 
   Switcher.prototype.regist = function(data) {
     if (typeof data === "string") {
-      console.log(data);
       return this.start = data;
     } else {
       if (typeof data[0][0] === "string") {
@@ -1510,11 +1581,10 @@ Switcher = (function() {
   };
 
   Switcher.prototype.getGraph = function() {
-    var arrNames, i, j, k, l, len, len1, len2, m, obj, paths, time, tmp;
+    var arrNames, i, j, k, l, len, len1, len2, m, obj, paths, tmp;
     arrNames = this.ArrNames;
     paths = this.Paths;
     obj = {};
-    time = performance.now();
     for (j = k = 0, len = arrNames.length; k < len; j = ++k) {
       i = arrNames[j];
       obj[i[0]] = obj[i[0]] || {};
@@ -1531,18 +1601,23 @@ Switcher = (function() {
       obj[i[0]] = obj[i[0]] || {};
       obj[i[0]][i[1]] = paths[j].weight;
     }
-    this.time = performance.now() - time;
     return this.graph = obj;
   };
 
   Switcher.prototype.AlgProcess = function(type) {
+    var _time, time;
+    time = performance.now();
+    _time = Date.now();
     switch (type) {
       case "dejkstra":
-        console.log(this.graph);
-        return this._obj = (dejkstra(this.graph, this.start)) || {};
+        this._obj = (dejkstra(this.graph, this.start)) || {};
+        break;
       default:
-        return this._obj = {};
+        this._obj = {};
     }
+    console.log(performance.now() - time);
+    console.log(Date.now() - _time);
+    return this.time = (performance.now() - time) === 0 ? Date.now() - _time : performance.now() - time;
   };
 
   Switcher.prototype.init = function(type_alg) {

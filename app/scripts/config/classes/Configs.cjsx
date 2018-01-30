@@ -5,7 +5,6 @@ Matrix = require './matrix.class'
 RadiusChanger = require "./RadiusChanger"
 Info = require './info.class'
 Mods = require "./mods.class"
-dejkstra = require "../modules/dejkstra.algorithm.fn"
 
 
 COLORS = ["#2e9f5c", "#2866F7", "#C9283E", "#0DF6FF", "#023852", ["#FFAA0D", "#2B9483", "#F53855"]]

@@ -10,7 +10,6 @@ class Switcher
 		@time = 0
 	regist: (data)->
 		if typeof data == "string"
-			console.log data
 			@start = data
 		else
 			if typeof data[0][0] == "string"
@@ -21,7 +20,6 @@ class Switcher
 		arrNames = @ArrNames
 		paths = @Paths
 		obj = {}
-		time = performance.now()
 		for i, j in arrNames
 			obj[i[0]] = obj[i[0]] or {}
 			obj[i[0]][i[1]] = paths[j].weight
@@ -34,15 +32,20 @@ class Switcher
 		for i, j in arrNames
 			obj[i[0]] = obj[i[0]] or {}
 			obj[i[0]][i[1]] = paths[j].weight
-		@time = performance.now() - time
 		@graph = obj
+
 	AlgProcess: (type)->
+		time = performance.now()
+		_time = Date.now()
 		switch type
 			when "dejkstra"
-				console.log @graph
 				@_obj = (dejkstra @graph, @start) or {}
 			#when ....
 			else @_obj = {}
+		console.log performance.now() - time
+		console.log Date.now() - _time
+		@time = if (performance.now() - time) == 0 then Date.now() - _time else performance.now() - time
+
 	init: (type_alg) ->
 		@getGraph()
 		@AlgProcess type_alg
