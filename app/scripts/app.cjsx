@@ -258,14 +258,14 @@ App = React.createClass
 			switcher.init data.type # run algorithms
 
 		#console.log generating_nodes 20, 30, 30, {width: window.innerWidth * 0.8, height: window.innerHeight}
-		for i, j in generating_nodes 20, 30, 30, {width: window.innerWidth * 0.8, height: window.innerHeight}
-			@AddNode i.cx, i.cy, "circle#{j}", @state.colorNodes, 20
-		setTimeout (=>
-			@setState MatrixNamesNodes: generating_paths 100, 20, 5
-			switcher.regist @state.MatrixNamesNodes
-			for i in generating_paths 100, 20, 5
-				@DrawPath i
-		), 500
+		# for i, j in generating_nodes 20, 30, 30, {width: window.innerWidth * 0.8, height: window.innerHeight}
+		# 	@AddNode i.cx, i.cy, "circle#{j}", @state.colorNodes, 20
+		# setTimeout (=>
+		# 	@setState MatrixNamesNodes: generating_paths 100, 20, 5
+		# 	switcher.regist @state.MatrixNamesNodes
+		# 	for i in generating_paths 100, 20, 5
+		# 		@DrawPath i
+		# ), 500
 	render: ->
 		<div id="wrap">
 		  <svg height="100%" version="1.1" width="100%" xmlns="http://www.w3.org/2000/svg" onClick={((e)=>this.handleClick e)}>

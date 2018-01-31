@@ -12,7 +12,7 @@ Path = React.createClass
 				<text x={if @props._xy.x != @props.__xy.x and @props._xy.y != @props.__xy.y then (Math.min(@props._xy.x, @props.__xy.x) + (Math.abs @props._xy.x - @props.__xy.x) / 2 - 15) else (@props._xy.x - 10)} 
 							y={if @props._xy.x != @props.__xy.x and @props._xy.y != @props.__xy.y then (Math.min(@props._xy.y, @props.__xy.y) + (Math.abs @props._xy.y - @props.__xy.y) / 2 - 5) else (@props._xy.y - 120)}
 							fill="#fff" dy=".6em" fontFamily="sans-serif" fontSize="17px" className="weightPaths">
-								{""+@props.weight}
+								{""+Math.round @props.weight}
 				</text>
 			</g>
 		else

@@ -356,7 +356,6 @@ App = React.createClass({
     return results;
   },
   componentWillMount: function() {
-    var i, j, k, len, ref;
     ee.on('changeColorNodes', ((function(_this) {
       return function(color) {
         _this.setState({
@@ -438,7 +437,7 @@ App = React.createClass({
         });
       };
     })(this));
-    ee.on('switchAlgorithm', (function(_this) {
+    return ee.on('switchAlgorithm', (function(_this) {
       return function(data) {
         _this.setState({
           ALGNOW: data.type
@@ -446,30 +445,6 @@ App = React.createClass({
         return switcher.init(data.type);
       };
     })(this));
-    ref = generating_nodes(20, 30, 30, {
-      width: window.innerWidth * 0.8,
-      height: window.innerHeight
-    });
-    for (j = k = 0, len = ref.length; k < len; j = ++k) {
-      i = ref[j];
-      this.AddNode(i.cx, i.cy, "circle" + j, this.state.colorNodes, 20);
-    }
-    return setTimeout(((function(_this) {
-      return function() {
-        var len1, m, ref1, results;
-        _this.setState({
-          MatrixNamesNodes: generating_paths(100, 20, 5)
-        });
-        switcher.regist(_this.state.MatrixNamesNodes);
-        ref1 = generating_paths(100, 20, 5);
-        results = [];
-        for (m = 0, len1 = ref1.length; m < len1; m++) {
-          i = ref1[m];
-          results.push(_this.DrawPath(i));
-        }
-        return results;
-      };
-    })(this)), 500);
   },
   render: function() {
     return React.createElement("div", {
@@ -1713,7 +1688,7 @@ Path = React.createClass({
         "fontFamily": "sans-serif",
         "fontSize": "17px",
         "className": "weightPaths"
-      }, "" + this.props.weight));
+      }, "" + Math.round(this.props.weight)));
     } else {
       return React.createElement("path", {
         "d": this.props.d,
