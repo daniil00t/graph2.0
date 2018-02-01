@@ -1293,7 +1293,7 @@ getWeight = function(coords) {
     cat1 = Math.abs(coords1.x - coords2.x);
     cat2 = Math.abs(coords1.y - coords2.y);
     hypotenuse = Math.sqrt((Math.pow(cat1, 2)) + (Math.pow(cat2, 2)));
-    return (Math.round(hypotenuse)) / 20;
+    return Math.round((Math.round(hypotenuse)) / 20);
   }
 };
 
@@ -1673,7 +1673,7 @@ Path = React.createClass({
           strokeWidth: 2
         }
       }), React.createElement("rect", {
-        "x": (this.props._xy.x !== this.props.__xy.x && this.props._xy.y !== this.props.__xy.y ? Math.min(this.props._xy.x, this.props.__xy.x) + (Math.abs(this.props._xy.x - this.props.__xy.x)) / 2 - 23.5 : this.props._xy.x - 29.5),
+        "x": (this.props._xy.x !== this.props.__xy.x && this.props._xy.y !== this.props.__xy.y ? Math.min(this.props._xy.x, this.props.__xy.x) + (Math.abs(this.props._xy.x - this.props.__xy.x)) / 2 - 32 : this.props._xy.x - 32.5),
         "y": (this.props._xy.x !== this.props.__xy.x && this.props._xy.y !== this.props.__xy.y ? Math.min(this.props._xy.y, this.props.__xy.y) + (Math.abs(this.props._xy.y - this.props.__xy.y)) / 2 - 16 : this.props._xy.y - 130),
         "width": "60",
         "height": "30",
@@ -1688,7 +1688,7 @@ Path = React.createClass({
         "fontFamily": "sans-serif",
         "fontSize": "17px",
         "className": "weightPaths"
-      }, "" + Math.round(this.props.weight)));
+      }, "" + this.props.weight));
     } else {
       return React.createElement("path", {
         "d": this.props.d,

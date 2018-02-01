@@ -18,7 +18,7 @@ getWeight = (coords)->
 
 		hypotenuse = Math.sqrt (Math.pow cat1, 2) + (Math.pow cat2, 2)
 
-		return (Math.round hypotenuse) / 20
+		return Math.round (Math.round hypotenuse) / 20
 
 
 module.exports = getWeight

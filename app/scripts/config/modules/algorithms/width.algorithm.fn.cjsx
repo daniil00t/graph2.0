@@ -19,4 +19,4 @@ bfs = (graph, start)->
 				queue.push(i)
 	path
 
-console.log bfs(graph, 0).length
+console.log bfs(graph, 0)
