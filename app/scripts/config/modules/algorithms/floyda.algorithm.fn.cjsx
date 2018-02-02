@@ -34,8 +34,8 @@ for k in range(0, n)
 				if i == j
 					A[i][j] = 0
 
-console.log A
-console.log Prev
+# console.log A
+# console.log Prev
 # for i in A:
 # 	a = []
 # 	for j in i:
@@ -89,4 +89,4 @@ Mins = []
 for i in range(0, n)
 	Mins.push {"#{i}": getMinPath(1, i, A, Prev) }
 
-console.log Mins
+# console.log Mins

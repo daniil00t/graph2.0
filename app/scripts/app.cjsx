@@ -256,14 +256,16 @@ App = React.createClass
 		ee.on 'switchAlgorithm', (data) =>
 			@setState ALGNOW: data.type
 			switcher.init data.type # run algorithms
-
-		#console.log generating_nodes 20, 30, 30, {width: window.innerWidth * 0.8, height: window.innerHeight}
-		# for i, j in generating_nodes 20, 30, 30, {width: window.innerWidth * 0.8, height: window.innerHeight}
-		# 	@AddNode i.cx, i.cy, "circle#{j}", @state.colorNodes, 20
+		ee.on "generate", (data)=>
+			@generateGraph(data.data.nodes_count, data.data.paths_count)
+	generateGraph: (nodes, paths)->
+		# console.log generating_nodes 20, 30, 30, {width: window.innerWidth * 0.8, height: window.innerHeight}
+		for i, j in generating_nodes nodes, 30, 30, {width: window.innerWidth * 0.8, height: window.innerHeight}
+			@AddNode i.cx, i.cy, "circle#{j}", @state.colorNodes, 20
 		# setTimeout (=>
-		# 	@setState MatrixNamesNodes: generating_paths 100, 20, 5
+		# 	@setState MatrixNamesNodes: generating_paths 100, nodes
 		# 	switcher.regist @state.MatrixNamesNodes
-		# 	for i in generating_paths 100, 20, 5
+		# 	for i in generating_paths 100, nodes
 		# 		@DrawPath i
 		# ), 500
 	render: ->

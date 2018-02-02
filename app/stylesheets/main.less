@@ -22,6 +22,12 @@ svg{
   	}
   }
 }
+input[type="number"]{
+	max-width: 50px;
+}
+input{
+	color: #000;
+}
 .wrap_configs{
 	float: right;
 	width: 19.9999%;
@@ -64,7 +70,7 @@ svg{
 				margin-right: 20px;
 			}
 			.resetRadiusNode{
-				border-bottom: 2px solid #2B9483;
+				border-bottom: 2px solid #2B9483 !important;
 				width: 100px;
 				background-color: #3BCDB5;
 				color: #fff;
@@ -142,6 +148,9 @@ text.weightPaths{
 	p{
 		color: #fff;
 	}
+	input{
+		color: #000;
+	}
 }
 .InfoAlg{
 	display: block;
@@ -150,4 +159,17 @@ text.weightPaths{
 .fr{
 	display: block;
 	margin-left: 70px;
+}
+.generateBtn{
+	border-bottom: 2px solid #2257D3 !important;
+	width: 100px;
+	background-color: #2866F7;
+	color: #fff;
+	border: none;
+	border-radius: 20px;
+	height: 30px;
+	transition: all .1s ease-in-out;
+	&:hover{
+		background-color: #2C5ED3;
+	}
 }

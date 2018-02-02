@@ -1,9 +1,11 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-var App, React;
+var App, React, a;
 
 React = require('react');
 
 App = require('./app');
+
+a = 10;
 
 React.render(React.createElement(App, null), document.getElementById('app'));
 
@@ -437,7 +439,7 @@ App = React.createClass({
         });
       };
     })(this));
-    return ee.on('switchAlgorithm', (function(_this) {
+    ee.on('switchAlgorithm', (function(_this) {
       return function(data) {
         _this.setState({
           ALGNOW: data.type
@@ -445,6 +447,24 @@ App = React.createClass({
         return switcher.init(data.type);
       };
     })(this));
+    return ee.on("generate", (function(_this) {
+      return function(data) {
+        return _this.generateGraph(data.data.nodes_count, data.data.paths_count);
+      };
+    })(this));
+  },
+  generateGraph: function(nodes, paths) {
+    var i, j, k, len, ref, results;
+    ref = generating_nodes(nodes, 30, 30, {
+      width: window.innerWidth * 0.8,
+      height: window.innerHeight
+    });
+    results = [];
+    for (j = k = 0, len = ref.length; k < len; j = ++k) {
+      i = ref[j];
+      results.push(this.AddNode(i.cx, i.cy, "circle" + j, this.state.colorNodes, 20));
+    }
+    return results;
   },
   render: function() {
     return React.createElement("div", {
@@ -504,7 +524,7 @@ copyright; Daniil Shenyagin, 2018
 
 
 
-},{"./config/classes/Configs":3,"./config/modules/adjacency_matrix.fn":9,"./config/modules/calcWeightPaths.fn":11,"./config/modules/generate.fn":12,"./config/modules/history.module":13,"./config/modules/switcher.controller":14,"./figures/Node":15,"./figures/Path":16,"./global/Events":17,"react":"react"}],3:[function(require,module,exports){
+},{"./config/classes/Configs":3,"./config/modules/adjacency_matrix.fn":9,"./config/modules/calcWeightPaths.fn":12,"./config/modules/generate.fn":13,"./config/modules/history.module":14,"./config/modules/switcher.controller":15,"./figures/Node":16,"./figures/Path":17,"./global/Events":18,"react":"react"}],3:[function(require,module,exports){
 var COLORS, Colors, Configs, Info, Matrix, Mods, RadiusChanger, React, ee;
 
 React = require('react');
@@ -607,7 +627,7 @@ module.exports = Configs;
 
 
 
-},{"../../global/Events":17,"./RadiusChanger":4,"./colors":5,"./info.class":6,"./matrix.class":7,"./mods.class":8,"react":"react"}],4:[function(require,module,exports){
+},{"../../global/Events":18,"./RadiusChanger":4,"./colors":5,"./info.class":6,"./matrix.class":7,"./mods.class":8,"react":"react"}],4:[function(require,module,exports){
 var RadiusChanger, React, ee;
 
 React = require('react');
@@ -668,7 +688,7 @@ module.exports = RadiusChanger;
 
 
 
-},{"../../global/Events":17,"react":"react"}],5:[function(require,module,exports){
+},{"../../global/Events":18,"react":"react"}],5:[function(require,module,exports){
 var Colors, React;
 
 React = require('react');
@@ -727,7 +747,8 @@ Info = React.createClass({
       itemNow: "history",
       typeAlg: "",
       dataAlg: {},
-      timeAlg: 0
+      timeAlg: 0,
+      dataGenerate: {}
     };
   },
   switchItem: function(obj) {
@@ -748,6 +769,34 @@ Info = React.createClass({
         itemNow: obj.type
       });
     }
+  },
+  getPaths_max: function(n) {
+    var N, i, k, n1, ref;
+    if (n > 3) {
+      n1 = 3;
+      N = 3;
+      for (i = k = 0, ref = n - 4; 0 <= ref ? k <= ref : k >= ref; i = 0 <= ref ? ++k : --k) {
+        N += n1;
+        n1++;
+      }
+      return N;
+    } else {
+      return -1;
+    }
+  },
+  getValGenerate: function(e, obj) {
+    var data;
+    data = this.state.dataGenerate || {};
+    data[obj.type] = e.target.value;
+    return this.setState({
+      dataGenerate: data
+    });
+  },
+  generate_graph: function(e) {
+    ee.emit("generate", {
+      data: this.state.dataGenerate
+    });
+    return console.log(this.state.dataGenerate);
   },
   componentWillMount: function() {
     return ee.on("sendDataAlgs", (function(_this) {
@@ -804,6 +853,17 @@ Info = React.createClass({
           });
         };
       })(this))
+    }), React.createElement("i", {
+      "className": (this.state.itemNow === "generate" ? "fa fa-plus itemInfoIcon IconActionGold" : "fa fa-plus itemInfoIcon"),
+      "title": "generate",
+      "onClick": ((function(_this) {
+        return function(e) {
+          return _this.switchItem({
+            type: "generate",
+            e: e
+          });
+        };
+      })(this))
     }), (this.state.itemNow === "history" ? React.createElement("div", {
       "className": "wrap_history"
     }, React.createElement("div", {
@@ -829,7 +889,34 @@ Info = React.createClass({
       return function(i, j) {
         return React.createElement("div", null, React.createElement("span", null, i, ": ", _this.state.dataAlg[i]), React.createElement("br", null));
       };
-    })(this)))) : React.createElement("p", null, "ooooooh=)MAP IS EMPTY)") : void 0));
+    })(this)))) : React.createElement("p", null, "ooooooh=)MAP IS EMPTY)") : this.state.itemNow === "generate" ? React.createElement("div", null, React.createElement("br", null), React.createElement("label", null, "Nodes_count: ", React.createElement("input", {
+      "type": "number",
+      "title": "nodes_count",
+      "onChange": ((function(_this) {
+        return function(e) {
+          return _this.getValGenerate(e, {
+            type: "nodes_count"
+          });
+        };
+      })(this))
+    })), React.createElement("br", null), React.createElement("label", null, "Paths_count: ", React.createElement("input", {
+      "type": "number",
+      "title": "paths_count",
+      "onChange": ((function(_this) {
+        return function(e) {
+          return _this.getValGenerate(e, {
+            type: "paths_count"
+          });
+        };
+      })(this))
+    })), React.createElement("span", null, "max: ", this.getPaths_max(this.state.dataGenerate.nodes_count)), React.createElement("br", null), React.createElement("button", {
+      "className": "generateBtn",
+      "onClick": ((function(_this) {
+        return function(e) {
+          return _this.generate_graph(e);
+        };
+      })(this))
+    }, "Generate!")) : void 0));
   }
 });
 
@@ -837,7 +924,7 @@ module.exports = Info;
 
 
 
-},{"../../global/Events":17,"react":"react"}],7:[function(require,module,exports){
+},{"../../global/Events":18,"react":"react"}],7:[function(require,module,exports){
 var Matrix, React;
 
 React = require('react');
@@ -1078,7 +1165,7 @@ module.exports = Deleting;
 
 
 
-},{"../../global/Events":17,"../modules/history.module":13,"react":"react"}],9:[function(require,module,exports){
+},{"../../global/Events":18,"../modules/history.module":14,"react":"react"}],9:[function(require,module,exports){
 
 /*
 matrix = [
@@ -1265,6 +1352,115 @@ module.exports = getMapDejkstra;
 
 
 },{}],11:[function(require,module,exports){
+var A, INF, Mins, Prev, W, a, getMinPath, i, j, k, len, len1, len2, len3, len4, len5, len6, len7, n, o, obj, p, q, r, range, ref, ref1, ref2, ref3, ref4, ref5, ref6, ref7, t, u, v, w;
+
+n = 5;
+
+INF = 20000000000000;
+
+W = [[INF, 3, 10, INF, INF], [3, INF, INF, 5, INF], [10, INF, INF, 6, 15], [INF, 5, 6, INF, 4], [INF, INF, INF, 4, INF]];
+
+range = function(s, f) {
+  var o, ref, results;
+  return (function() {
+    results = [];
+    for (var o = s, ref = f - 1; s <= ref ? o <= ref : o >= ref; s <= ref ? o++ : o--){ results.push(o); }
+    return results;
+  }).apply(this);
+};
+
+A = [];
+
+Prev = [];
+
+ref = range(0, n);
+for (o = 0, len = ref.length; o < len; o++) {
+  i = ref[o];
+  a = [];
+  ref1 = range(0, n);
+  for (p = 0, len1 = ref1.length; p < len1; p++) {
+    j = ref1[p];
+    a.push(W[i][j]);
+  }
+  A.push(a);
+}
+
+ref2 = range(0, n);
+for (q = 0, len2 = ref2.length; q < len2; q++) {
+  i = ref2[q];
+  a = [];
+  ref3 = range(0, n);
+  for (r = 0, len3 = ref3.length; r < len3; r++) {
+    j = ref3[r];
+    a.push(i !== j ? j : "-");
+  }
+  Prev.push(a);
+}
+
+ref4 = range(0, n);
+for (t = 0, len4 = ref4.length; t < len4; t++) {
+  k = ref4[t];
+  ref5 = range(0, n);
+  for (u = 0, len5 = ref5.length; u < len5; u++) {
+    i = ref5[u];
+    ref6 = range(0, n);
+    for (v = 0, len6 = ref6.length; v < len6; v++) {
+      j = ref6[v];
+      if (A[i][k] < INF && A[k][j] < INF && A[i][k] + A[k][j] < A[i][j] && i !== j) {
+        A[i][j] = A[i][k] + A[k][j];
+        Prev[i][j] = k;
+      } else {
+        if (i === j) {
+          A[i][j] = 0;
+        }
+      }
+    }
+  }
+}
+
+getMinPath = function(m, l, A, W) {
+  var finish, len7, len8, path, ref7, start, subpath, summ, w, x;
+  if (m === l) {
+    return 0;
+  }
+  start = m;
+  finish = l;
+  path = [m];
+  subpath = [];
+  while (W[m][l] !== l) {
+    subpath.push(W[m][l]);
+    l = W[m][l];
+  }
+  subpath.reverse();
+  for (w = 0, len7 = subpath.length; w < len7; w++) {
+    i = subpath[w];
+    path.push(i);
+  }
+  path.push(finish);
+  summ = 0;
+  ref7 = range(0, path.length - 1);
+  for (x = 0, len8 = ref7.length; x < len8; x++) {
+    i = ref7[x];
+    summ += A[path[i]][path[i + 1]];
+  }
+  return summ;
+};
+
+Mins = [];
+
+ref7 = range(0, n);
+for (w = 0, len7 = ref7.length; w < len7; w++) {
+  i = ref7[w];
+  Mins.push((
+    obj = {},
+    obj["" + i] = getMinPath(1, i, A, Prev),
+    obj
+  ));
+}
+
+
+
+},{}],12:[function(require,module,exports){
 
 /*
 	coords = [
@@ -1301,7 +1497,7 @@ module.exports = getWeight;
 
 
 
-},{}],12:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 var aniqueArray, div, getPaths_max, getRandomInt, get_Nodes_random, get_Nodes_sequence, hittingOnInterval, write_paths;
 
 getRandomInt = function(min, max) {
@@ -1410,8 +1606,6 @@ getPaths_max = function(n) {
   return N;
 };
 
-console.log(getPaths_max(8));
-
 aniqueArray = function(arr) {};
 
 write_paths = function(procents, n, I) {
@@ -1437,8 +1631,6 @@ write_paths = function(procents, n, I) {
   return paths;
 };
 
-console.log(write_paths(80, 9, 5));
-
 module.exports = {
   get_Nodes_sequence: get_Nodes_sequence,
   write_paths: write_paths
@@ -1446,7 +1638,7 @@ module.exports = {
 
 
 
-},{}],13:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 var History_class, ee, history_app;
 
 ee = require("../../global/Events");
@@ -1526,20 +1718,26 @@ module.exports = history_app;
 
 
 
-},{"../../global/Events":17}],14:[function(require,module,exports){
-var Switcher, dejkstra, ee;
+},{"../../global/Events":18}],15:[function(require,module,exports){
+var INF, Switcher, dejkstra, ee, floyda;
 
 ee = require("../../global/Events");
 
 dejkstra = require("./algorithms/dejkstra.algorithm.fn");
 
+floyda = require("./algorithms/floyda.algorithm.fn");
+
+INF = 20000000000000;
+
 Switcher = (function() {
-  function Switcher(ArrNames, Paths, start) {
+  function Switcher(ArrNames, Paths, Mxw, start) {
     this.ArrNames = ArrNames;
     this.Paths = Paths;
+    this.Mxw = Mxw;
     this.start = start;
     this.graph = {};
     this._obj = {};
+    this.n = 0;
     this.time = 0;
   }
 
@@ -1555,7 +1753,7 @@ Switcher = (function() {
     }
   };
 
-  Switcher.prototype.getGraph = function() {
+  Switcher.prototype.getGraph_obj = function() {
     var arrNames, i, j, k, l, len, len1, len2, m, obj, paths, tmp;
     arrNames = this.ArrNames;
     paths = this.Paths;
@@ -1579,6 +1777,23 @@ Switcher = (function() {
     return this.graph = obj;
   };
 
+  Switcher.prototype.getGraph_mx = function() {
+    var _arr, arr, i, j, k, l, len, len1, ref;
+    arr = [];
+    ref = this.Mxw;
+    for (k = 0, len = ref.length; k < len; k++) {
+      i = ref[k];
+      _arr = [];
+      for (l = 0, len1 = i.length; l < len1; l++) {
+        j = i[l];
+        _arr.push(j !== 0 ? j : INF);
+      }
+      arr.push(_arr);
+    }
+    this.Mx = arr;
+    return this.n = arr.length;
+  };
+
   Switcher.prototype.AlgProcess = function(type) {
     var _time, time;
     time = performance.now();
@@ -1596,7 +1811,7 @@ Switcher = (function() {
   };
 
   Switcher.prototype.init = function(type_alg) {
-    this.getGraph();
+    this.getGraph_obj();
     this.AlgProcess(type_alg);
     return ee.emit("sendDataAlgs", {
       type: type_alg,
@@ -1613,7 +1828,7 @@ module.exports = new Switcher;
 
 
 
-},{"../../global/Events":17,"./algorithms/dejkstra.algorithm.fn":10}],15:[function(require,module,exports){
+},{"../../global/Events":18,"./algorithms/dejkstra.algorithm.fn":10,"./algorithms/floyda.algorithm.fn":11}],16:[function(require,module,exports){
 var Node, React;
 
 React = require('react');
@@ -1656,7 +1871,7 @@ module.exports = Node;
 
 
 
-},{"react":"react"}],16:[function(require,module,exports){
+},{"react":"react"}],17:[function(require,module,exports){
 var Path, React;
 
 React = require('react');
@@ -1706,7 +1921,7 @@ module.exports = Path;
 
 
 
-},{"react":"react"}],17:[function(require,module,exports){
+},{"react":"react"}],18:[function(require,module,exports){
 var EventEmitter, ee;
 
 EventEmitter = require("events").EventEmitter;
@@ -1717,7 +1932,7 @@ module.exports = ee;
 
 
 
-},{"events":18}],18:[function(require,module,exports){
+},{"events":19}],19:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a

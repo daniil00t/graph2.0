@@ -8,6 +8,7 @@ Info = React.createClass
 		typeAlg: ""
 		dataAlg: {}
 		timeAlg: 0
+		dataGenerate: {}
 	switchItem: (obj)->
 		tmp = obj.e.target.classList.value.split(' ')
 		for i in tmp
@@ -21,6 +22,25 @@ Info = React.createClass
 		# obj.e.target.classList = tmp
 		if @state.itemNow != obj.type
 			@setState itemNow: obj.type
+	getPaths_max: (n)->
+		if n > 3
+			n1 = 3
+			N = 3
+			for i in [0..n-4]
+				N+=n1
+				n1++
+			return N
+		else
+			return -1
+			# else
+			# 	return -1
+	getValGenerate: (e, obj)->
+		data = @state.dataGenerate or {}
+		data[obj.type] = e.target.value
+		@setState dataGenerate: data
+	generate_graph: (e)->
+		ee.emit "generate", data: @state.dataGenerate
+		console.log @state.dataGenerate
 	componentWillMount: ->
 		# ee.on "switchAlgorithm", (data)=>
 		# 	@setState typeAlg: data.data
@@ -31,11 +51,13 @@ Info = React.createClass
 			@setState typeAlg: data.type
 			@setState dataAlg: data.data
 			@setState timeAlg: data.time
+
 	render: ->
 		<div className="wrapInfo">
 			<i className={if @state.itemNow == "history" then "fa fa-history itemInfoIcon IconActionGold" else "fa fa-history itemInfoIcon"} title="history" onClick={(e) => @switchItem {type: "history", e: e}}></i>
 			<i className={if @state.itemNow == "database" then "fa fa-database itemInfoIcon IconActionGold" else "fa fa-database itemInfoIcon"} title="database" onClick={(e) => @switchItem {type: "database", e: e}}></i>
 			<i className={if @state.itemNow == "map" then "fa fa-map itemInfoIcon IconActionGold" else "fa fa-map itemInfoIcon"} title="map" onClick={(e) => @switchItem {type: "map", e: e}}></i>
+			<i className={if @state.itemNow == "generate" then "fa fa-plus itemInfoIcon IconActionGold" else "fa fa-plus itemInfoIcon"} title="generate" onClick={(e) => @switchItem {type: "generate", e: e}}></i>
 			{
 				if @state.itemNow == "history"
 					<div className="wrap_history">
@@ -69,7 +91,14 @@ Info = React.createClass
 								</div>
 							else
 								<p>ooooooh=)MAP IS EMPTY)</p>
-							
+						else
+							if @state.itemNow == "generate"
+								<div>
+									<br/>
+									<label>Nodes_count: <input type="number" title="nodes_count" onChange={((e)=> @getValGenerate(e, {type: "nodes_count"}))}/></label><br/>
+									<label>Paths_count: <input type="number" title="paths_count" onChange={((e)=> @getValGenerate(e, {type: "paths_count"}))}/></label><span>max: {@getPaths_max @state.dataGenerate.nodes_count}</span><br/>
+									<button className="generateBtn" onClick={((e)=>@generate_graph e)}>Generate!</button>
+								</div>
 			}
 			
 		</div>

@@ -80,7 +80,7 @@ getPaths_max = (n)->
 		n1++
 	N
 
-console.log getPaths_max 8
+# console.log getPaths_max 100
 
 aniqueArray = (arr)-> 
 
@@ -102,7 +102,7 @@ write_paths = (procents, n, I=0)->
 
 	paths
 
-console.log write_paths 80, 9, 5
+# console.log write_paths 80, 9, 5
 
 
 
