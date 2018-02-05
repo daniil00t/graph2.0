@@ -60,10 +60,12 @@ Deleting = React.createClass
 				{
 					if @state.algMode
 						<div className="switchAlgorithm fr">
-							<input type="radio" name="algorithm" id="dejkstra" onChange={(e) => @changeSwitchAlgorithm e, {type: "dejkstra"}}/>
-							<label for="dejkstra">Dejkstra Algorithm</label><br />
-							<input type="radio" name="algorithm" id="height" onChange={(e) => @changeSwitchAlgorithm e, {type: "height"}}/>
-							<label for="height">Height Algorithm</label>
+							<label for="dejkstra">
+								<input type="radio" name="algorithm" id="dejkstra" onChange={(e) => @changeSwitchAlgorithm e, {type: "dejkstra"}}/>
+							Dejkstra's Algorithm</label><br />
+							<label for="floyda">
+								<input type="radio" name="algorithm" id="floyda" onChange={(e) => @changeSwitchAlgorithm e, {type: "floyda"}}/>
+							Floyda's Algorithm</label>
 						</div>
 				}
 			</div>

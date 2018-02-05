@@ -1,3 +1,4 @@
+"use strict";
 getRandomInt = (min, max) ->
   Math.floor(Math.random() * (max - min)) + min
 
@@ -82,8 +83,31 @@ getPaths_max = (n)->
 
 # console.log getPaths_max 100
 
-aniqueArray = (arr)-> 
+DeleteGarbage = (arr)->
+	# s = new Set
+	# s.add 1
+	# s.add 1
+	# s.add 2
 
+	# s.forEach (v) =>
+	#   console.log v
+	for i, j in arr
+		now1 = +i[0].match(/\d+/g)[0]
+		now2 = +i[1].match(/\d+/g)[0]
+		if now2 < now1
+			tmp = arr[j][0]
+			arr[j][0] = arr[j][1]
+			arr[j][1] = tmp
+		# if now1 == now2
+		# 	arr.splice j, 1
+	_arr = []
+	for i in arr
+		_arr.push i[0]+i[1]
+	a = new Set(_arr)
+	__arr = []
+	a.forEach (v) =>
+		__arr.push [v.match(/circle\d+/g)[0], v.match(/circle\d+/g)[1]]
+	__arr
 write_paths = (procents, n, I=0)->
 	# I - индекс или номер вершины из которой стартуем
 	MAX = getPaths_max n # максимальное кол-во вершин
@@ -91,17 +115,20 @@ write_paths = (procents, n, I=0)->
 	paths = []
 	d = 1
 	# Последовательный проход
-	for i in [0..n-2]
-		paths.push ["circle#{i}", "circle#{d}"]
-		d++
-	if paths.length < N
-		if I != 0
-			for i in [0..n-1]
-				paths.push ["circle#{I}", "circle#{i}"]
+	# for i in [0..n-2]
+	# 	paths.push ["circle#{i}", "circle#{d}"]
+	# 	d++
+	
 
+	# or (i[1] == arr[0] and i[1] == arr[1]) or (i[0] == arr[0] and i[1] == arr[1])
+	arr = []
+	for i in [0..Math.round(n*procents/100)-1]
+		for j in [0..Math.round(n*procents/100)-1]
+			if i isnt j
+				paths.push ["circle#{i}", "circle#{j}"]
+	return DeleteGarbage paths
 
-	paths
-
+# console.log write_paths(100, 10)
 # console.log write_paths 80, 9, 5
 
 

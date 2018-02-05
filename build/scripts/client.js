@@ -453,18 +453,32 @@ App = React.createClass({
       };
     })(this));
   },
-  generateGraph: function(nodes, paths) {
-    var i, j, k, len, ref, results;
-    ref = generating_nodes(nodes, 30, 30, {
+  generateGraph: function(nodes_count, paths_count) {
+    var i, j, k, len, ref;
+    ref = generating_nodes(nodes_count, 30, 30, {
       width: window.innerWidth * 0.8,
       height: window.innerHeight
     });
-    results = [];
     for (j = k = 0, len = ref.length; k < len; j = ++k) {
       i = ref[j];
-      results.push(this.AddNode(i.cx, i.cy, "circle" + j, this.state.colorNodes, 20));
+      this.AddNode(i.cx, i.cy, "circle" + j, this.state.colorNodes, 20);
     }
-    return results;
+    return setTimeout(((function(_this) {
+      return function() {
+        var len1, m, ref1, results;
+        _this.setState({
+          MatrixNamesNodes: generating_paths(paths_count, nodes_count)
+        });
+        switcher.regist(_this.state.MatrixNamesNodes);
+        ref1 = generating_paths(paths_count, nodes_count);
+        results = [];
+        for (m = 0, len1 = ref1.length; m < len1; m++) {
+          i = ref1[m];
+          results.push(_this.DrawPath(i));
+        }
+        return results;
+      };
+    })(this)), 1500);
   },
   render: function() {
     return React.createElement("div", {
@@ -748,6 +762,8 @@ Info = React.createClass({
       typeAlg: "",
       dataAlg: {},
       timeAlg: 0,
+      middleTimeAlg: 0,
+      noTest: 1,
       dataGenerate: {}
     };
   },
@@ -805,6 +821,22 @@ Info = React.createClass({
           itemNow: "map"
         });
         console.log(data);
+        if (_this.state.typeAlg === data.type) {
+          _this.setState({
+            middleTimeAlg: (_this.state.middleTimeAlg + data.time) / 2
+          });
+        } else {
+          _this.state.middleTimeAlg = 0;
+        }
+        if (_this.state.typeAlg === data.type) {
+          _this.setState({
+            noTest: _this.state.noTest + 1
+          });
+        } else {
+          _this.setState({
+            noTest: 1
+          });
+        }
         _this.setState({
           typeAlg: data.type
         });
@@ -883,7 +915,15 @@ Info = React.createClass({
       "className": "InfoAlg"
     }, "Time work algorithm: ", React.createElement("span", {
       "className": "klaster"
-    }, this.state.timeAlg)), React.createElement("div", {
+    }, this.state.timeAlg)), React.createElement("span", {
+      "className": "InfoAlg"
+    }, "Middle time work algorithm: ", React.createElement("span", {
+      "className": "klaster"
+    }, this.state.middleTimeAlg)), React.createElement("span", {
+      "className": "InfoAlg"
+    }, "Number test algorithm: ", React.createElement("span", {
+      "className": "klaster"
+    }, this.state.noTest)), React.createElement("div", {
       "className": "wrapMapItem"
     }, Object.keys(this.state.dataAlg).map((function(_this) {
       return function(i, j) {
@@ -1131,6 +1171,8 @@ Deleting = React.createClass({
       })(this))
     })), (this.state.algMode ? React.createElement("div", {
       "className": "switchAlgorithm fr"
+    }, React.createElement("label", {
+      "for": "dejkstra"
     }, React.createElement("input", {
       "type": "radio",
       "name": "algorithm",
@@ -1142,22 +1184,20 @@ Deleting = React.createClass({
           });
         };
       })(this))
-    }), React.createElement("label", {
-      "for": "dejkstra"
-    }, "Dejkstra Algorithm"), React.createElement("br", null), React.createElement("input", {
+    }), "\t\t\t\t\t\t\tDejkstra\'s Algorithm"), React.createElement("br", null), React.createElement("label", {
+      "for": "floyda"
+    }, React.createElement("input", {
       "type": "radio",
       "name": "algorithm",
-      "id": "height",
+      "id": "floyda",
       "onChange": ((function(_this) {
         return function(e) {
           return _this.changeSwitchAlgorithm(e, {
-            type: "height"
+            type: "floyda"
           });
         };
       })(this))
-    }), React.createElement("label", {
-      "for": "height"
-    }, "Height Algorithm")) : void 0)));
+    }), "\t\t\t\t\t\t\tFloyda\'s Algorithm")) : void 0)));
   }
 });
 
@@ -1498,7 +1538,8 @@ module.exports = getWeight;
 
 
 },{}],13:[function(require,module,exports){
-var aniqueArray, div, getPaths_max, getRandomInt, get_Nodes_random, get_Nodes_sequence, hittingOnInterval, write_paths;
+"use strict";
+var DeleteGarbage, div, getPaths_max, getRandomInt, get_Nodes_random, get_Nodes_sequence, hittingOnInterval, write_paths;
 
 getRandomInt = function(min, max) {
   return Math.floor(Math.random() * (max - min)) + min;
@@ -1606,10 +1647,35 @@ getPaths_max = function(n) {
   return N;
 };
 
-aniqueArray = function(arr) {};
+DeleteGarbage = function(arr) {
+  var __arr, _arr, a, i, j, k, l, len, len1, now1, now2, tmp;
+  for (j = k = 0, len = arr.length; k < len; j = ++k) {
+    i = arr[j];
+    now1 = +i[0].match(/\d+/g)[0];
+    now2 = +i[1].match(/\d+/g)[0];
+    if (now2 < now1) {
+      tmp = arr[j][0];
+      arr[j][0] = arr[j][1];
+      arr[j][1] = tmp;
+    }
+  }
+  _arr = [];
+  for (l = 0, len1 = arr.length; l < len1; l++) {
+    i = arr[l];
+    _arr.push(i[0] + i[1]);
+  }
+  a = new Set(_arr);
+  __arr = [];
+  a.forEach((function(_this) {
+    return function(v) {
+      return __arr.push([v.match(/circle\d+/g)[0], v.match(/circle\d+/g)[1]]);
+    };
+  })(this));
+  return __arr;
+};
 
 write_paths = function(procents, n, I) {
-  var MAX, N, d, i, k, l, paths, ref, ref1;
+  var MAX, N, arr, d, i, j, k, l, paths, ref, ref1;
   if (I == null) {
     I = 0;
   }
@@ -1617,18 +1683,15 @@ write_paths = function(procents, n, I) {
   N = MAX * procents / 100;
   paths = [];
   d = 1;
-  for (i = k = 0, ref = n - 2; 0 <= ref ? k <= ref : k >= ref; i = 0 <= ref ? ++k : --k) {
-    paths.push(["circle" + i, "circle" + d]);
-    d++;
-  }
-  if (paths.length < N) {
-    if (I !== 0) {
-      for (i = l = 0, ref1 = n - 1; 0 <= ref1 ? l <= ref1 : l >= ref1; i = 0 <= ref1 ? ++l : --l) {
-        paths.push(["circle" + I, "circle" + i]);
+  arr = [];
+  for (i = k = 0, ref = Math.round(n * procents / 100) - 1; 0 <= ref ? k <= ref : k >= ref; i = 0 <= ref ? ++k : --k) {
+    for (j = l = 0, ref1 = Math.round(n * procents / 100) - 1; 0 <= ref1 ? l <= ref1 : l >= ref1; j = 0 <= ref1 ? ++l : --l) {
+      if (i !== j) {
+        paths.push(["circle" + i, "circle" + j]);
       }
     }
   }
-  return paths;
+  return DeleteGarbage(paths);
 };
 
 module.exports = {
@@ -1800,13 +1863,16 @@ Switcher = (function() {
     _time = Date.now();
     switch (type) {
       case "dejkstra":
+        console.log("dejkstra");
+        this._obj = (dejkstra(this.graph, this.start)) || {};
+        break;
+      case "floyda":
+        console.log("floyda");
         this._obj = (dejkstra(this.graph, this.start)) || {};
         break;
       default:
         this._obj = {};
     }
-    console.log(performance.now() - time);
-    console.log(Date.now() - _time);
     return this.time = (performance.now() - time) === 0 ? Date.now() - _time : performance.now() - time;
   };
 

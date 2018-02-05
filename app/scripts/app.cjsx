@@ -258,16 +258,16 @@ App = React.createClass
 			switcher.init data.type # run algorithms
 		ee.on "generate", (data)=>
 			@generateGraph(data.data.nodes_count, data.data.paths_count)
-	generateGraph: (nodes, paths)->
+	generateGraph: (nodes_count, paths_count)->
 		# console.log generating_nodes 20, 30, 30, {width: window.innerWidth * 0.8, height: window.innerHeight}
-		for i, j in generating_nodes nodes, 30, 30, {width: window.innerWidth * 0.8, height: window.innerHeight}
+		for i, j in generating_nodes nodes_count, 30, 30, {width: window.innerWidth * 0.8, height: window.innerHeight}
 			@AddNode i.cx, i.cy, "circle#{j}", @state.colorNodes, 20
-		# setTimeout (=>
-		# 	@setState MatrixNamesNodes: generating_paths 100, nodes
-		# 	switcher.regist @state.MatrixNamesNodes
-		# 	for i in generating_paths 100, nodes
-		# 		@DrawPath i
-		# ), 500
+		setTimeout (=>
+			@setState MatrixNamesNodes: generating_paths paths_count, nodes_count
+			switcher.regist @state.MatrixNamesNodes
+			for i in generating_paths paths_count, nodes_count
+				@DrawPath i
+		), 1500
 	render: ->
 		<div id="wrap">
 		  <svg height="100%" version="1.1" width="100%" xmlns="http://www.w3.org/2000/svg" onClick={((e)=>this.handleClick e)}>

@@ -50,11 +50,12 @@ class Switcher
 		_time = Date.now()
 		switch type
 			when "dejkstra"
+				console.log "dejkstra"
 				@_obj = (dejkstra @graph, @start) or {}
-			#when ....
+			when "floyda"
+				console.log "floyda"
+				@_obj = (dejkstra @graph, @start) or {}
 			else @_obj = {}
-		console.log performance.now() - time
-		console.log Date.now() - _time
 		@time = if (performance.now() - time) == 0 then Date.now() - _time else performance.now() - time
 
 	init: (type_alg) ->

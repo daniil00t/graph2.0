@@ -8,6 +8,8 @@ Info = React.createClass
 		typeAlg: ""
 		dataAlg: {}
 		timeAlg: 0
+		middleTimeAlg: 0
+		noTest: 1
 		dataGenerate: {}
 	switchItem: (obj)->
 		tmp = obj.e.target.classList.value.split(' ')
@@ -48,10 +50,15 @@ Info = React.createClass
 		ee.on "sendDataAlgs", (data)=>
 			@setState itemNow: "map"
 			console.log data
+			if @state.typeAlg == data.type
+				@setState middleTimeAlg: (@state.middleTimeAlg + data.time) / 2
+			else
+				@state.middleTimeAlg = 0
+			if @state.typeAlg is data.type then @setState(noTest: @state.noTest+1) else @setState(noTest: 1)
 			@setState typeAlg: data.type
 			@setState dataAlg: data.data
 			@setState timeAlg: data.time
-
+			
 	render: ->
 		<div className="wrapInfo">
 			<i className={if @state.itemNow == "history" then "fa fa-history itemInfoIcon IconActionGold" else "fa fa-history itemInfoIcon"} title="history" onClick={(e) => @switchItem {type: "history", e: e}}></i>
@@ -80,6 +87,8 @@ Info = React.createClass
 								<div className="wrapMap">
 									<span className="InfoAlg">Type_algorithm: <span className="klaster">{@state.typeAlg}</span></span>
 									<span className="InfoAlg">Time work algorithm: <span className="klaster">{@state.timeAlg}</span></span>
+									<span className="InfoAlg">Middle time work algorithm: <span className="klaster">{@state.middleTimeAlg}</span></span>
+									<span className="InfoAlg">Number test algorithm: <span className="klaster">{@state.noTest}</span></span>
 									<div className="wrapMapItem">
 										{
 											Object.keys(@state.dataAlg).map (i, j)=>
