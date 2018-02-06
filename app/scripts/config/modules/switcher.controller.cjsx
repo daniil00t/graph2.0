@@ -1,7 +1,8 @@
 ee = require "../../global/Events"
 
-dejkstra = require "./algorithms/dejkstra.algorithm.fn" #|Algorithms ->
-floyda = require "./algorithms/floyda.algorithm.fn" 		#|
+dejkstra = 	require "./algorithms/dejkstra.algorithm.fn" #|Algorithms ->
+floyda = 		require "./algorithms/floyda.algorithm.fn" 		#|
+forda = 		require "./algorithms/forda.algorithm.fn" 		#|
 
 INF = 20000000000000
 
@@ -12,12 +13,15 @@ class Switcher
 		@_obj = {}
 		@n = 0
 		@time = 0
+		@ALGNOW = ""
 	setArrMx: (arr)->
+		@Mxw = []
 		for i in arr
 			@Mxw.push i
 	regist: (data)->
 		if typeof data == "string"
 			@start = data
+			@init(@ALGNOW)
 		else
 			if typeof data[0][0] == "string"
 				@ArrNames = data
@@ -41,6 +45,7 @@ class Switcher
 			obj[i[0]][i[1]] = paths[j].weight
 		@graph = obj
 	getGraph_mx: ->
+		console.log @Mxw
 		arr = []
 		for i in @Mxw
 			_arr = []
@@ -50,22 +55,34 @@ class Switcher
 		@Mx = arr
 		@n = arr.length
 	AlgProcess: (type)->
-		time = performance.now()
+		
 		switch type
 			when "dejkstra"
 				console.log "dejkstra"
+				@getGraph_obj()
+				time = performance.now()
 				@_obj = (dejkstra @graph, @start) or {}
+				@time = performance.now() - time
 
 			when "floyda"
-				@Mx or @getGraph_mx()
+				@getGraph_mx()
+				console.log @Mx
+				# time = performance.now()
 				@_obj = (floyda(+@start.match(/\d+/g)[0], @Mx).maps) or {}
 				@time = floyda(+@start.match(/\d+/g)[0], @Mx).time
+				# @time = performance.now() - time
 
+			when "forda"
+				console.log "forda"
+				@getGraph_mx()
+				time = performance.now()
+				@_obj = (forda(@Mx, +@start.match(/\d+/g)[0])) or {}
+				@time = performance.now() - time
 			else @_obj = {}
-		@time = if @time? then @time else performance.now() - time
+		
 
 	init: (type_alg) ->
-		@getGraph_obj()
+		@ALGNOW = type_alg
 		@AlgProcess type_alg
 		ee.emit "sendDataAlgs", {type: type_alg, data: @_obj, time: @time}
 		# console.log @_obj

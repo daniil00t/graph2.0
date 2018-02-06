@@ -146,13 +146,14 @@ App = React.createClass({
     this.setState({
       _Matrix: amx(this.state.MatrixNamesNodes, this.state.Paths, this.state.Nodes.length, this.state.calcWeightMode)
     });
-    return history_app.setEvent({
+    history_app.setEvent({
       cx: cx,
       cy: cy,
       id: id,
       color: color,
       r: r
     }, 'AddNode');
+    return switcher.setArrMx(this.state._Matrix);
   },
   DeleteLastNode: function() {
     var tmp;
@@ -334,7 +335,8 @@ App = React.createClass({
       fill: self.state.colorNodes,
       id: ids[0] + "." + ids[1]
     });
-    return switcher.regist(this.state.Paths);
+    switcher.regist(this.state.Paths);
+    return switcher.setArrMx(this.state._Matrix);
   },
   deletingModeActive: function() {
     var i, k, len, ref, results;
@@ -538,7 +540,7 @@ copyright; Daniil Shenyagin, 2018
 
 
 
-},{"./config/classes/Configs":3,"./config/modules/adjacency_matrix.fn":9,"./config/modules/calcWeightPaths.fn":12,"./config/modules/generate.fn":13,"./config/modules/history.module":14,"./config/modules/switcher.controller":15,"./figures/Node":16,"./figures/Path":17,"./global/Events":18,"react":"react"}],3:[function(require,module,exports){
+},{"./config/classes/Configs":3,"./config/modules/adjacency_matrix.fn":9,"./config/modules/calcWeightPaths.fn":13,"./config/modules/generate.fn":14,"./config/modules/history.module":15,"./config/modules/switcher.controller":16,"./figures/Node":17,"./figures/Path":18,"./global/Events":19,"react":"react"}],3:[function(require,module,exports){
 var COLORS, Colors, Configs, Info, Matrix, Mods, RadiusChanger, React, ee;
 
 React = require('react');
@@ -641,7 +643,7 @@ module.exports = Configs;
 
 
 
-},{"../../global/Events":18,"./RadiusChanger":4,"./colors":5,"./info.class":6,"./matrix.class":7,"./mods.class":8,"react":"react"}],4:[function(require,module,exports){
+},{"../../global/Events":19,"./RadiusChanger":4,"./colors":5,"./info.class":6,"./matrix.class":7,"./mods.class":8,"react":"react"}],4:[function(require,module,exports){
 var RadiusChanger, React, ee;
 
 React = require('react');
@@ -702,7 +704,7 @@ module.exports = RadiusChanger;
 
 
 
-},{"../../global/Events":18,"react":"react"}],5:[function(require,module,exports){
+},{"../../global/Events":19,"react":"react"}],5:[function(require,module,exports){
 var Colors, React;
 
 React = require('react');
@@ -964,7 +966,7 @@ module.exports = Info;
 
 
 
-},{"../../global/Events":18,"react":"react"}],7:[function(require,module,exports){
+},{"../../global/Events":19,"react":"react"}],7:[function(require,module,exports){
 var Matrix, React;
 
 React = require('react');
@@ -1197,7 +1199,20 @@ Deleting = React.createClass({
           });
         };
       })(this))
-    }), "\t\t\t\t\t\t\tFloyda\'s Algorithm")) : void 0)));
+    }), "\t\t\t\t\t\t\tFloyd\'s Algorithm"), React.createElement("label", {
+      "for": "forda"
+    }, React.createElement("input", {
+      "type": "radio",
+      "name": "algorithm",
+      "id": "forda",
+      "onChange": ((function(_this) {
+        return function(e) {
+          return _this.changeSwitchAlgorithm(e, {
+            type: "forda"
+          });
+        };
+      })(this))
+    }), "\t\t\t\t\t\t\tFord\'s Algorithm")) : void 0)));
   }
 });
 
@@ -1205,7 +1220,7 @@ module.exports = Deleting;
 
 
 
-},{"../../global/Events":18,"../modules/history.module":14,"react":"react"}],9:[function(require,module,exports){
+},{"../../global/Events":19,"../modules/history.module":15,"react":"react"}],9:[function(require,module,exports){
 
 /*
 matrix = [
@@ -1538,6 +1553,58 @@ module.exports = MAIN;
 
 
 },{}],12:[function(require,module,exports){
+var INF, main, range;
+
+range = function(s, f) {
+  var l, ref, results;
+  return (function() {
+    results = [];
+    for (var l = s, ref = f - 1; s <= ref ? l <= ref : l >= ref; s <= ref ? l++ : l--){ results.push(l); }
+    return results;
+  }).apply(this);
+};
+
+INF = 20000000000000;
+
+main = function(W, start) {
+  var F, Mins, N, i, j, k, l, len, len1, len2, len3, len4, m, n, o, p, ref, ref1, ref2, ref3;
+  console.log(W, start);
+  N = W.length;
+  F = [];
+  ref = range(0, N);
+  for (l = 0, len = ref.length; l < len; l++) {
+    i = ref[l];
+    F.push(INF);
+  }
+  F[start] = 0;
+  ref1 = range(1, N);
+  for (m = 0, len1 = ref1.length; m < len1; m++) {
+    k = ref1[m];
+    ref2 = range(0, N);
+    for (n = 0, len2 = ref2.length; n < len2; n++) {
+      i = ref2[n];
+      ref3 = range(0, N);
+      for (o = 0, len3 = ref3.length; o < len3; o++) {
+        j = ref3[o];
+        if (F[j] + W[j][i] < F[i]) {
+          F[i] = F[j] + W[j][i];
+        }
+      }
+    }
+  }
+  Mins = {};
+  for (j = p = 0, len4 = F.length; p < len4; j = ++p) {
+    i = F[j];
+    Mins[j] = i;
+  }
+  return Mins;
+};
+
+module.exports = main;
+
+
+
+},{}],13:[function(require,module,exports){
 
 /*
 	coords = [
@@ -1574,7 +1641,7 @@ module.exports = getWeight;
 
 
 
-},{}],13:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 "use strict";
 var DeleteGarbage, div, getPaths_max, getRandomInt, get_Nodes_random, get_Nodes_sequence, hittingOnInterval, write_paths;
 
@@ -1738,7 +1805,7 @@ module.exports = {
 
 
 
-},{}],14:[function(require,module,exports){
+},{}],15:[function(require,module,exports){
 var History_class, ee, history_app;
 
 ee = require("../../global/Events");
@@ -1818,14 +1885,16 @@ module.exports = history_app;
 
 
 
-},{"../../global/Events":18}],15:[function(require,module,exports){
-var INF, Switcher, dejkstra, ee, floyda;
+},{"../../global/Events":19}],16:[function(require,module,exports){
+var INF, Switcher, dejkstra, ee, floyda, forda;
 
 ee = require("../../global/Events");
 
 dejkstra = require("./algorithms/dejkstra.algorithm.fn");
 
 floyda = require("./algorithms/floyda.algorithm.fn");
+
+forda = require("./algorithms/forda.algorithm.fn");
 
 INF = 20000000000000;
 
@@ -1839,10 +1908,12 @@ Switcher = (function() {
     this._obj = {};
     this.n = 0;
     this.time = 0;
+    this.ALGNOW = "";
   }
 
   Switcher.prototype.setArrMx = function(arr) {
     var i, k, len, results;
+    this.Mxw = [];
     results = [];
     for (k = 0, len = arr.length; k < len; k++) {
       i = arr[k];
@@ -1853,7 +1924,8 @@ Switcher = (function() {
 
   Switcher.prototype.regist = function(data) {
     if (typeof data === "string") {
-      return this.start = data;
+      this.start = data;
+      return this.init(this.ALGNOW);
     } else {
       if (typeof data[0][0] === "string") {
         return this.ArrNames = data;
@@ -1889,6 +1961,7 @@ Switcher = (function() {
 
   Switcher.prototype.getGraph_mx = function() {
     var _arr, arr, i, j, k, l, len, len1, ref;
+    console.log(this.Mxw);
     arr = [];
     ref = this.Mxw;
     for (k = 0, len = ref.length; k < len; k++) {
@@ -1906,25 +1979,31 @@ Switcher = (function() {
 
   Switcher.prototype.AlgProcess = function(type) {
     var time;
-    time = performance.now();
     switch (type) {
       case "dejkstra":
         console.log("dejkstra");
+        this.getGraph_obj();
+        time = performance.now();
         this._obj = (dejkstra(this.graph, this.start)) || {};
-        break;
+        return this.time = performance.now() - time;
       case "floyda":
-        this.Mx || this.getGraph_mx();
+        this.getGraph_mx();
+        console.log(this.Mx);
         this._obj = (floyda(+this.start.match(/\d+/g)[0], this.Mx).maps) || {};
-        this.time = floyda(+this.start.match(/\d+/g)[0], this.Mx).time;
-        break;
+        return this.time = floyda(+this.start.match(/\d+/g)[0], this.Mx).time;
+      case "forda":
+        console.log("forda");
+        this.getGraph_mx();
+        time = performance.now();
+        this._obj = (forda(this.Mx, +this.start.match(/\d+/g)[0])) || {};
+        return this.time = performance.now() - time;
       default:
-        this._obj = {};
+        return this._obj = {};
     }
-    return this.time = this.time != null ? this.time : performance.now() - time;
   };
 
   Switcher.prototype.init = function(type_alg) {
-    this.getGraph_obj();
+    this.ALGNOW = type_alg;
     this.AlgProcess(type_alg);
     return ee.emit("sendDataAlgs", {
       type: type_alg,
@@ -1941,7 +2020,7 @@ module.exports = new Switcher;
 
 
 
-},{"../../global/Events":18,"./algorithms/dejkstra.algorithm.fn":10,"./algorithms/floyda.algorithm.fn":11}],16:[function(require,module,exports){
+},{"../../global/Events":19,"./algorithms/dejkstra.algorithm.fn":10,"./algorithms/floyda.algorithm.fn":11,"./algorithms/forda.algorithm.fn":12}],17:[function(require,module,exports){
 var Node, React;
 
 React = require('react');
@@ -1984,7 +2063,7 @@ module.exports = Node;
 
 
 
-},{"react":"react"}],17:[function(require,module,exports){
+},{"react":"react"}],18:[function(require,module,exports){
 var Path, React;
 
 React = require('react');
@@ -2034,7 +2113,7 @@ module.exports = Path;
 
 
 
-},{"react":"react"}],18:[function(require,module,exports){
+},{"react":"react"}],19:[function(require,module,exports){
 var EventEmitter, ee;
 
 EventEmitter = require("events").EventEmitter;
@@ -2045,7 +2124,7 @@ module.exports = ee;
 
 
 
-},{"events":19}],19:[function(require,module,exports){
+},{"events":20}],20:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a

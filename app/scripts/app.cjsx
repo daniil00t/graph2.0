@@ -106,6 +106,7 @@ App = React.createClass
 		@state.Nodes.push {cx: cx, cy: cy, id: id, color: color, r: r}
 		@setState _Matrix: amx @state.MatrixNamesNodes, @state.Paths, @state.Nodes.length, @state.calcWeightMode
 		history_app.setEvent {cx: cx, cy: cy, id: id, color: color, r: r}, 'AddNode'
+		switcher.setArrMx @state._Matrix
 		#console.log @state.Nodes
 	DeleteLastNode: ->
 		tmp = @state.Nodes
@@ -215,6 +216,7 @@ App = React.createClass
 			fill: self.state.colorNodes
 			id: "#{ids[0]}.#{ids[1]}"
 		switcher.regist @state.Paths
+		switcher.setArrMx @state._Matrix
 	deletingModeActive: ->
 		for i in @state.Nodes
 			i.color = "#FF0018"
