@@ -51,7 +51,7 @@ App = React.createClass
 
 
 
-				switcher.init @state.ALGNOW # run algorithms
+				# switcher.init @state.ALGNOW # run algorithms
 
 
 
@@ -255,9 +255,12 @@ App = React.createClass
 		#	pass = 0
 		ee.on 'switchAlgorithm', (data) =>
 			@setState ALGNOW: data.type
+			switcher.setArrMx @state._Matrix
 			switcher.init data.type # run algorithms
 		ee.on "generate", (data)=>
 			@generateGraph(data.data.nodes_count, data.data.paths_count)
+
+
 	generateGraph: (nodes_count, paths_count)->
 		# console.log generating_nodes 20, 30, 30, {width: window.innerWidth * 0.8, height: window.innerHeight}
 		for i, j in generating_nodes nodes_count, 30, 30, {width: window.innerWidth * 0.8, height: window.innerHeight}

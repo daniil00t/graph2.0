@@ -1,59 +1,41 @@
-n = 5
-INF = 20000000000000
-
-W = [
-	[INF,3,10,INF, INF],
-	[3,INF, INF, 5,INF],
-	[10,INF,INF,6, 15],
-	[INF,5,6,INF, 4],
-	[INF,INF,INF,4, INF]
-]
 range = (s, f)->
 	[s..f-1]
-A = [] 
-Prev = []
-for i in range(0, n)
-	a = []
-	for j in range(0, n)
-		a.push W[i][j]
-	A.push a
 
-for i in range(0, n)
-	a = []
-	for j in range(0, n)
-		a.push if i != j then j else "-"
-	Prev.push a
-
-for k in range(0, n)
+init = (W, n)->
+	A = [] 
+	Prev = []
 	for i in range(0, n)
+		a = []
 		for j in range(0, n)
-			if A[i][k] < INF and A[k][j] < INF and A[i][k] + A[k][j] < A[i][j] and i != j
-				A[i][j] = A[i][k] + A[k][j]
-				Prev[i][j] = k
-			else
-				if i == j
-					A[i][j] = 0
+			a.push W[i][j]
+		A.push a
 
-# console.log A
-# console.log Prev
-# for i in A:
-# 	a = []
-# 	for j in i:
-# 		a.append(j if j != 0 else "-")
-# 	print(a)
-# print()
-# for i in Prev:
-# 	print(i)
+	for i in range(0, n)
+		a = []
+		for j in range(0, n)
+			a.push if i != j then j else "-"
+		Prev.push a
 
-# def getPaths_max(n):
-# 	n1 = 3
-# 	N = 3
-# 	for i in range(n-3):
-# 		N+=n1
-# 		n1+=1
-# 	return N
+	A: A, Prev: Prev
+
+main = (_A, _Prev, n)->
+	_time = performance.now()
+	A = _A
+	Prev = _Prev
+	for k in range(0, n)
+		for i in range(0, n)
+			for j in range(0, n)
+				if A[i][k] < INF and A[k][j] < INF and A[i][k] + A[k][j] < A[i][j] and i != j
+					A[i][j] = A[i][k] + A[k][j]
+					Prev[i][j] = k
+				else
+					if i == j
+						A[i][j] = 0
+	time = performance.now() - _time
+	A: A, Prev: Prev, time: time
 
 getMinPath = (m, l, A, W)->
+
 	if m == l
 		return 0
 	start = m
@@ -83,10 +65,47 @@ getMinPath = (m, l, A, W)->
 
 	return summ
 
+_main = (_start, A, Prev, n)->
+	Mins = []
+	_time = performance.now()
+	for i in range(0, n)
+		Mins.push {"#{i}": getMinPath(_start, i, A, Prev) }
+	time = performance.now() - _time
+	Mins: Mins, time: time
 
-Mins = []
+# n = 5
+INF = 20000000000000
 
-for i in range(0, n)
-	Mins.push {"#{i}": getMinPath(1, i, A, Prev) }
+# W = [
+# 	[INF,3,10,INF, INF],
+# 	[3,INF, INF, 5,INF],
+# 	[10,INF,INF,6, 15],
+# 	[INF,5,6,INF, 4],
+# 	[INF,INF,INF,4, INF]
+# ]
 
-# console.log Mins
+# A = init(W, n).A
+# Prev = init(W, n).Prev
+
+# A = main(A, Prev, n).A
+# Prev = main(A, Prev, n).Prev
+
+MAIN = (start, W)->
+	n = W.length
+
+	A = init(W, n).A
+	Prev = init(W, n).Prev
+
+
+	#Main
+	A = main(A, Prev, n).A
+	Prev = main(A, Prev, n).Prev
+
+	time = main(A, Prev, n).time
+
+	time += _main(start, A, Prev, n).time
+
+	return maps: _main(start, A, Prev, n).Mins, time: time
+
+
+module.exports = MAIN

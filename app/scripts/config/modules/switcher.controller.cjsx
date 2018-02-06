@@ -6,11 +6,15 @@ floyda = require "./algorithms/floyda.algorithm.fn" 		#|
 INF = 20000000000000
 
 class Switcher
-	constructor: (@ArrNames, @Paths, @Mxw, @start)->
+	constructor: (@ArrNames, @Paths, @start)->
+		@Mxw = []
 		@graph = {}
 		@_obj = {}
 		@n = 0
 		@time = 0
+	setArrMx: (arr)->
+		for i in arr
+			@Mxw.push i
 	regist: (data)->
 		if typeof data == "string"
 			@start = data
@@ -47,16 +51,18 @@ class Switcher
 		@n = arr.length
 	AlgProcess: (type)->
 		time = performance.now()
-		_time = Date.now()
 		switch type
 			when "dejkstra"
 				console.log "dejkstra"
 				@_obj = (dejkstra @graph, @start) or {}
+
 			when "floyda"
-				console.log "floyda"
-				@_obj = (dejkstra @graph, @start) or {}
+				@Mx or @getGraph_mx()
+				@_obj = (floyda(+@start.match(/\d+/g)[0], @Mx).maps) or {}
+				@time = floyda(+@start.match(/\d+/g)[0], @Mx).time
+
 			else @_obj = {}
-		@time = if (performance.now() - time) == 0 then Date.now() - _time else performance.now() - time
+		@time = if @time? then @time else performance.now() - time
 
 	init: (type_alg) ->
 		@getGraph_obj()

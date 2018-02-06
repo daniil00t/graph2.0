@@ -72,7 +72,6 @@ App = React.createClass({
           STARTNode: e.target.attributes.id.nodeValue
         });
         switcher.regist(e.target.attributes.id.nodeValue);
-        switcher.init(this.state.ALGNOW);
         if (this.state.STARTNode === "") {
           ref = this.state.Nodes;
           results = [];
@@ -444,6 +443,7 @@ App = React.createClass({
         _this.setState({
           ALGNOW: data.type
         });
+        switcher.setArrMx(_this.state._Matrix);
         return switcher.init(data.type);
       };
     })(this));
@@ -1392,13 +1392,7 @@ module.exports = getMapDejkstra;
 
 
 },{}],11:[function(require,module,exports){
-var A, INF, Mins, Prev, W, a, getMinPath, i, j, k, len, len1, len2, len3, len4, len5, len6, len7, n, o, obj, p, q, r, range, ref, ref1, ref2, ref3, ref4, ref5, ref6, ref7, t, u, v, w;
-
-n = 5;
-
-INF = 20000000000000;
-
-W = [[INF, 3, 10, INF, INF], [3, INF, INF, 5, INF], [10, INF, INF, 6, 15], [INF, 5, 6, INF, 4], [INF, INF, INF, 4, INF]];
+var INF, MAIN, _main, getMinPath, init, main, range;
 
 range = function(s, f) {
   var o, ref, results;
@@ -1409,57 +1403,73 @@ range = function(s, f) {
   }).apply(this);
 };
 
-A = [];
-
-Prev = [];
-
-ref = range(0, n);
-for (o = 0, len = ref.length; o < len; o++) {
-  i = ref[o];
-  a = [];
-  ref1 = range(0, n);
-  for (p = 0, len1 = ref1.length; p < len1; p++) {
-    j = ref1[p];
-    a.push(W[i][j]);
+init = function(W, n) {
+  var A, Prev, a, i, j, len, len1, len2, len3, o, p, q, r, ref, ref1, ref2, ref3;
+  A = [];
+  Prev = [];
+  ref = range(0, n);
+  for (o = 0, len = ref.length; o < len; o++) {
+    i = ref[o];
+    a = [];
+    ref1 = range(0, n);
+    for (p = 0, len1 = ref1.length; p < len1; p++) {
+      j = ref1[p];
+      a.push(W[i][j]);
+    }
+    A.push(a);
   }
-  A.push(a);
-}
-
-ref2 = range(0, n);
-for (q = 0, len2 = ref2.length; q < len2; q++) {
-  i = ref2[q];
-  a = [];
-  ref3 = range(0, n);
-  for (r = 0, len3 = ref3.length; r < len3; r++) {
-    j = ref3[r];
-    a.push(i !== j ? j : "-");
+  ref2 = range(0, n);
+  for (q = 0, len2 = ref2.length; q < len2; q++) {
+    i = ref2[q];
+    a = [];
+    ref3 = range(0, n);
+    for (r = 0, len3 = ref3.length; r < len3; r++) {
+      j = ref3[r];
+      a.push(i !== j ? j : "-");
+    }
+    Prev.push(a);
   }
-  Prev.push(a);
-}
+  return {
+    A: A,
+    Prev: Prev
+  };
+};
 
-ref4 = range(0, n);
-for (t = 0, len4 = ref4.length; t < len4; t++) {
-  k = ref4[t];
-  ref5 = range(0, n);
-  for (u = 0, len5 = ref5.length; u < len5; u++) {
-    i = ref5[u];
-    ref6 = range(0, n);
-    for (v = 0, len6 = ref6.length; v < len6; v++) {
-      j = ref6[v];
-      if (A[i][k] < INF && A[k][j] < INF && A[i][k] + A[k][j] < A[i][j] && i !== j) {
-        A[i][j] = A[i][k] + A[k][j];
-        Prev[i][j] = k;
-      } else {
-        if (i === j) {
-          A[i][j] = 0;
+main = function(_A, _Prev, n) {
+  var A, Prev, _time, i, j, k, len, len1, len2, o, p, q, ref, ref1, ref2, time;
+  _time = performance.now();
+  A = _A;
+  Prev = _Prev;
+  ref = range(0, n);
+  for (o = 0, len = ref.length; o < len; o++) {
+    k = ref[o];
+    ref1 = range(0, n);
+    for (p = 0, len1 = ref1.length; p < len1; p++) {
+      i = ref1[p];
+      ref2 = range(0, n);
+      for (q = 0, len2 = ref2.length; q < len2; q++) {
+        j = ref2[q];
+        if (A[i][k] < INF && A[k][j] < INF && A[i][k] + A[k][j] < A[i][j] && i !== j) {
+          A[i][j] = A[i][k] + A[k][j];
+          Prev[i][j] = k;
+        } else {
+          if (i === j) {
+            A[i][j] = 0;
+          }
         }
       }
     }
   }
-}
+  time = performance.now() - _time;
+  return {
+    A: A,
+    Prev: Prev,
+    time: time
+  };
+};
 
 getMinPath = function(m, l, A, W) {
-  var finish, len7, len8, path, ref7, start, subpath, summ, w, x;
+  var finish, i, len, len1, o, p, path, ref, start, subpath, summ;
   if (m === l) {
     return 0;
   }
@@ -1472,31 +1482,58 @@ getMinPath = function(m, l, A, W) {
     l = W[m][l];
   }
   subpath.reverse();
-  for (w = 0, len7 = subpath.length; w < len7; w++) {
-    i = subpath[w];
+  for (o = 0, len = subpath.length; o < len; o++) {
+    i = subpath[o];
     path.push(i);
   }
   path.push(finish);
   summ = 0;
-  ref7 = range(0, path.length - 1);
-  for (x = 0, len8 = ref7.length; x < len8; x++) {
-    i = ref7[x];
+  ref = range(0, path.length - 1);
+  for (p = 0, len1 = ref.length; p < len1; p++) {
+    i = ref[p];
     summ += A[path[i]][path[i + 1]];
   }
   return summ;
 };
 
-Mins = [];
+_main = function(_start, A, Prev, n) {
+  var Mins, _time, i, len, o, obj, ref, time;
+  Mins = [];
+  _time = performance.now();
+  ref = range(0, n);
+  for (o = 0, len = ref.length; o < len; o++) {
+    i = ref[o];
+    Mins.push((
+      obj = {},
+      obj["" + i] = getMinPath(_start, i, A, Prev),
+      obj
+    ));
+  }
+  time = performance.now() - _time;
+  return {
+    Mins: Mins,
+    time: time
+  };
+};
 
-ref7 = range(0, n);
-for (w = 0, len7 = ref7.length; w < len7; w++) {
-  i = ref7[w];
-  Mins.push((
-    obj = {},
-    obj["" + i] = getMinPath(1, i, A, Prev),
-    obj
-  ));
-}
+INF = 20000000000000;
+
+MAIN = function(start, W) {
+  var A, Prev, n, time;
+  n = W.length;
+  A = init(W, n).A;
+  Prev = init(W, n).Prev;
+  A = main(A, Prev, n).A;
+  Prev = main(A, Prev, n).Prev;
+  time = main(A, Prev, n).time;
+  time += _main(start, A, Prev, n).time;
+  return {
+    maps: _main(start, A, Prev, n).Mins,
+    time: time
+  };
+};
+
+module.exports = MAIN;
 
 
 
@@ -1793,16 +1830,26 @@ floyda = require("./algorithms/floyda.algorithm.fn");
 INF = 20000000000000;
 
 Switcher = (function() {
-  function Switcher(ArrNames, Paths, Mxw, start) {
+  function Switcher(ArrNames, Paths, start) {
     this.ArrNames = ArrNames;
     this.Paths = Paths;
-    this.Mxw = Mxw;
     this.start = start;
+    this.Mxw = [];
     this.graph = {};
     this._obj = {};
     this.n = 0;
     this.time = 0;
   }
+
+  Switcher.prototype.setArrMx = function(arr) {
+    var i, k, len, results;
+    results = [];
+    for (k = 0, len = arr.length; k < len; k++) {
+      i = arr[k];
+      results.push(this.Mxw.push(i));
+    }
+    return results;
+  };
 
   Switcher.prototype.regist = function(data) {
     if (typeof data === "string") {
@@ -1858,22 +1905,22 @@ Switcher = (function() {
   };
 
   Switcher.prototype.AlgProcess = function(type) {
-    var _time, time;
+    var time;
     time = performance.now();
-    _time = Date.now();
     switch (type) {
       case "dejkstra":
         console.log("dejkstra");
         this._obj = (dejkstra(this.graph, this.start)) || {};
         break;
       case "floyda":
-        console.log("floyda");
-        this._obj = (dejkstra(this.graph, this.start)) || {};
+        this.Mx || this.getGraph_mx();
+        this._obj = (floyda(+this.start.match(/\d+/g)[0], this.Mx).maps) || {};
+        this.time = floyda(+this.start.match(/\d+/g)[0], this.Mx).time;
         break;
       default:
         this._obj = {};
     }
-    return this.time = (performance.now() - time) === 0 ? Date.now() - _time : performance.now() - time;
+    return this.time = this.time != null ? this.time : performance.now() - time;
   };
 
   Switcher.prototype.init = function(type_alg) {
