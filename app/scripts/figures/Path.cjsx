@@ -3,7 +3,11 @@ React = require 'react'
 Path = React.createClass
 	displayName: 'Path'
 	render: ->
-		if @props.CalcWeightMode
+		<path d={@props.d} fill="transparent" stroke={@props.color} style={{strokeWidth: 2}}/>
+
+module.exports = Path
+###
+if @props.CalcWeightMode
 			<g>
 				<path d={@props.d} fill="transparent" stroke="black" style={{strokeWidth: 2}}/>
 				<rect x={if @props._xy.x != @props.__xy.x and @props._xy.y != @props.__xy.y then (Math.min(@props._xy.x, @props.__xy.x) + (Math.abs @props._xy.x - @props.__xy.x) / 2 - 32) else (@props._xy.x - 32.5)} 
@@ -16,6 +20,4 @@ Path = React.createClass
 				</text>
 			</g>
 		else
-			<path d={@props.d} fill="transparent" stroke={@props.color} style={{strokeWidth: 2}}/>
-
-module.exports = Path
+###

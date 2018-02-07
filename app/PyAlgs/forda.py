@@ -1,6 +1,6 @@
 N = 5
 INF = 20000000000000
-start = 4
+start = 0
 W = [
 	[INF,3,10,INF, INF],
 	[3,INF, INF, 5,INF],
@@ -9,7 +9,6 @@ W = [
 	[INF,INF,INF,4, INF]
 ]
 F = [INF] * N 
-print(F)
 F[start] = 0 
 for k in range(1, N):
   for i in range(N):
