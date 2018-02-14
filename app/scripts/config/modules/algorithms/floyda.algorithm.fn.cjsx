@@ -55,6 +55,7 @@ getMinPath = (m, l, A, W)->
 
 	path.push(finish)
 
+	console.log "#{start} -> #{finish}: path#{path}"
 	# print(path)
 	#Finish path
 	summ = 0

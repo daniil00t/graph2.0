@@ -1502,6 +1502,7 @@ getMinPath = function(m, l, A, W) {
     path.push(i);
   }
   path.push(finish);
+  console.log(start + " -> " + finish + ": path" + path);
   summ = 0;
   ref = range(0, path.length - 1);
   for (p = 0, len1 = ref.length; p < len1; p++) {
