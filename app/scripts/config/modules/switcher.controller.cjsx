@@ -78,6 +78,7 @@ class Switcher
 				time = performance.now()
 				@_obj = (forda(@Mx, +@start.match(/\d+/g)[0])) or {}
 				@time = performance.now() - time
+				
 			else @_obj = {}
 		
 
