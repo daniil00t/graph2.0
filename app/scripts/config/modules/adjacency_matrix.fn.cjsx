@@ -26,6 +26,7 @@ tmp_all = ""
 
 ###
 getMatrix = (arr, paths, n, WeightMode)->
+	console.log arr, paths, n, WeightMode
 	if n > 0
 		Mx = []
 		tmpObj = {}

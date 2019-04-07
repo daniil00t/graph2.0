@@ -1,18 +1,16 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-var App, React, a;
+var App, React;
 
 React = require('react');
 
 App = require('./app');
-
-a = 10;
 
 React.render(React.createElement(App, null), document.getElementById('app'));
 
 
 
 },{"./app":2,"react":"react"}],2:[function(require,module,exports){
-var App, Configs, Node, Path, React, amx, ee, generating_nodes, generating_paths, getWeight, history_app, switcher;
+var App, Configs, Node, Path, React, amx_adj, amx_inc, ee, generating_nodes, generating_paths, getWeight, history_app, switcher;
 
 React = require('react');
 
@@ -26,7 +24,9 @@ getWeight = require("./config/modules/calcWeightPaths.fn");
 
 Configs = require('./config/classes/Configs');
 
-amx = require('./config/modules/adjacency_matrix.fn');
+amx_adj = require('./config/modules/adjacency_matrix.fn');
+
+amx_inc = require('./config/modules/incidence_matrix.fn');
 
 history_app = require("./config/modules/history.module");
 
@@ -49,7 +49,8 @@ App = React.createClass({
       ALGNOW: "dejkstra",
       STARTNode: "",
       history_app: [],
-      _Matrix: [],
+      _Matrix_adj: [],
+      _Matrix_inc: [],
       MatrixNamesNodes: [],
       maps: [],
       colorNodes: "#2e9f5c",
@@ -144,7 +145,8 @@ App = React.createClass({
       r: r
     });
     this.setState({
-      _Matrix: amx(this.state.MatrixNamesNodes, this.state.Paths, this.state.Nodes.length, this.state.calcWeightMode)
+      _Matrix_adj: amx_adj(this.state.MatrixNamesNodes, this.state.Paths, this.state.Nodes.length, this.state.calcWeightMode),
+      _Matrix_inc: amx_inc(this.state.MatrixNamesNodes, this.state.Paths, this.state.Nodes.length, this.state.calcWeightMode)
     });
     history_app.setEvent({
       cx: cx,
@@ -153,7 +155,7 @@ App = React.createClass({
       color: color,
       r: r
     }, 'AddNode');
-    return switcher.setArrMx(this.state._Matrix);
+    return switcher.setArrMx(this.state._Matrix_adj);
   },
   DeleteLastNode: function() {
     var tmp;
@@ -242,7 +244,7 @@ App = React.createClass({
       MatrixNamesNodes: tmpMN
     });
     return this.setState({
-      _Matrix: amx(this.state.MatrixNamesNodes, this.state.Paths, this.state.Nodes.length, this.state.calcWeightMode)
+      _Matrix_adj: amx_adj(this.state.MatrixNamesNodes, this.state.Paths, this.state.Nodes.length, this.state.calcWeightMode)
     });
   },
   AddPath: function(id) {
@@ -252,7 +254,8 @@ App = React.createClass({
       this.state.MatrixNamesNodes.push(this.state.IdsPath);
       switcher.regist(this.state.MatrixNamesNodes);
       this.setState({
-        _Matrix: amx(this.state.MatrixNamesNodes, this.state.Paths, this.state.Nodes.length, this.state.calcWeightMode)
+        _Matrix_adj: amx_adj(this.state.MatrixNamesNodes, this.state.Paths, this.state.Nodes.length, this.state.calcWeightMode),
+        _Matrix_inc: amx_adj(this.state.MatrixNamesNodes, this.state.Paths, this.state.Nodes.length, this.state.calcWeightMode)
       });
       return this.setState({
         IdsPath: []
@@ -336,7 +339,7 @@ App = React.createClass({
       id: ids[0] + "." + ids[1]
     });
     switcher.regist(this.state.Paths);
-    return switcher.setArrMx(this.state._Matrix);
+    return switcher.setArrMx(this.state._Matrix_adj);
   },
   deletingModeActive: function() {
     var i, k, len, ref, results;
@@ -404,7 +407,7 @@ App = React.createClass({
           calcWeightMode: data.data
         });
         return _this.setState({
-          _Matrix: amx(_this.state.MatrixNamesNodes, _this.state.Paths, _this.state.Nodes.length, data.data)
+          _Matrix_adj: amx_adj(_this.state.MatrixNamesNodes, _this.state.Paths, _this.state.Nodes.length, data.data)
         });
       };
     })(this));
@@ -445,7 +448,7 @@ App = React.createClass({
         _this.setState({
           ALGNOW: data.type
         });
-        switcher.setArrMx(_this.state._Matrix);
+        switcher.setArrMx(_this.state._Matrix_adj);
         return switcher.init(data.type);
       };
     })(this));
@@ -520,7 +523,7 @@ App = React.createClass({
         });
       };
     })(this))), React.createElement(Configs, {
-      "matrix": this.state._Matrix,
+      "matrix": this.state._Matrix_adj,
       "history": this.state.history_app,
       "database": {
         nodes: this.state.Nodes,
@@ -540,7 +543,7 @@ copyright; Daniil Shenyagin, 2018
 
 
 
-},{"./config/classes/Configs":3,"./config/modules/adjacency_matrix.fn":9,"./config/modules/calcWeightPaths.fn":13,"./config/modules/generate.fn":14,"./config/modules/history.module":15,"./config/modules/switcher.controller":16,"./figures/Node":17,"./figures/Path":18,"./global/Events":19,"react":"react"}],3:[function(require,module,exports){
+},{"./config/classes/Configs":3,"./config/modules/adjacency_matrix.fn":9,"./config/modules/calcWeightPaths.fn":14,"./config/modules/generate.fn":15,"./config/modules/history.module":16,"./config/modules/incidence_matrix.fn":17,"./config/modules/switcher.controller":18,"./figures/Node":19,"./figures/Path":20,"./global/Events":21,"react":"react"}],3:[function(require,module,exports){
 var COLORS, Colors, Configs, Info, Matrix, Mods, RadiusChanger, React, ee;
 
 React = require('react');
@@ -643,7 +646,7 @@ module.exports = Configs;
 
 
 
-},{"../../global/Events":19,"./RadiusChanger":4,"./colors":5,"./info.class":6,"./matrix.class":7,"./mods.class":8,"react":"react"}],4:[function(require,module,exports){
+},{"../../global/Events":21,"./RadiusChanger":4,"./colors":5,"./info.class":6,"./matrix.class":7,"./mods.class":8,"react":"react"}],4:[function(require,module,exports){
 var RadiusChanger, React, ee;
 
 React = require('react');
@@ -704,7 +707,7 @@ module.exports = RadiusChanger;
 
 
 
-},{"../../global/Events":19,"react":"react"}],5:[function(require,module,exports){
+},{"../../global/Events":21,"react":"react"}],5:[function(require,module,exports){
 var Colors, React;
 
 React = require('react');
@@ -966,7 +969,7 @@ module.exports = Info;
 
 
 
-},{"../../global/Events":19,"react":"react"}],7:[function(require,module,exports){
+},{"../../global/Events":21,"react":"react"}],7:[function(require,module,exports){
 var Matrix, React;
 
 React = require('react');
@@ -1039,7 +1042,24 @@ Matrix = React.createClass({
           }, j);
         }
       }));
-    })) : React.createElement("span", null, "Adjecency matrix is empty", React.createElement("br", null), "Сlick into the empty space...") : this.state.matrixNow === "IncindenceMatrix" ? React.createElement("span", null, "Incindence matrix is empty", React.createElement("br", null), "Сlick into the empty space...") : void 0));
+    })) : React.createElement("span", null, "Adjecency matrix is empty", React.createElement("br", null), "Сlick into the empty space...") : this.state.matrixNow === "IncindenceMatrix" ? this.props.matrix.length !== 0 ? React.createElement("table", {
+      "className": "AdjecancyMatrix"
+    }, this.props.matrix.map(function(i, l) {
+      return React.createElement("tr", {
+        "key": "tr" + l
+      }, i.map(function(j, p) {
+        if (j === 0) {
+          return React.createElement("td", {
+            "className": "cgray50",
+            "key": "td" + p
+          }, j);
+        } else {
+          return React.createElement("td", {
+            "key": "td" + p
+          }, j);
+        }
+      }));
+    })) : React.createElement("span", null, "Adjecency matrix is empty", React.createElement("br", null), "Сlick into the empty space...") : void 0));
   }
 });
 
@@ -1212,7 +1232,20 @@ Deleting = React.createClass({
           });
         };
       })(this))
-    }), "\t\t\t\t\t\t\tFord\'s Algorithm")) : void 0)));
+    }), "\t\t\t\t\t\t\tFord\'s Algorithm"), React.createElement("label", {
+      "for": "jonson"
+    }, React.createElement("input", {
+      "type": "radio",
+      "name": "algorithm",
+      "id": "jonson",
+      "onChange": ((function(_this) {
+        return function(e) {
+          return _this.changeSwitchAlgorithm(e, {
+            type: "jonson"
+          });
+        };
+      })(this))
+    }), "\t\t\t\t\t\t\tJonson\'s Algorithm")) : void 0)));
   }
 });
 
@@ -1220,7 +1253,7 @@ module.exports = Deleting;
 
 
 
-},{"../../global/Events":19,"../modules/history.module":15,"react":"react"}],9:[function(require,module,exports){
+},{"../../global/Events":21,"../modules/history.module":16,"react":"react"}],9:[function(require,module,exports){
 
 /*
 matrix = [
@@ -1244,6 +1277,7 @@ var getMatrix;
 
 getMatrix = function(arr, paths, n, WeightMode) {
   var Mx, RevArr, i, j, k, l, len, len1, len2, len3, len4, len5, len6, m, o, p, q, r, ref, ref1, ref2, ref3, ref4, ref5, s, t, tmpArr, tmpObj, u;
+  console.log(arr, paths, n, WeightMode);
   if (n > 0) {
     Mx = [];
     tmpObj = {};
@@ -1608,6 +1642,113 @@ module.exports = main;
 },{}],13:[function(require,module,exports){
 
 /*
+Path = {
+	color:"#000"
+	coords1: {…}
+	coords2: {…}
+	d: "M 366, 115L 896, 101Z"
+	fill: "#2e9f5c"
+	id: "circle0.circle1"
+	weight: 26.5
+}
+
+namesArr = [
+	["circle3", "circle0"]
+	["circle0", "circle2"]
+	["circle2", "circle1"]
+	["circle3", "circle1"]
+	["circle4", "circle1"]
+	["circle4", "circle0"]
+]
+
+Paths = [
+	{
+		id: "circle3.circle0"
+		weight: 5
+	},
+	{
+		id: "circle0.circle2"
+		weight: 10
+	},
+	{
+		id: "circle2.circle1"
+		weight: 7
+	},
+	{
+		id: "circle3.circle1"
+		weight: 4
+	}, 
+	{
+		id: "circle4.circle1"
+		weight: 6
+	},
+	{
+		id: "circle4.circle0"
+		weight: 8
+	}
+]
+
+namesArr = [
+	["circle3", "circle0"]
+	["circle0", "circle2"]
+	["circle2", "circle1"]
+	["circle3", "circle1"]
+	["circle4", "circle1"]
+	["circle4", "circle0"]
+]
+ */
+var getMapDejkstra,
+  indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+
+getMapDejkstra = function(graph, _start, p, u, d) {
+  var i, j, len, len1, min_v, min_x, ref, ref1, start, x;
+  if (p == null) {
+    p = {};
+  }
+  if (u == null) {
+    u = [];
+  }
+  if (d == null) {
+    d = {};
+  }
+  start = _start;
+  if (Object.keys(p).length === 0) {
+    p[start] = 0;
+  }
+  ref = Object.keys(graph[start]);
+  for (i = 0, len = ref.length; i < len; i++) {
+    x = ref[i];
+    if ((indexOf.call(u, x) < 0) && x !== start) {
+      if (indexOf.call(Object.keys(p), x) < 0 || (graph[start][x] + p[start]) < p[x]) {
+        p[x] = graph[start][x] + p[start];
+      }
+    }
+  }
+  u.push(start);
+  min_v = 0;
+  min_x = null;
+  ref1 = Object.keys(p);
+  for (j = 0, len1 = ref1.length; j < len1; j++) {
+    x = ref1[j];
+    if ((p[x] < min_v || min_v === 0) && indexOf.call(u, x) < 0) {
+      min_x = x;
+      min_v = p[x];
+    }
+  }
+  if ((u.length < Object.keys(graph).length) && min_x) {
+    return getMapDejkstra(graph, min_x, p, u);
+  } else {
+    return p;
+  }
+};
+
+module.exports = getMapDejkstra;
+
+
+
+},{}],14:[function(require,module,exports){
+
+/*
 	coords = [
 		{
 			d: "M 365, 171L 123, 66Z", 
@@ -1642,7 +1783,7 @@ module.exports = getWeight;
 
 
 
-},{}],14:[function(require,module,exports){
+},{}],15:[function(require,module,exports){
 "use strict";
 var DeleteGarbage, div, getPaths_max, getRandomInt, get_Nodes_random, get_Nodes_sequence, hittingOnInterval, write_paths;
 
@@ -1806,7 +1947,7 @@ module.exports = {
 
 
 
-},{}],15:[function(require,module,exports){
+},{}],16:[function(require,module,exports){
 var History_class, ee, history_app;
 
 ee = require("../../global/Events");
@@ -1886,8 +2027,80 @@ module.exports = history_app;
 
 
 
-},{"../../global/Events":19}],16:[function(require,module,exports){
-var INF, Switcher, dejkstra, ee, floyda, forda;
+},{"../../global/Events":21}],17:[function(require,module,exports){
+
+/*
+Nodes: 4
+Paths: 6
+INC_MATRIX = [
+			e1 e2 e3 e4 e5 e6
+	1:	1, 0, 0, 0, 1, 0
+	2:	1, 1, 0, 1, 0, 2
+	3:	0, 1, 1, 0, 1, 0
+	4:	0, 0, 1, 1, 0, 0
+]
+ */
+var getMatrix;
+
+getMatrix = function(arr, paths, n, WeightMode) {
+  var Mx, RevArr, i, j, k, l, len, len1, len2, len3, len4, len5, len6, m, o, p, q, r, ref, ref1, ref2, ref3, ref4, ref5, s, t, tmpArr, tmpObj, u;
+  if (n > 0) {
+    Mx = [];
+    tmpObj = {};
+    for (i = k = 0, ref = n - 1; 0 <= ref ? k <= ref : k >= ref; i = 0 <= ref ? ++k : --k) {
+      tmpObj["circle" + i] = {};
+      for (q = l = 0, ref1 = n - 1; 0 <= ref1 ? l <= ref1 : l >= ref1; q = 0 <= ref1 ? ++l : --l) {
+        tmpObj["circle" + i]["circle" + q] = 0;
+      }
+    }
+    for (j = m = 0, len = arr.length; m < len; j = ++m) {
+      i = arr[j];
+      ref2 = Object.keys(tmpObj);
+      for (o = 0, len1 = ref2.length; o < len1; o++) {
+        q = ref2[o];
+        if (i[0] === q) {
+          tmpObj[q][i[1]] = WeightMode ? Math.round(paths[j].weight) : 1;
+        }
+      }
+    }
+    RevArr = [];
+    for (p = 0, len2 = arr.length; p < len2; p++) {
+      i = arr[p];
+      RevArr.push([i[1], i[0]]);
+    }
+    for (j = r = 0, len3 = RevArr.length; r < len3; j = ++r) {
+      i = RevArr[j];
+      ref3 = Object.keys(tmpObj);
+      for (s = 0, len4 = ref3.length; s < len4; s++) {
+        q = ref3[s];
+        if (i[0] === q) {
+          tmpObj[q][i[1]] = WeightMode ? Math.round(paths[j].weight) : 1;
+        }
+      }
+    }
+    ref4 = Object.keys(tmpObj);
+    for (t = 0, len5 = ref4.length; t < len5; t++) {
+      i = ref4[t];
+      tmpArr = [];
+      ref5 = Object.keys(tmpObj[i]);
+      for (u = 0, len6 = ref5.length; u < len6; u++) {
+        j = ref5[u];
+        tmpArr.push(tmpObj[i][j]);
+      }
+      Mx.push(tmpArr);
+    }
+    return Mx;
+  } else {
+    return [];
+  }
+};
+
+module.exports = getMatrix;
+
+
+
+},{}],18:[function(require,module,exports){
+var INF, Switcher, dejkstra, ee, floyda, forda, jonson;
 
 ee = require("../../global/Events");
 
@@ -1896,6 +2109,8 @@ dejkstra = require("./algorithms/dejkstra.algorithm.fn");
 floyda = require("./algorithms/floyda.algorithm.fn");
 
 forda = require("./algorithms/forda.algorithm.fn");
+
+jonson = require("./algorithms/jonson.algorithm.fn");
 
 INF = 20000000000000;
 
@@ -1990,10 +2205,18 @@ Switcher = (function() {
       case "floyda":
         this.getGraph_mx();
         console.log(this.Mx);
+        time = performance.now();
         this._obj = (floyda(+this.start.match(/\d+/g)[0], this.Mx).maps) || {};
-        return this.time = floyda(+this.start.match(/\d+/g)[0], this.Mx).time;
+        this.time = floyda(+this.start.match(/\d+/g)[0], this.Mx).time;
+        return this.time = performance.now() - time;
       case "forda":
         console.log("forda");
+        this.getGraph_mx();
+        time = performance.now();
+        this._obj = (forda(this.Mx, +this.start.match(/\d+/g)[0])) || {};
+        return this.time = performance.now() - time;
+      case "jonson":
+        console.log("jonson");
         this.getGraph_mx();
         time = performance.now();
         this._obj = (forda(this.Mx, +this.start.match(/\d+/g)[0])) || {};
@@ -2021,7 +2244,7 @@ module.exports = new Switcher;
 
 
 
-},{"../../global/Events":19,"./algorithms/dejkstra.algorithm.fn":10,"./algorithms/floyda.algorithm.fn":11,"./algorithms/forda.algorithm.fn":12}],17:[function(require,module,exports){
+},{"../../global/Events":21,"./algorithms/dejkstra.algorithm.fn":10,"./algorithms/floyda.algorithm.fn":11,"./algorithms/forda.algorithm.fn":12,"./algorithms/jonson.algorithm.fn":13}],19:[function(require,module,exports){
 var Node, React;
 
 React = require('react');
@@ -2064,7 +2287,7 @@ module.exports = Node;
 
 
 
-},{"react":"react"}],18:[function(require,module,exports){
+},{"react":"react"}],20:[function(require,module,exports){
 var Path, React;
 
 React = require('react');
@@ -2072,14 +2295,41 @@ React = require('react');
 Path = React.createClass({
   displayName: 'Path',
   render: function() {
-    return React.createElement("path", {
-      "d": this.props.d,
-      "fill": "transparent",
-      "stroke": this.props.color,
-      "style": {
-        strokeWidth: 2
-      }
-    });
+    if (this.props.CalcWeightMode) {
+      return React.createElement("g", null, React.createElement("path", {
+        "d": this.props.d,
+        "fill": "transparent",
+        "stroke": "black",
+        "style": {
+          strokeWidth: 2
+        }
+      }), React.createElement("rect", {
+        "x": (this.props._xy.x !== this.props.__xy.x && this.props._xy.y !== this.props.__xy.y ? Math.min(this.props._xy.x, this.props.__xy.x) + (Math.abs(this.props._xy.x - this.props.__xy.x)) / 2 - 32 : this.props._xy.x - 32.5),
+        "y": (this.props._xy.x !== this.props.__xy.x && this.props._xy.y !== this.props.__xy.y ? Math.min(this.props._xy.y, this.props.__xy.y) + (Math.abs(this.props._xy.y - this.props.__xy.y)) / 2 - 16 : this.props._xy.y - 130),
+        "width": "60",
+        "height": "30",
+        "fill": this.props.fill,
+        "widthStroke": "5",
+        "stroke": "#333"
+      }), React.createElement("text", {
+        "x": (this.props._xy.x !== this.props.__xy.x && this.props._xy.y !== this.props.__xy.y ? Math.min(this.props._xy.x, this.props.__xy.x) + (Math.abs(this.props._xy.x - this.props.__xy.x)) / 2 - 15 : this.props._xy.x - 10),
+        "y": (this.props._xy.x !== this.props.__xy.x && this.props._xy.y !== this.props.__xy.y ? Math.min(this.props._xy.y, this.props.__xy.y) + (Math.abs(this.props._xy.y - this.props.__xy.y)) / 2 - 5 : this.props._xy.y - 120),
+        "fill": "#fff",
+        "dy": ".6em",
+        "fontFamily": "sans-serif",
+        "fontSize": "17px",
+        "className": "weightPaths"
+      }, "" + this.props.weight));
+    } else {
+      return React.createElement("path", {
+        "d": this.props.d,
+        "fill": "transparent",
+        "stroke": this.props.color,
+        "style": {
+          strokeWidth: 2
+        }
+      });
+    }
   }
 });
 
@@ -2104,7 +2354,7 @@ if @props.CalcWeightMode
 
 
 
-},{"react":"react"}],19:[function(require,module,exports){
+},{"react":"react"}],21:[function(require,module,exports){
 var EventEmitter, ee;
 
 EventEmitter = require("events").EventEmitter;
@@ -2115,7 +2365,7 @@ module.exports = ee;
 
 
 
-},{"events":20}],20:[function(require,module,exports){
+},{"events":22}],22:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a

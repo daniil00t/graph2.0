@@ -3,6 +3,7 @@ ee = require "../../global/Events"
 dejkstra = 	require "./algorithms/dejkstra.algorithm.fn" #|Algorithms ->
 floyda = 		require "./algorithms/floyda.algorithm.fn" 		#|
 forda = 		require "./algorithms/forda.algorithm.fn" 		#|
+jonson = 		require "./algorithms/jonson.algorithm.fn" 		#|
 
 INF = 20000000000000
 
@@ -67,13 +68,20 @@ class Switcher
 			when "floyda"
 				@getGraph_mx()
 				console.log @Mx
-				# time = performance.now()
+				time = performance.now()
 				@_obj = (floyda(+@start.match(/\d+/g)[0], @Mx).maps) or {}
 				@time = floyda(+@start.match(/\d+/g)[0], @Mx).time
-				# @time = performance.now() - time
+				@time = performance.now() - time
 
 			when "forda"
 				console.log "forda"
+				@getGraph_mx()
+				time = performance.now()
+				@_obj = (forda(@Mx, +@start.match(/\d+/g)[0])) or {}
+				@time = performance.now() - time
+
+			when "jonson"
+				console.log "jonson"
 				@getGraph_mx()
 				time = performance.now()
 				@_obj = (forda(@Mx, +@start.match(/\d+/g)[0])) or {}

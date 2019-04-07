@@ -7,7 +7,8 @@ Path = require "./figures/Path"														#|
 getWeight = require "./config/modules/calcWeightPaths.fn"	#|Get Weight for paths in Graph
 
 Configs = require './config/classes/Configs'							#|Configs class
-amx = require './config/modules/adjacency_matrix.fn'			#|module matrix
+amx_adj = require './config/modules/adjacency_matrix.fn'	#|module matrix
+amx_inc= require './config/modules/incidence_matrix.fn'		#|module matrix
 history_app = require "./config/modules/history.module"	  #|module history
 
 switcher = require "./config/modules/switcher.controller"
@@ -28,7 +29,8 @@ App = React.createClass
 		ALGNOW: "dejkstra"
 		STARTNode: ""
 		history_app: []
-		_Matrix: []
+		_Matrix_adj: []
+		_Matrix_inc: []
 		MatrixNamesNodes: []
 		maps: []
 		colorNodes: "#2e9f5c"
@@ -104,9 +106,11 @@ App = React.createClass
 
 	AddNode: (cx, cy, id, color, r)->
 		@state.Nodes.push {cx: cx, cy: cy, id: id, color: color, r: r}
-		@setState _Matrix: amx @state.MatrixNamesNodes, @state.Paths, @state.Nodes.length, @state.calcWeightMode
+		@setState 
+			_Matrix_adj: amx_adj @state.MatrixNamesNodes, @state.Paths, @state.Nodes.length, @state.calcWeightMode
+			_Matrix_inc: amx_inc @state.MatrixNamesNodes, @state.Paths, @state.Nodes.length, @state.calcWeightMode
 		history_app.setEvent {cx: cx, cy: cy, id: id, color: color, r: r}, 'AddNode'
-		switcher.setArrMx @state._Matrix
+		switcher.setArrMx @state._Matrix_adj
 		#console.log @state.Nodes
 	DeleteLastNode: ->
 		tmp = @state.Nodes
@@ -161,7 +165,7 @@ App = React.createClass
 		else
 			@setState val: maxVal + 1
 		@setState MatrixNamesNodes: tmpMN
-		@setState _Matrix: amx @state.MatrixNamesNodes, @state.Paths, @state.Nodes.length, @state.calcWeightMode
+		@setState _Matrix_adj: amx_adj @state.MatrixNamesNodes, @state.Paths, @state.Nodes.length, @state.calcWeightMode
 
 	AddPath: (id)->
 		@state.IdsPath.push id
@@ -169,7 +173,9 @@ App = React.createClass
 			@DrawPath @state.IdsPath
 			@state.MatrixNamesNodes.push @state.IdsPath
 			switcher.regist @state.MatrixNamesNodes
-			@setState _Matrix: amx @state.MatrixNamesNodes, @state.Paths, @state.Nodes.length, @state.calcWeightMode
+			@setState 
+				_Matrix_adj: amx_adj @state.MatrixNamesNodes, @state.Paths, @state.Nodes.length, @state.calcWeightMode
+				_Matrix_inc: amx_adj @state.MatrixNamesNodes, @state.Paths, @state.Nodes.length, @state.calcWeightMode
 			@setState IdsPath: []
 			
 
@@ -216,7 +222,7 @@ App = React.createClass
 			fill: self.state.colorNodes
 			id: "#{ids[0]}.#{ids[1]}"
 		switcher.regist @state.Paths
-		switcher.setArrMx @state._Matrix
+		switcher.setArrMx @state._Matrix_adj
 	deletingModeActive: ->
 		for i in @state.Nodes
 			i.color = "#FF0018"
@@ -241,7 +247,7 @@ App = React.createClass
 			@setState modeNodesNumbering: data.data
 		ee.on "ChangeCalcWeightPathsMode", (data)=>
 			@setState calcWeightMode: data.data
-			@setState _Matrix: amx @state.MatrixNamesNodes, @state.Paths, @state.Nodes.length, data.data
+			@setState _Matrix_adj: amx_adj @state.MatrixNamesNodes, @state.Paths, @state.Nodes.length, data.data
 		ee.on "AddItemMapMode", (data)=>
 			@setState addItemMapMode: data.data
 			if !data.data
@@ -257,7 +263,7 @@ App = React.createClass
 		#	pass = 0
 		ee.on 'switchAlgorithm', (data) =>
 			@setState ALGNOW: data.type
-			switcher.setArrMx @state._Matrix
+			switcher.setArrMx @state._Matrix_adj
 			switcher.init data.type # run algorithms
 		ee.on "generate", (data)=>
 			@generateGraph(data.data.nodes_count, data.data.paths_count)
@@ -290,7 +296,7 @@ App = React.createClass
 		  	}
 		  </svg>
 		  <Configs 
-		  	matrix={@state._Matrix} 
+		  	matrix={@state._Matrix_adj} 
 		  	history={@state.history_app} 
 		  	database={{nodes: @state.Nodes, paths: @state.Paths}}
 		  	maps={@state.maps} />

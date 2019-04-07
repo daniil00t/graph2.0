@@ -43,7 +43,23 @@ Matrix = React.createClass
 						<span>Adjecency matrix is empty<br />Сlick into the empty space...</span>
 				else#
 					if @state.matrixNow == "IncindenceMatrix"
-						<span>Incindence matrix is empty<br />Сlick into the empty space...</span>
+						if @props.matrix.length != 0
+							<table className="AdjecancyMatrix">
+								{
+									@props.matrix.map (i, l)->
+										<tr key="tr#{l}">
+											{
+												i.map (j, p)->
+													if j == 0
+														return <td className="cgray50" key="td#{p}">{j}</td>
+													else
+														return <td key="td#{p}">{j}</td>
+											}
+										</tr>
+								}
+							</table>
+						else
+							<span>Adjecency matrix is empty<br />Сlick into the empty space...</span>
 			}
 			
 		</div>

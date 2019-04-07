@@ -69,6 +69,9 @@ Deleting = React.createClass
 							<label for="forda">
 								<input type="radio" name="algorithm" id="forda" onChange={(e) => @changeSwitchAlgorithm e, {type: "forda"}}/>
 							Ford's Algorithm</label>
+							<label for="jonson">
+								<input type="radio" name="algorithm" id="jonson" onChange={(e) => @changeSwitchAlgorithm e, {type: "jonson"}}/>
+							Jonson's Algorithm</label>
 						</div>
 				}
 			</div>
