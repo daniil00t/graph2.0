@@ -24,10 +24,10 @@ Matrix = React.createClass
 			<i className={if @state.matrixNow == "IncindenceMatrix" then "fa far fa-table switchMatrix IconAction" else "fa far fa-table switchMatrix"} title="IncindenceMatrix" onClick={(e) => @switchMatrix {type: "IncindenceMatrix", e: e}}></i><br />
 			{
 				if @state.matrixNow == "AdjecencyMatrix"
-					if @props.matrix.length != 0
+					if @props.matrix_adj.length != 0
 						<table className="AdjecancyMatrix">
 							{
-								@props.matrix.map (i, l)->
+								@props.matrix_adj.map (i, l)->
 									<tr key="tr#{l}">
 										{
 											i.map (j, p)->
@@ -43,10 +43,10 @@ Matrix = React.createClass
 						<span>Adjecency matrix is empty<br />Сlick into the empty space...</span>
 				else#
 					if @state.matrixNow == "IncindenceMatrix"
-						if @props.matrix.length != 0
+						if @props.matrix_inc.length != 0
 							<table className="AdjecancyMatrix">
 								{
-									@props.matrix.map (i, l)->
+									@props.matrix_inc.map (i, l)->
 										<tr key="tr#{l}">
 											{
 												i.map (j, p)->

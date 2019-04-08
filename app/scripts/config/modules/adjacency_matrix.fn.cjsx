@@ -1,32 +1,16 @@
-# _Matrix = [
-# 	["circle0", "circle0"]
-# 	["circle0", "circle1"]
-# 	["circle1", "circle2"]
-# 	["circle2", "circle2"]
-# 	["circle2", "circle3"]
-# 	["circle3", "circle3"]
-# ]
-###
-matrix = [
-	   0  1  2  3
-	0 [1, 1, 0, 1]
-	1 [1, 0, 0, 1]
-	2 [0, 1, 0, 1]
-	3 [1, 1, 1, 0]
+###Nodes: 4
+Paths: 6
+INC_MATRIX = [
+			e1 e2 e3 e4 e5 e6
+	1:	1, 0, 0, 0, 1, 0
+	2:	1, 1, 0, 1, 0, 2
+	3:	0, 1, 1, 0, 1, 0
+	4:	0, 0, 1, 1, 0, 0
 ]
-
-tmp_all = ""
-	for i in arr
-		tmp_all+= i[0]
-		tmp_all+= i[1]
-	console.log tmp_all
-	arr_ints = tmp_all.match /\d+/g
-	for i, j in arr_ints
-		arr_ints[j] = +i
 
 ###
 getMatrix = (arr, paths, n, WeightMode)->
-	console.log arr, paths, n, WeightMode
+	# console.log arr, paths, n, WeightMode
 	if n > 0
 		Mx = []
 		tmpObj = {}

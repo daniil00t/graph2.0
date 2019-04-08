@@ -155,7 +155,8 @@ App = React.createClass({
       color: color,
       r: r
     }, 'AddNode');
-    return switcher.setArrMx(this.state._Matrix_adj);
+    switcher.setArrMx(this.state._Matrix_adj);
+    return switcher.setArrMx(this.state._Matrix_inc);
   },
   DeleteLastNode: function() {
     var tmp;
@@ -244,7 +245,8 @@ App = React.createClass({
       MatrixNamesNodes: tmpMN
     });
     return this.setState({
-      _Matrix_adj: amx_adj(this.state.MatrixNamesNodes, this.state.Paths, this.state.Nodes.length, this.state.calcWeightMode)
+      _Matrix_adj: amx_adj(this.state.MatrixNamesNodes, this.state.Paths, this.state.Nodes.length, this.state.calcWeightMode),
+      _Matrix_inc: amx_inc(this.state.MatrixNamesNodes, this.state.Paths, this.state.Nodes.length, this.state.calcWeightMode)
     });
   },
   AddPath: function(id) {
@@ -255,7 +257,7 @@ App = React.createClass({
       switcher.regist(this.state.MatrixNamesNodes);
       this.setState({
         _Matrix_adj: amx_adj(this.state.MatrixNamesNodes, this.state.Paths, this.state.Nodes.length, this.state.calcWeightMode),
-        _Matrix_inc: amx_adj(this.state.MatrixNamesNodes, this.state.Paths, this.state.Nodes.length, this.state.calcWeightMode)
+        _Matrix_inc: amx_inc(this.state.MatrixNamesNodes, this.state.Paths, this.state.Nodes.length, this.state.calcWeightMode)
       });
       return this.setState({
         IdsPath: []
@@ -339,7 +341,8 @@ App = React.createClass({
       id: ids[0] + "." + ids[1]
     });
     switcher.regist(this.state.Paths);
-    return switcher.setArrMx(this.state._Matrix_adj);
+    switcher.setArrMx(this.state._Matrix_adj);
+    return switcher.setArrMx(this.state._Matrix_inc);
   },
   deletingModeActive: function() {
     var i, k, len, ref, results;
@@ -407,7 +410,8 @@ App = React.createClass({
           calcWeightMode: data.data
         });
         return _this.setState({
-          _Matrix_adj: amx_adj(_this.state.MatrixNamesNodes, _this.state.Paths, _this.state.Nodes.length, data.data)
+          _Matrix_adj: amx_adj(_this.state.MatrixNamesNodes, _this.state.Paths, _this.state.Nodes.length, data.data),
+          _Matrix_inc: amx_inc(_this.state.MatrixNamesNodes, _this.state.Paths, _this.state.Nodes.length, data.data)
         });
       };
     })(this));
@@ -449,6 +453,7 @@ App = React.createClass({
           ALGNOW: data.type
         });
         switcher.setArrMx(_this.state._Matrix_adj);
+        switcher.setArrMx(_this.state._Matrix_inc);
         return switcher.init(data.type);
       };
     })(this));
@@ -523,7 +528,8 @@ App = React.createClass({
         });
       };
     })(this))), React.createElement(Configs, {
-      "matrix": this.state._Matrix_adj,
+      "matrix_adj": this.state._Matrix_adj,
+      "matrix_inc": this.state._Matrix_inc,
       "history": this.state.history_app,
       "database": {
         nodes: this.state.Nodes,
@@ -628,7 +634,8 @@ Configs = React.createClass({
     }), React.createElement("hr", null), React.createElement(RadiusChanger, {
       "key": "RadiusChanger"
     }), React.createElement("hr", null), React.createElement(Mods, null), React.createElement("hr", null), React.createElement(Matrix, {
-      "matrix": this.props.matrix,
+      "matrix_adj": this.props.matrix_adj,
+      "matrix_inc": this.props.matrix_inc,
       "key": "Matrix"
     }), React.createElement("hr", null), React.createElement(Info, {
       "history": this.props.history,
@@ -1025,9 +1032,9 @@ Matrix = React.createClass({
           });
         };
       })(this))
-    }), React.createElement("br", null), (this.state.matrixNow === "AdjecencyMatrix" ? this.props.matrix.length !== 0 ? React.createElement("table", {
+    }), React.createElement("br", null), (this.state.matrixNow === "AdjecencyMatrix" ? this.props.matrix_adj.length !== 0 ? React.createElement("table", {
       "className": "AdjecancyMatrix"
-    }, this.props.matrix.map(function(i, l) {
+    }, this.props.matrix_adj.map(function(i, l) {
       return React.createElement("tr", {
         "key": "tr" + l
       }, i.map(function(j, p) {
@@ -1042,9 +1049,9 @@ Matrix = React.createClass({
           }, j);
         }
       }));
-    })) : React.createElement("span", null, "Adjecency matrix is empty", React.createElement("br", null), "Сlick into the empty space...") : this.state.matrixNow === "IncindenceMatrix" ? this.props.matrix.length !== 0 ? React.createElement("table", {
+    })) : React.createElement("span", null, "Adjecency matrix is empty", React.createElement("br", null), "Сlick into the empty space...") : this.state.matrixNow === "IncindenceMatrix" ? this.props.matrix_inc.length !== 0 ? React.createElement("table", {
       "className": "AdjecancyMatrix"
-    }, this.props.matrix.map(function(i, l) {
+    }, this.props.matrix_inc.map(function(i, l) {
       return React.createElement("tr", {
         "key": "tr" + l
       }, i.map(function(j, p) {
@@ -1255,29 +1262,20 @@ module.exports = Deleting;
 
 },{"../../global/Events":21,"../modules/history.module":16,"react":"react"}],9:[function(require,module,exports){
 
-/*
-matrix = [
-	   0  1  2  3
-	0 [1, 1, 0, 1]
-	1 [1, 0, 0, 1]
-	2 [0, 1, 0, 1]
-	3 [1, 1, 1, 0]
+/*Nodes: 4
+Paths: 6
+INC_MATRIX = [
+			e1 e2 e3 e4 e5 e6
+	1:	1, 0, 0, 0, 1, 0
+	2:	1, 1, 0, 1, 0, 2
+	3:	0, 1, 1, 0, 1, 0
+	4:	0, 0, 1, 1, 0, 0
 ]
-
-tmp_all = ""
-	for i in arr
-		tmp_all+= i[0]
-		tmp_all+= i[1]
-	console.log tmp_all
-	arr_ints = tmp_all.match /\d+/g
-	for i, j in arr_ints
-		arr_ints[j] = +i
  */
 var getMatrix;
 
 getMatrix = function(arr, paths, n, WeightMode) {
   var Mx, RevArr, i, j, k, l, len, len1, len2, len3, len4, len5, len6, m, o, p, q, r, ref, ref1, ref2, ref3, ref4, ref5, s, t, tmpArr, tmpObj, u;
-  console.log(arr, paths, n, WeightMode);
   if (n > 0) {
     Mx = [];
     tmpObj = {};
@@ -2030,65 +2028,61 @@ module.exports = history_app;
 },{"../../global/Events":21}],17:[function(require,module,exports){
 
 /*
-Nodes: 4
-Paths: 6
-INC_MATRIX = [
-			e1 e2 e3 e4 e5 e6
-	1:	1, 0, 0, 0, 1, 0
-	2:	1, 1, 0, 1, 0, 2
-	3:	0, 1, 1, 0, 1, 0
-	4:	0, 0, 1, 1, 0, 0
+matrix = [
+	   0  1  2  3
+	0 [1, 1, 0, 1]
+	1 [1, 0, 0, 1]
+	2 [0, 1, 0, 1]
+	3 [1, 1, 1, 0]
 ]
+
+tmp_all = ""
+	for i in arr
+		tmp_all+= i[0]
+		tmp_all+= i[1]
+	console.log tmp_all
+	arr_ints = tmp_all.match /\d+/g
+	for i, j in arr_ints
+		arr_ints[j] = +i
  */
 var getMatrix;
 
 getMatrix = function(arr, paths, n, WeightMode) {
-  var Mx, RevArr, i, j, k, l, len, len1, len2, len3, len4, len5, len6, m, o, p, q, r, ref, ref1, ref2, ref3, ref4, ref5, s, t, tmpArr, tmpObj, u;
+  var Mx, N, fn, i, j, k, l, len, len1, m, o, re, ref, st, tmp;
   if (n > 0) {
     Mx = [];
-    tmpObj = {};
-    for (i = k = 0, ref = n - 1; 0 <= ref ? k <= ref : k >= ref; i = 0 <= ref ? ++k : --k) {
-      tmpObj["circle" + i] = {};
-      for (q = l = 0, ref1 = n - 1; 0 <= ref1 ? l <= ref1 : l >= ref1; q = 0 <= ref1 ? ++l : --l) {
-        tmpObj["circle" + i]["circle" + q] = 0;
-      }
+    N = arr.length;
+    tmp = [];
+    j = 0;
+    for (k = 0, len = arr.length; k < len; k++) {
+      i = arr[k];
+      re = /\d/;
+      st = i[0].replace(re, (function(_this) {
+        return function(match) {
+          tmp[j] = [];
+          return tmp[j].push(Number(match));
+        };
+      })(this));
+      fn = i[1].replace(re, (function(_this) {
+        return function(match) {
+          return tmp[j].push(Number(match));
+        };
+      })(this));
+      j++;
     }
-    for (j = m = 0, len = arr.length; m < len; j = ++m) {
-      i = arr[j];
-      ref2 = Object.keys(tmpObj);
-      for (o = 0, len1 = ref2.length; o < len1; o++) {
-        q = ref2[o];
-        if (i[0] === q) {
-          tmpObj[q][i[1]] = WeightMode ? Math.round(paths[j].weight) : 1;
+    for (j = m = 0, ref = n - 1; 0 <= ref ? m <= ref : m >= ref; j = 0 <= ref ? ++m : --m) {
+      Mx[j] = [];
+      for (o = 0, len1 = tmp.length; o < len1; o++) {
+        l = tmp[o];
+        console.log(l, j);
+        if (l[0] === j || l[1] === j) {
+          Mx[j].push(1);
+        } else {
+          Mx[j].push(0);
         }
       }
     }
-    RevArr = [];
-    for (p = 0, len2 = arr.length; p < len2; p++) {
-      i = arr[p];
-      RevArr.push([i[1], i[0]]);
-    }
-    for (j = r = 0, len3 = RevArr.length; r < len3; j = ++r) {
-      i = RevArr[j];
-      ref3 = Object.keys(tmpObj);
-      for (s = 0, len4 = ref3.length; s < len4; s++) {
-        q = ref3[s];
-        if (i[0] === q) {
-          tmpObj[q][i[1]] = WeightMode ? Math.round(paths[j].weight) : 1;
-        }
-      }
-    }
-    ref4 = Object.keys(tmpObj);
-    for (t = 0, len5 = ref4.length; t < len5; t++) {
-      i = ref4[t];
-      tmpArr = [];
-      ref5 = Object.keys(tmpObj[i]);
-      for (u = 0, len6 = ref5.length; u < len6; u++) {
-        j = ref5[u];
-        tmpArr.push(tmpObj[i][j]);
-      }
-      Mx.push(tmpArr);
-    }
+    console.log(Mx);
     return Mx;
   } else {
     return [];

@@ -40,7 +40,9 @@ Configs = React.createClass
 				<hr />
 				<Mods/>
 				<hr />
-				<Matrix matrix={@props.matrix} key="Matrix"/>
+				<Matrix 
+					matrix_adj={@props.matrix_adj} 
+		  		matrix_inc={@props.matrix_inc}  key="Matrix"/>
 				<hr />
 				<Info history={@props.history}
 					key="Info"

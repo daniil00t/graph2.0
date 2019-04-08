@@ -111,6 +111,7 @@ App = React.createClass
 			_Matrix_inc: amx_inc @state.MatrixNamesNodes, @state.Paths, @state.Nodes.length, @state.calcWeightMode
 		history_app.setEvent {cx: cx, cy: cy, id: id, color: color, r: r}, 'AddNode'
 		switcher.setArrMx @state._Matrix_adj
+		switcher.setArrMx @state._Matrix_inc
 		#console.log @state.Nodes
 	DeleteLastNode: ->
 		tmp = @state.Nodes
@@ -165,7 +166,9 @@ App = React.createClass
 		else
 			@setState val: maxVal + 1
 		@setState MatrixNamesNodes: tmpMN
-		@setState _Matrix_adj: amx_adj @state.MatrixNamesNodes, @state.Paths, @state.Nodes.length, @state.calcWeightMode
+		@setState 
+			_Matrix_adj: amx_adj @state.MatrixNamesNodes, @state.Paths, @state.Nodes.length, @state.calcWeightMode
+			_Matrix_inc: amx_inc @state.MatrixNamesNodes, @state.Paths, @state.Nodes.length, @state.calcWeightMode
 
 	AddPath: (id)->
 		@state.IdsPath.push id
@@ -175,7 +178,7 @@ App = React.createClass
 			switcher.regist @state.MatrixNamesNodes
 			@setState 
 				_Matrix_adj: amx_adj @state.MatrixNamesNodes, @state.Paths, @state.Nodes.length, @state.calcWeightMode
-				_Matrix_inc: amx_adj @state.MatrixNamesNodes, @state.Paths, @state.Nodes.length, @state.calcWeightMode
+				_Matrix_inc: amx_inc @state.MatrixNamesNodes, @state.Paths, @state.Nodes.length, @state.calcWeightMode
 			@setState IdsPath: []
 			
 
@@ -223,6 +226,7 @@ App = React.createClass
 			id: "#{ids[0]}.#{ids[1]}"
 		switcher.regist @state.Paths
 		switcher.setArrMx @state._Matrix_adj
+		switcher.setArrMx @state._Matrix_inc
 	deletingModeActive: ->
 		for i in @state.Nodes
 			i.color = "#FF0018"
@@ -247,7 +251,9 @@ App = React.createClass
 			@setState modeNodesNumbering: data.data
 		ee.on "ChangeCalcWeightPathsMode", (data)=>
 			@setState calcWeightMode: data.data
-			@setState _Matrix_adj: amx_adj @state.MatrixNamesNodes, @state.Paths, @state.Nodes.length, data.data
+			@setState 
+				_Matrix_adj: amx_adj @state.MatrixNamesNodes, @state.Paths, @state.Nodes.length, data.data
+				_Matrix_inc: amx_inc @state.MatrixNamesNodes, @state.Paths, @state.Nodes.length, data.data
 		ee.on "AddItemMapMode", (data)=>
 			@setState addItemMapMode: data.data
 			if !data.data
@@ -264,6 +270,7 @@ App = React.createClass
 		ee.on 'switchAlgorithm', (data) =>
 			@setState ALGNOW: data.type
 			switcher.setArrMx @state._Matrix_adj
+			switcher.setArrMx @state._Matrix_inc
 			switcher.init data.type # run algorithms
 		ee.on "generate", (data)=>
 			@generateGraph(data.data.nodes_count, data.data.paths_count)
@@ -296,7 +303,8 @@ App = React.createClass
 		  	}
 		  </svg>
 		  <Configs 
-		  	matrix={@state._Matrix_adj} 
+		  	matrix_adj={@state._Matrix_adj} 
+		  	matrix_inc={@state._Matrix_inc} 
 		  	history={@state.history_app} 
 		  	database={{nodes: @state.Nodes, paths: @state.Paths}}
 		  	maps={@state.maps} />
