@@ -3,11 +3,11 @@ ee = require '../../global/Events'
 Colors = require "./colors"
 Matrix = require './matrix.class'
 RadiusChanger = require "./RadiusChanger"
-History = require './history.class'
-Deleting = require "./deleting.class"
+Info = require './info.class'
+Mods = require "./mods.class"
 
 
-COLORS = ["#2e9f5c", "#47356C", "#FF0018", "#0DF6FF", "#440BDB", "#FFAA0D"]
+COLORS = ["#2e9f5c", "#2866F7", "#C9283E", "#0DF6FF", "#023852", ["#FFAA0D", "#2B9483", "#F53855"]]
 
 
 
@@ -38,11 +38,18 @@ Configs = React.createClass
 				<hr/>
 				<RadiusChanger key="RadiusChanger"/>
 				<hr />
-				<Deleting />
+				<Mods/>
 				<hr />
-				<Matrix matrix={@props.matrix} key="Matrix"/>
+				<Matrix 
+					matrix_adj={@props.matrix_adj} 
+		  		matrix_inc={@props.matrix_inc}  key="Matrix"/>
 				<hr />
-				<History data={@props.history} key="History"/>
+				<Info history={@props.history}
+					key="Info"
+					database={@props.database}
+					maps={@props.maps} 
+					dataAlg={@props.dataAlg}/>
+				<p className="copyright_configs">&copy;Daniil Shenyagin, 2018</p>
 			</div>
 		</div>
 

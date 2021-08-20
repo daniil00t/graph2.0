@@ -5,7 +5,7 @@
   "author": "Sergey Laptev <iamsergeylaptev@gmail.com> (https://twitter.com/iamsergeylaptev)",
   "repository": {
     "type": "git",
-    "url": "git@github.com:sergeylaptev/react-fundamentals.git"
+    "url": "git@github.com:sergeylaptev/react-fundamentals.gitЕремеев"
   },
   "browserify": {
     "transform": [

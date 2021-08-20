@@ -26,12 +26,15 @@ class History_class
 		strDate = ""+tmpstrDate.getHours() + ":"+tmpstrDate.getMinutes() + ":"+tmpstrDate.getSeconds()
 		tmp["type"] = type_event
 		
-		if type_event is "AddNode" then tmp["MainData"] = obj.id else 
-		if type_event == "changeColorNode" then tmp["MainData"] = obj.color else 
-		if type_event == "AddPath" then tmp["MainData"] = obj.d else 
-		if type_event == "changeRadiusNode" then tmp["MainData"] = obj.r else
-		if type_event == "deleteMode" then tmp["MainData"] = (if obj.deletingMode then "true" else "false")
-		console.log obj
+		if type_event is "AddNode" then tmp["MainData"] = obj.id
+		if type_event == "changeColorNode" then tmp["MainData"] = obj.color
+		if type_event == "AddPath" then tmp["MainData"] = obj.d
+		if type_event == "changeRadiusNode" then tmp["MainData"] = obj.r
+		if type_event == "deleteMode" then tmp["MainData"] = ""+obj.deletingMode
+		if type_event == "DeleteNodeById" then tmp["MainData"] = obj.id
+		if type_event == "modeNodesNumbering" then tmp["MainData"] = ""+obj.modeNodesNumbering
+		if type_event == "calcWeightPathsMode" then tmp["MainData"] = ""+obj.data
+		if type_event == "addItemMapMode" then tmp["MainData"] = ""+obj.data
 		tmp["date"] = strDate
 		if obj.id? then tmp['id'] = obj.id
 		@HISTORY.push tmp
